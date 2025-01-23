@@ -1,0 +1,92 @@
+// Divine Weapons Evolution Tree
+digraph {
+	rankdir=TB
+	node [shape=rectangle style=filled]
+	subgraph cluster_0 {
+		rank=same
+		color=lightgrey label="Tier 1 - Base Weapons"
+		divine_sword [label="Divine Sword" fillcolor=lightblue]
+		divine_spear [label="Divine Spear" fillcolor=lightblue]
+		divine_staff [label="Divine Staff" fillcolor=lightblue]
+		divine_shield [label="Divine Shield" fillcolor=lightblue]
+		divine_bow [label="Divine Bow" fillcolor=lightblue]
+	}
+	subgraph cluster_1 {
+		rank=same
+		color=lightgrey label="Tier 2 - Intermediate Forms"
+		sovereign_blade [label="Sovereign Blade" fillcolor=lightgreen]
+		blood_saber [label="Blood Saber" fillcolor=lightgreen]
+		void_blade [label="Void Blade" fillcolor=lightgreen]
+		beast_hunter_spear [label="Beast Hunter Spear" fillcolor=lightgreen]
+		lightning_spear [label="Lightning Spear" fillcolor=lightgreen]
+		dragon_piercer [label="Dragon Piercer" fillcolor=lightgreen]
+		mystic_staff [label="Mystic Staff" fillcolor=lightgreen]
+		soul_staff [label="Soul Staff" fillcolor=lightgreen]
+		cosmic_staff [label="Cosmic Staff" fillcolor=lightgreen]
+		mountain_shield [label="Mountain Shield" fillcolor=lightgreen]
+		storm_shield [label="Storm Shield" fillcolor=lightgreen]
+		void_shield [label="Void Shield" fillcolor=lightgreen]
+		frost_bow [label="Frost Bow" fillcolor=lightgreen]
+		storm_bow [label="Storm Bow" fillcolor=lightgreen]
+		shadow_bow [label="Shadow Bow" fillcolor=lightgreen]
+	}
+	subgraph cluster_2 {
+		rank=same
+		color=lightgrey label="Tier 3 - Ultimate Forms"
+		world_ender [label="World Ender" fillcolor=gold]
+		transcendent [label=Transcendent fillcolor=gold]
+		primal_sovereign [label="Primal Sovereign" fillcolor=gold]
+		void_walker [label="Void Walker" fillcolor=gold]
+		ancient_one [label="Ancient One" fillcolor=gold]
+		storm_lord [label="Storm Lord" fillcolor=gold]
+		blood_sovereign [label="Blood Sovereign" fillcolor=gold]
+		frost_monarch [label="Frost Monarch" fillcolor=gold]
+		inferno_king [label="Inferno King" fillcolor=gold]
+		shadow_emperor [label="Shadow Emperor" fillcolor=gold]
+	}
+	divine_sword -> sovereign_blade
+	divine_sword -> blood_saber
+	divine_sword -> void_blade
+	divine_spear -> beast_hunter_spear
+	divine_spear -> lightning_spear
+	divine_spear -> dragon_piercer
+	divine_staff -> mystic_staff
+	divine_staff -> soul_staff
+	divine_staff -> cosmic_staff
+	divine_shield -> mountain_shield
+	divine_shield -> storm_shield
+	divine_shield -> void_shield
+	divine_bow -> frost_bow
+	divine_bow -> storm_bow
+	divine_bow -> shadow_bow
+	sovereign_blade -> world_ender
+	sovereign_blade -> blood_sovereign
+	blood_saber -> blood_sovereign
+	blood_saber -> shadow_emperor
+	void_blade -> void_walker
+	void_blade -> shadow_emperor
+	beast_hunter_spear -> primal_sovereign
+	beast_hunter_spear -> inferno_king
+	lightning_spear -> storm_lord
+	lightning_spear -> inferno_king
+	dragon_piercer -> primal_sovereign
+	dragon_piercer -> storm_lord
+	mystic_staff -> ancient_one
+	mystic_staff -> transcendent
+	soul_staff -> transcendent
+	soul_staff -> shadow_emperor
+	cosmic_staff -> ancient_one
+	cosmic_staff -> void_walker
+	mountain_shield -> ancient_one
+	mountain_shield -> storm_lord
+	storm_shield -> storm_lord
+	storm_shield -> frost_monarch
+	void_shield -> void_walker
+	void_shield -> frost_monarch
+	frost_bow -> frost_monarch
+	frost_bow -> void_walker
+	storm_bow -> storm_lord
+	storm_bow -> frost_monarch
+	shadow_bow -> shadow_emperor
+	shadow_bow -> void_walker
+}

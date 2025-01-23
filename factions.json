@@ -1,0 +1,171 @@
+{
+  "factions": [{
+      "role": 1008893225056092240,
+      "name": "Misty Cloud Sect",
+      "tier": 2,
+      "condition": {
+        "name": "Fight Grandmaster",
+        "major": 3,
+        "minor": 0
+      },
+      "multiplier": 10,
+      "description": "The Misty Cloud Faction was one of the top forces in the Jia Ma Empire. Its headquarters was built on top of a majestic mountain, located only slightly over five kilometers from the capital of the Jia Ma Empire. The mountain, because of the faction’s name, became known as the Misty Cloud Mountain."
+    },
+    {
+      "role": 1008893354358083684,
+      "name": "Poison Sect",
+      "tier": 2,
+      "condition": {
+        "name": "Fight Grandmaster",
+        "major": 3,
+        "minor": 0
+      },
+      "multiplier": 10,
+      "description": "The Poison Sect is one of the newer factions within the Chu Yun Empire. However, its strength is unusually terrifying. It has leaped to become the only overlord of the Chu Yun Empire."
+    },
+    {
+      "role": 830681822131781644,
+      "name": "Flame Alliance",
+      "tier": 2,
+      "condition": {
+        "name": "Fight Grandmaster",
+        "major": 3,
+        "minor": 0
+      },
+      "multiplier": 10,
+      "description": "Flame Alliance is the largest faction within the Jia Ma Empire, established by Xiao Yan after the disbanding of the Misty Cloud Sect."
+    },
+    {
+      "role": 1008893490807177220,
+      "name": "Wind Lighting Pavillion",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "Wind Lightning Pavilion is one of the four great pavilions in the Central Plains. Wind-lightning strength is the most important factor for the Wind Lightning Pavilion, allowing it to be able to endure on the Dou Qi Continent for a long time without declining."
+    },
+    {
+      "role": 1008893517097087109,
+      "name": "Ice River Valley",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "Ice River Valley is one of the three valleys in the Central Plains. They have always been exceptionally interested in special constitutions."
+    },
+    {
+      "role": 830681555243499581,
+      "name": "Burning Flame Valley",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "Burning Flame Valley is one of the three valleys in the Central Plains. They have become renowned in the Dou Qi Continent for practicing Qi Method of the fire affinity. They specialize in violent attacking methods."
+    },
+    {
+      "role": 1008893889312206958,
+      "name": "Profound Sky Sect",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "Profound Sky Sect is one of the two sects in the Central Plains. They can be described as truly bloody and cruel. It is able to maintain its place on Dou Qi Continent because this world is ultimately one where the strong eats the weak."
+    },
+    {
+      "role": 1008894750130180176,
+      "name": "Flower Sect",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "The Flower Sect is one of the two sects in the Central Plains. Located towards the western region, this sect is a little unique as it only accepts females. Moreover, it does not possess strong aggression like the other factions; it can be described as a hermit sect."
+    },
+    {
+      "role": 1008894908570017812,
+      "name": "Pill Tower",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "The Pill Tower is a free organization on the Dou Qi Continent that was formed by alchemists long ago. Even the alchemist tier system was created by them. Although this organization is somewhat loose, its reputation is extremely frightening. It is likely that there are hardly any factions on the entire Dou Qi Continent willing to offend them."
+    },
+    {
+      "role": 1008895039499415672,
+      "name": "Hall of souls",
+      "tier": 1,
+      "condition": {
+        "name": "Fight King",
+        "major": 5,
+        "minor": 0
+      },
+      "multiplier": 25,
+      "description": "The Hall of Souls is a mysterious force that seems to want the souls of strong people. They also recruit strong souls to become a part of them. They have various Halls in Central Plains where the captured souls are kept."
+    },
+    {
+      "role": 1008895121829408809,
+      "name": "Gu Clan",
+      "tier": 0,
+      "condition": {
+        "name": "Fight Ancestor",
+        "major": 7,
+        "minor": 0
+      },
+      "multiplier": 50,
+      "description": "The Gu Clan is one of the most powerful of the eight ancient clans. Most of Gu Clan is located in the Gu Realm, located in the eastern region of the Central Plains. They have their own army called the Black Submerged Army, which is rumored to be where the strongest warriors of the Gu clan gather."
+    },
+    {
+      "role": 1008895214569668628,
+      "name": "Xiao Clan",
+      "tier": 0,
+      "condition": {
+        "name": "Fight Ancestor",
+        "major": 7,
+        "minor": 0
+      },
+      "multiplier": 50,
+      "description": "The Xiao Clan was formerly one of the eight ancient clans, but the clan has declined due to the disappearance of their Dou Di bloodline. Current Xiao Clan descendants have no clue that their heritage stretches way back to ancient times."
+    },
+    {
+      "role": 1008895338368729209,
+      "name": "Falling Star Pavilion",
+      "tier": 0,
+      "condition": {
+        "name": "Fight Ancestor",
+        "major": 7,
+        "minor": 0
+      },
+      "multiplier": 50,
+      "description": "Falling Star Pavilion is one of the four great pavilions in the Central Plains. It is the strongest pavilion and stronger than the other valleys."
+    },
+    {
+      "role": 839328845747716096,
+      "name": "Endless Fire Territory",
+      "tier": "God",
+      "condition": {
+        "name": "Fight Saint",
+        "major": 10,
+        "minor": 0
+      },
+      "multiplier": 100,
+      "description": "Endless Fire Territory was established in the Great Thousand World by Flame Emperor Xiao Yan. The Realm is built within the Burning Mountains, which contains the second largest fire in the world."
+    }
+  ]
+}

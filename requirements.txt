@@ -1,0 +1,10 @@
+tortoise-orm==0.19.2
+aerich==0.6.3
+disnake==2.9.0
+pytz==2021.1
+aiosqlite==0.17.0
+python-dotenv==0.18.0
+python-dateutil
+topggpy
+Pillow~=10.0.1
+attrs~=23.1.0

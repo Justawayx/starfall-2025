@@ -1,0 +1,1526 @@
+{
+    "Scarlet Ice Snake": {
+        "rank": 1,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 50,
+        "exp_value": 10,
+        "core_id": "mcore_1",
+        "core_drop_rate": 10,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "ssnake_egg": 1,
+                    "icy_fang": 10,
+                    "scales_1": 45,
+                    "meat_1": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "ssnake_egg": 1,
+                    "icy_fang": 1,
+                    "scales_1": 3,
+                    "meat_1": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Cliff Snake": {
+        "rank": 1,
+        "affinities": [
+            "Earth"
+        ],
+        "health": 60,
+        "exp_value": 10,
+        "core_id": "mcore_1",
+        "core_drop_rate": 10,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "csnake_egg": 1,
+                    "stone_shed": 10,
+                    "scales_1": 45,
+                    "meat_1": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "csnake_egg": 1,
+                    "stone_shed": 1,
+                    "scales_1": 3,
+                    "meat_1": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Bloodthirsty Mouse": {
+        "rank": 1,
+        "affinities": [
+            "Blood"
+        ],
+        "health": 40,
+        "exp_value": 10,
+        "core_id": "mcore_1",
+        "core_drop_rate": 10,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "mouse_egg": 1,
+                    "heartstring": 10,
+                    "fur_1": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "mouse_egg": 1,
+                    "heartstring": 1,
+                    "fur_1": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Frost Unicorn Wolf": {
+        "rank": 1,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 70,
+        "exp_value": 10,
+        "core_id": "mcore_1",
+        "core_drop_rate": 10,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "uwolf_egg": 1,
+                    "frostcorn_horn": 10,
+                    "horn_1": 30,
+                    "fur_1": 30,
+                    "meat_1": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "uwolf_egg": 1,
+                    "frostcorn_horn": 1,
+                    "horn_1": 1,
+                    "fur_1": 3,
+                    "meat_1": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Blizzard Magic Ape": {
+        "rank": 2,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 120,
+        "exp_value": 40,
+        "core_id": "mcore_2",
+        "core_drop_rate": 20,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "bape_egg": 1,
+                    "blizzard_crystal": 10,
+                    "fur_2": 45,
+                    "meat_2": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "bape_egg": 1,
+                    "blizzard_crystal": 1,
+                    "fur_2": 3,
+                    "meat_2": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Icy Snow Snail": {
+        "rank": 2,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 100,
+        "exp_value": 40,
+        "core_id": "mcore_2",
+        "core_drop_rate": 20,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "snail_egg": 1,
+                    "icy_slime": 10,
+                    "shell_2": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "snail_egg": 1,
+                    "icy_slime": 1,
+                    "shell_2": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Winged Lion": {
+        "rank": 3,
+        "affinities": [
+            "Fire"
+        ],
+        "health": 250,
+        "exp_value": 80,
+        "core_id": "mcore_3",
+        "core_drop_rate": 30,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "wlion_egg": 1,
+                    "majestic_mane": 10,
+                    "wings_3": 30,
+                    "fur_3": 30,
+                    "meat_3": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "wlion_egg": 1,
+                    "majestic_mane": 1,
+                    "wings_3": 2,
+                    "fur_3": 3,
+                    "meat_3": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Two-Headed Flame Spirit Serpent": {
+        "rank": 4,
+        "affinities": [
+            "Fire"
+        ],
+        "health": 600,
+        "exp_value": 120,
+        "core_id": "mcore_4",
+        "core_drop_rate": 40,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sserpent_egg": 1,
+                    "snake_venom": 10,
+                    "scales_4": 45,
+                    "meat_4": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sserpent_egg": 1,
+                    "snake_venom": 1,
+                    "scales_4": 3,
+                    "meat_4": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Tiger Eagle Beast": {
+        "rank": 4,
+        "affinities": [
+            "Wind"
+        ],
+        "health": 580,
+        "exp_value": 120,
+        "core_id": "mcore_4",
+        "core_drop_rate": 40,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "teagle_egg": 1,
+                    "wind_essence": 10,
+                    "wings_4": 30,
+                    "fur_4": 30,
+                    "meat_4": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "teagle_egg": 1,
+                    "wind_essence": 1,
+                    "wings_4": 2,
+                    "fur_4": 3,
+                    "meat_4": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Wind Leopard Beast": {
+        "rank": 4,
+        "affinities": [
+            "Wind"
+        ],
+        "health": 500,
+        "exp_value": 120,
+        "core_id": "mcore_4",
+        "core_drop_rate": 40,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "leopard_egg": 1,
+                    "wind_essence": 10,
+                    "fur_4": 45,
+                    "meat_4": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "leopard_egg": 1,
+                    "wind_essence": 1,
+                    "fur_4": 3,
+                    "meat_4": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Fiery Breaking Mountain Rhinoceros": {
+        "rank": 5,
+        "affinities": [
+            "Fire",
+            "Earth"
+        ],
+        "health": 1350,
+        "exp_value": 200,
+        "core_id": "mcore_5",
+        "core_drop_rate": 50,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "rhino_egg": 1,
+                    "fire_essence": 10,
+                    "horn_5": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "rhino_egg": 1,
+                    "fire_essence": 1,
+                    "horn_5": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Searing Iron Poison Weed": {
+        "rank": 5,
+        "affinities": [
+            "Poison"
+        ],
+        "health": 1400,
+        "exp_value": 200,
+        "core_id": "mcore_5",
+        "core_drop_rate": 50,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "weed_egg": 1,
+                    "ironwood_ore": 10,
+                    "metal_5": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "weed_egg": 1,
+                    "ironwood_ore": 1,
+                    "metal_5": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Kui Wood Beast": {
+        "rank": 5,
+        "affinities": [
+            "Fire",
+            "Wood"
+        ],
+        "health": 1200,
+        "exp_value": 200,
+        "core_id": "mcore_5",
+        "core_drop_rate": 50,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "wood_egg": 1,
+                    "tree_essence": 10,
+                    "wood_5": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "wood_egg": 1,
+                    "tree_essence": 1,
+                    "wood_5": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Snow Demon Sky Ape": {
+        "rank": 5,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 1250,
+        "exp_value": 200,
+        "core_id": "mcore_5",
+        "core_drop_rate": 50,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sape_egg": 1,
+                    "snow_essence": 10,
+                    "fur_5": 30,
+                    "meat_5": 30,
+                    "tooth_5": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sape_egg": 1,
+                    "snow_essence": 1,
+                    "fur_5": 3,
+                    "meat_5": 3,
+                    "tooth_5": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Amethyst Winged Lion": {
+        "rank": 6,
+        "affinities": [
+            "Fire"
+        ],
+        "health": 3000,
+        "exp_value": 300,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "awlion_egg": 1,
+                    "amethyst": 10,
+                    "wings_6": 23,
+                    "fur_6": 22,
+                    "meat_6": 22,
+                    "horn_6": 22
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "awlion_egg": 1,
+                    "amethyst": 1,
+                    "wings_6": 2,
+                    "fur_6": 3,
+                    "meat_6": 3,
+                    "horn_6": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Eight-Winged Black Serpent Emperor": {
+        "rank": 6,
+        "affinities": [
+            "Fire",
+            "Dark"
+        ],
+        "health": 3300,
+        "exp_value": 300,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "bserpent_egg": 1,
+                    "emperor_snake_venom": 10,
+                    "wings_6": 30,
+                    "scales_6": 30,
+                    "meat_6": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "bserpent_egg": 1,
+                    "emperor_snake_venom": 1,
+                    "wings_6": 2,
+                    "scales_6": 3,
+                    "meat_6": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Fire Scale Crocodile": {
+        "rank": 6,
+        "affinities": [
+            "Fire",
+            "Water"
+        ],
+        "health": 2800,
+        "exp_value": 280,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "croc_egg": 1,
+                    "fire_scale": 10,
+                    "scales_6": 30,
+                    "meat_6": 30,
+                    "tooth_6": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "croc_egg": 1,
+                    "fire_scale": 1,
+                    "scales_6": 3,
+                    "meat_6": 3,
+                    "tooth_6": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Serene Sea Scaly Beast": {
+        "rank": 6,
+        "affinities": [
+            "Water"
+        ],
+        "health": 3200,
+        "exp_value": 320,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sbeast_egg": 1,
+                    "mystic_coral": 10,
+                    "scales_6": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sbeast_egg": 1,
+                    "mystic_coral": 1,
+                    "scales_6": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Blood Demon Scorpion Emperor": {
+        "rank": 6,
+        "affinities": [
+            "Blood"
+        ],
+        "health": 3900,
+        "exp_value": 320,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "scorpemp_egg": 1,
+                    "scorpion_venom": 10,
+                    "pincers_6": 45,
+                    "shell_6": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "scorpemp_egg": 1,
+                    "scorpion_venom": 1,
+                    "pincers_6": 2,
+                    "shell_6": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Great Land Demon Bear": {
+        "rank": 7,
+        "affinities": [
+            "Earth"
+        ],
+        "health": 12500,
+        "exp_value": 400,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "dbear_egg": 1,
+                    "bear_claw": 10,
+                    "fur_7": 30,
+                    "claws_7": 30,
+                    "meat_7": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "dbear_egg": 1,
+                    "bear_claw": 1,
+                    "fur_7": 3,
+                    "claws_7": 2,
+                    "meat_7": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Void Heavenly Horse": {
+        "rank": 7,
+        "affinities": [
+            "Mysterious"
+        ],
+        "health": 12000,
+        "exp_value": 440,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "horse_egg": 1,
+                    "void_mane": 10,
+                    "leather_7": 45,
+                    "wings_7": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "horse_egg": 1,
+                    "void_mane": 1,
+                    "leather_7": 2,
+                    "wings_7": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Illusionary Fire Scorpion Dragon": {
+        "rank": 7,
+        "affinities": [
+            "Fire",
+            "Dragon"
+        ],
+        "health": 12500,
+        "exp_value": 500,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sdragon_egg": 1,
+                    "dragon_scorpion_venom": 10,
+                    "wings_7": 23,
+                    "scales_7": 22,
+                    "pincers_7": 22,
+                    "shell_7": 22
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sdragon_egg": 1,
+                    "dragon_scorpion_venom": 1,
+                    "wings_7": 2,
+                    "scales_7": 3,
+                    "pincers_7": 2,
+                    "shell_7": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Sky Poison Dragon Scorpion": {
+        "rank": 7,
+        "affinities": [
+            "Poison",
+            "Dragon"
+        ],
+        "health": 14000,
+        "exp_value": 520,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "dscorp_egg": 1,
+                    "sky_scorpion_venom": 10,
+                    "wings_7": 23,
+                    "scales_7": 22,
+                    "pincers_7": 22,
+                    "shell_7": 22
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "dscorp_egg": 1,
+                    "sky_scorpion_venom": 1,
+                    "wings_7": 2,
+                    "scales_7": 3,
+                    "pincers_7": 2,
+                    "shell_7": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Gray Wolf King": {
+        "rank": 7,
+        "affinities": [
+            "Earth"
+        ],
+        "health": 11000,
+        "exp_value": 560,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "gwolf_egg": 1,
+                    "wolf_kings_tail": 10,
+                    "fur_7": 45,
+                    "meat_7": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "gwolf_egg": 1,
+                    "wolf_kings_tail": 1,
+                    "fur_7": 3,
+                    "meat_7": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Heaven Reaching Semi-Dragon": {
+        "rank": 7,
+        "affinities": [
+            "Dragon"
+        ],
+        "health": 13500,
+        "exp_value": 480,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "semidragon_egg": 1,
+                    "dragonbone": 10,
+                    "wings_7": 45,
+                    "scales_7": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "semidragon_egg": 1,
+                    "dragonbone": 1,
+                    "wings_7": 2,
+                    "scales_7": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Hard Rat": {
+        "rank": 1,
+        "affinities": [
+            "Rock"
+        ],
+        "health": 75,
+        "exp_value": 10,
+        "core_id": "mcore_1",
+        "core_drop_rate": 10,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "rat_egg": 1,
+                    "hard_ore": 10,
+                    "fur_1": 45,
+                    "metal_1": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "rat_egg": 1,
+                    "hard_ore": 1,
+                    "fur_1": 3,
+                    "metal_1": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Ancient Undead General": {
+        "rank": 7,
+        "affinities": [
+            "Dark",
+            "Earth"
+        ],
+        "health": 15000,
+        "exp_value": 520,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "undead_egg": 1,
+                    "ancient_metal_scrap": 10,
+                    "scales_7": 30,
+                    "metal_7": 30,
+                    "horn_7": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "undead_egg": 1,
+                    "ancient_metal_scrap": 1,
+                    "scales_7": 3,
+                    "metal_7": 1,
+                    "horn_7": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Fire Phoenix": {
+        "rank": 2,
+        "affinities": [
+            "Fire"
+        ],
+        "health": 130,
+        "exp_value": 40,
+        "core_id": "mcore_2",
+        "core_drop_rate": 20,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "phoenix_egg": 1,
+                    "ember_stone": 10,
+                    "meat_2": 45,
+                    "wings_2": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "phoenix_egg": 1,
+                    "ember_stone": 1,
+                    "meat_2": 3,
+                    "wings_2": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Ironback Boar": {
+        "rank": 3,
+        "affinities": [
+            "Earth"
+        ],
+        "health": 300,
+        "exp_value": 80,
+        "core_id": "mcore_3",
+        "core_drop_rate": 30,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "boar_egg": 1,
+                    "iron_tusk": 10,
+                    "meat_3": 45,
+                    "metal_3": 44
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "boar_egg": 1,
+                    "iron_tusk": 1,
+                    "meat_3": 3,
+                    "metal_3": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Frost Sabertooth": {
+        "rank": 3,
+        "affinities": [
+            "Ice"
+        ],
+        "health": 240,
+        "exp_value": 80,
+        "core_id": "mcore_3",
+        "core_drop_rate": 30,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sabertooth_egg": 1,
+                    "frozen_tooth": 10,
+                    "meat_3": 30,
+                    "fur_3": 30,
+                    "claws_3": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sabertooth_egg": 1,
+                    "frozen_tooth": 1,
+                    "meat_3": 3,
+                    "fur_3": 3,
+                    "claws_3": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Stone Golem": {
+        "rank": 6,
+        "affinities": [
+            "Rock",
+            "Earth"
+        ],
+        "health": 5000,
+        "exp_value": 250,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "golem_egg": 1,
+                    "earthen_essence": 10,
+                    "metal_6": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "golem_egg": 1,
+                    "earthen_essence": 1,
+                    "metal_6": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Four Winged Sky Demon Scorpion": {
+        "rank": 6,
+        "affinities": [
+            "Wind"
+        ],
+        "health": 3800,
+        "exp_value": 320,
+        "core_id": "mcore_6",
+        "core_drop_rate": 60,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "sdscorp_egg": 1,
+                    "scorpion_venom": 10,
+                    "wings_6": 30,
+                    "shell_6": 30,
+                    "pincers_6": 29
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "sdscorp_egg": 1,
+                    "scorpion_venom": 1,
+                    "wings_6": 2,
+                    "shell_6": 1,
+                    "pincers_6": 2
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Colossal Mountain Spirit": {
+        "rank": 7,
+        "affinities": [
+            "Rock",
+            "Earth"
+        ],
+        "health": 25000,
+        "exp_value": 500,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "mspirit_egg": 1,
+                    "mystic_iron_ore": 10,
+                    "metal_7": 89
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "mspirit_egg": 1,
+                    "mystic_iron_ore": 1,
+                    "metal_7": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Dark Sky Lion Emperor": {
+        "rank": 8,
+        "affinities": [
+            "Dark",
+            "Fire"
+        ],
+        "health": 50000,
+        "exp_value": 600,
+        "core_id": "mcore_8",
+        "core_drop_rate": 80,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "lionemp_egg": 1,
+                    "purple_lion_crystal": 10,
+                    "wings_8": 22,
+                    "tooth_8": 22,
+                    "fur_8": 22,
+                    "meat_8": 23
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "lionemp_egg": 1,
+                    "purple_lion_crystal": 1,
+                    "wings_8": 2,
+                    "tooth_8": 2,
+                    "fur_8": 3,
+                    "meat_8": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Black-Gold Bear Emperor": {
+        "rank": 8,
+        "affinities": [
+            "Rock",
+            "Earth"
+        ],
+        "health": 68000,
+        "exp_value": 690,
+        "core_id": "mcore_8",
+        "core_drop_rate": 80,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "bearemp_egg": 1,
+                    "golden_bear_claw": 10,
+                    "black_gold_armor": 10,
+                    "tooth_8": 16,
+                    "scales_8": 16,
+                    "fur_8": 16,
+                    "meat_8": 16,
+                    "metal_8": 15
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "bearemp_egg": 1,
+                    "golden_bear_claw": 1,
+                    "black_gold_armor": 1,
+                    "tooth_8": 2,
+                    "scales_8": 3,
+                    "fur_8": 3,
+                    "meat_8": 3,
+                    "metal_8": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Nine-Colored Heaven Swallowing Python": {
+        "rank": 9,
+        "affinities": [
+            "Mysterious"
+        ],
+        "health": 18000000,
+        "exp_value": 960,
+        "core_id": "mcore_9",
+        "core_drop_rate": 90,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "rainbow_scale": 10,
+                    "tooth_9": 30,
+                    "meat_9": 30,
+                    "scales_9": 30
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "rainbow_scale": 1,
+                    "tooth_9": 2,
+                    "meat_9": 3,
+                    "scales_9": 3
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Shock Wave Dragon": {
+        "rank": 7,
+        "affinities": [
+            "Fire",
+            "Water",
+            "Dragon"
+        ],
+        "health": 15000,
+        "exp_value": 520,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "meat_7": 30,
+                    "scales_7": 30,
+                    "claws_7": 30,
+                    "dragons_tail": 10
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "meat_7": 3,
+                    "scales_7": 3,
+                    "claws_7": 2,
+                    "dragons_tail": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Sea Demon Beast": {
+        "rank": 7,
+        "affinities": [
+            "Fire",
+            "Water"
+        ],
+        "health": 13500,
+        "exp_value": 520,
+        "core_id": "mcore_7",
+        "core_drop_rate": 70,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "meat_7": 30,
+                    "scales_7": 30,
+                    "horn_7": 30,
+                    "demon_claw": 10
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "meat_7": 3,
+                    "scales_7": 3,
+                    "horn_7": 1,
+                    "demon_claw": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Monstrous Demon Beast": {
+        "rank": 8,
+        "affinities": [
+            "Dark",
+            "Fire"
+        ],
+        "health": 70000,
+        "exp_value": 700,
+        "core_id": "mcore_8",
+        "core_drop_rate": 80,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "horn_8": 30,
+                    "fur_8": 30,
+                    "wings_8": 30,
+                    "demon_heart": 10
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "horn_8": 1,
+                    "fur_8": 3,
+                    "wings_8": 2,
+                    "demon_heart": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    },
+    "Sky Bone Python": {
+        "rank": 8,
+        "affinities": [
+            "Fire",
+            "Ice"
+        ],
+        "health": 72000,
+        "exp_value": 720,
+        "core_id": "mcore_8",
+        "core_drop_rate": 80,
+        "material_loot": {
+            "type": "RandomLoot",
+            "data": {
+                "item_ids": {
+                    "meat_8": 30,
+                    "scales_8": 30,
+                    "tooth_8": 30,
+                    "python_bone": 10
+                },
+                "quantity": {
+                    "0": 20,
+                    "1": 45,
+                    "2": 25,
+                    "3": 5,
+                    "4": 4,
+                    "5": 1
+                },
+                "quantity_caps": {
+                    "meat_8": 3,
+                    "scales_8": 3,
+                    "tooth_8": 2,
+                    "python_bone": 1
+                },
+                "single_item_id": false,
+                "distinct_item_ids": false
+            }
+        }
+    }
+}

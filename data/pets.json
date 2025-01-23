@@ -1,0 +1,5227 @@
+{
+    "Scarlet Ice Snake": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Frostbite Snake",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_fang": 3
+            }
+        }
+    },
+    "Frostbite Snake": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Ice Emperor Serpent",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_fang": 6,
+                "ssnake_egg": 1
+            }
+        }
+    },
+    "Ice Emperor Serpent": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.185
+        ]
+    },
+    "Blazing Snake": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.145
+        ],
+        "evolution": {
+            "target_name": "Fiery Frostbite Snake",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_fang": 4
+            }
+        }
+    },
+    "Fiery Frostbite Snake": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.15
+        ],
+        "evolution": {
+            "target_name": "Fire Emperor Serpent",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_fang": 8,
+                "ssnake_egg": 2
+            }
+        }
+    },
+    "Fire Emperor Serpent": {
+        "parent_beast_name": "Scarlet Ice Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.16
+        ]
+    },
+    "Cliff Snake": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Mountain Snake",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "stone_shed": 3
+            }
+        }
+    },
+    "Mountain Snake": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Earth Shaker Serpent",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "stone_shed": 6,
+                "csnake_egg": 1
+            }
+        }
+    },
+    "Earth Shaker Serpent": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.185
+        ]
+    },
+    "Thundering Cliff Snake": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.145
+        ],
+        "evolution": {
+            "target_name": "Lightning Mountain Snake",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "stone_shed": 4
+            }
+        }
+    },
+    "Lightning Mountain Snake": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.15
+        ],
+        "evolution": {
+            "target_name": "Electric Earth Shaker Serpent",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "stone_shed": 8,
+                "csnake_egg": 2
+            }
+        }
+    },
+    "Electric Earth Shaker Serpent": {
+        "parent_beast_name": "Cliff Snake",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.16
+        ]
+    },
+    "Hard Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Iron Rat",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "hard_ore": 3
+            }
+        }
+    },
+    "Iron Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Giant Rat",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "hard_ore": 6,
+                "rat_egg": 1
+            }
+        }
+    },
+    "Giant Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.185
+        ]
+    },
+    "Aqua Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.145
+        ],
+        "evolution": {
+            "target_name": "Marine Iron Rat",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "hard_ore": 4
+            }
+        }
+    },
+    "Marine Iron Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.15
+        ],
+        "evolution": {
+            "target_name": "Giant Water Rat",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "hard_ore": 8,
+                "rat_egg": 2
+            }
+        }
+    },
+    "Giant Water Rat": {
+        "parent_beast_name": "Hard Rat",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.16
+        ]
+    },
+    "Bloodthirsty Mouse": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Vampire Mouse",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "heartstring": 3
+            }
+        }
+    },
+    "Vampire Mouse": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Demon Rat",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "heartstring": 6,
+                "mouse_egg": 1
+            }
+        }
+    },
+    "Demon Rat": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.185
+        ]
+    },
+    "Shadow Mouse": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.145
+        ],
+        "evolution": {
+            "target_name": "Nightmare Mouse",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "heartstring": 4
+            }
+        }
+    },
+    "Nightmare Mouse": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.15
+        ],
+        "evolution": {
+            "target_name": "Dark Demon Rat",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "heartstring": 8,
+                "mouse_egg": 2
+            }
+        }
+    },
+    "Dark Demon Rat": {
+        "parent_beast_name": "Bloodthirsty Mouse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.16
+        ]
+    },
+    "Frost Unicorn Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Arctic Frost Wolf",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "frostcorn_horn": 3
+            }
+        }
+    },
+    "Arctic Frost Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Frostbite Alpha Wolf",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "frostcorn_horn": 6,
+                "uwolf_egg": 1
+            }
+        }
+    },
+    "Frostbite Alpha Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.185
+        ]
+    },
+    "Gale Unicorn Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.1,
+            1.145
+        ],
+        "evolution": {
+            "target_name": "Arctic Gale Wolf",
+            "required_stage": {
+                "major": 2,
+                "minor": 8
+            },
+            "required_items": {
+                "frostcorn_horn": 4
+            }
+        }
+    },
+    "Arctic Gale Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 3,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.11,
+            1.15
+        ],
+        "evolution": {
+            "target_name": "Tempest Alpha Wolf",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "frostcorn_horn": 8,
+                "uwolf_egg": 2
+            }
+        }
+    },
+    "Tempest Alpha Wolf": {
+        "parent_beast_name": "Frost Unicorn Wolf",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.09,
+            1.16
+        ]
+    },
+    "Blizzard Magic Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.19
+        ],
+        "evolution": {
+            "target_name": "Snow Demon Ape",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "blizzard_crystal": 3
+            }
+        }
+    },
+    "Snow Demon Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.195
+        ],
+        "evolution": {
+            "target_name": "Ice Emperor Ape",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "blizzard_crystal": 6,
+                "bape_egg": 1
+            }
+        }
+    },
+    "Ice Emperor Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.205
+        ]
+    },
+    "Toxic Magic Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.145,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Venomous Demon Ape",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "blizzard_crystal": 4
+            }
+        }
+    },
+    "Venomous Demon Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.15,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Poison Emperor Ape",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "blizzard_crystal": 8,
+                "bape_egg": 2
+            }
+        }
+    },
+    "Poison Emperor Ape": {
+        "parent_beast_name": "Blizzard Magic Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.16,
+            1.185
+        ]
+    },
+    "Fire Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.19
+        ],
+        "evolution": {
+            "target_name": "Inferno Phoenix",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "ember_stone": 3
+            }
+        }
+    },
+    "Inferno Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.195
+        ],
+        "evolution": {
+            "target_name": "Solar Phoenix",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "ember_stone": 6,
+                "phoenix_egg": 1
+            }
+        }
+    },
+    "Solar Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.205
+        ]
+    },
+    "Mystic Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.145,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Ethereal Inferno Phoenix",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "ember_stone": 4
+            }
+        }
+    },
+    "Ethereal Inferno Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.15,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Divine Solar Phoenix",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "ember_stone": 8,
+                "phoenix_egg": 2
+            }
+        }
+    },
+    "Divine Solar Phoenix": {
+        "parent_beast_name": "Fire Phoenix",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.16,
+            1.185
+        ]
+    },
+    "Icy Snow Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.19
+        ],
+        "evolution": {
+            "target_name": "Frostbite Snail",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_slime": 3
+            }
+        }
+    },
+    "Frostbite Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.195
+        ],
+        "evolution": {
+            "target_name": "Ice Emperor Snail",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_slime": 6,
+                "snail_egg": 1
+            }
+        }
+    },
+    "Ice Emperor Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.205
+        ]
+    },
+    "Toxic Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.145,
+            1.17
+        ],
+        "evolution": {
+            "target_name": "Venomous Snail",
+            "required_stage": {
+                "major": 3,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_slime": 4
+            }
+        }
+    },
+    "Venomous Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 4,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.15,
+            1.175
+        ],
+        "evolution": {
+            "target_name": "Poison Emperor Snail",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "icy_slime": 8,
+                "snail_egg": 2
+            }
+        }
+    },
+    "Poison Emperor Snail": {
+        "parent_beast_name": "Icy Snow Snail",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.16,
+            1.185
+        ]
+    },
+    "Ironback Boar": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.19,
+            1.22
+        ],
+        "evolution": {
+            "target_name": "Steelback Boar",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "iron_tusk": 6
+            }
+        }
+    },
+    "Steelback Boar": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.195,
+            1.225
+        ],
+        "evolution": {
+            "target_name": "Ironclad War Boar",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "iron_tusk": 12,
+                "boar_egg": 2
+            }
+        }
+    },
+    "Ironclad War Boar": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.205,
+            1.235
+        ]
+    },
+    "Electroback Boar": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.21
+        ],
+        "evolution": {
+            "target_name": "Galvanic Boar",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "iron_tusk": 8
+            }
+        }
+    },
+    "Galvanic Boar": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.215
+        ],
+        "evolution": {
+            "target_name": "Thundering Tuskbearer",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "iron_tusk": 16,
+                "boar_egg": 4
+            }
+        }
+    },
+    "Thundering Tuskbearer": {
+        "parent_beast_name": "Ironback Boar",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.225
+        ]
+    },
+    "Frost Sabertooth": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.19,
+            1.22
+        ],
+        "evolution": {
+            "target_name": "Glacial Sabertooth",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "frozen_tooth": 6
+            }
+        }
+    },
+    "Glacial Sabertooth": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.195,
+            1.225
+        ],
+        "evolution": {
+            "target_name": "Frostbite Predator",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "frozen_tooth": 12,
+                "sabertooth_egg": 2
+            }
+        }
+    },
+    "Frostbite Predator": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.205,
+            1.235
+        ]
+    },
+    "Frost-Burning Sabertooth": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.21
+        ],
+        "evolution": {
+            "target_name": "Glacial Blaze Sabertooth",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "frozen_tooth": 8
+            }
+        }
+    },
+    "Glacial Blaze Sabertooth": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.215
+        ],
+        "evolution": {
+            "target_name": "Frost-Inferno Predator",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "frozen_tooth": 16,
+                "sabertooth_egg": 4
+            }
+        }
+    },
+    "Frost-Inferno Predator": {
+        "parent_beast_name": "Frost Sabertooth",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.225
+        ]
+    },
+    "Winged Lion": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.19,
+            1.22
+        ],
+        "evolution": {
+            "target_name": "Solar Winged Lion",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "majestic_mane": 6
+            }
+        }
+    },
+    "Solar Winged Lion": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.195,
+            1.225
+        ],
+        "evolution": {
+            "target_name": "Celestial Winged Lion King",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "majestic_mane": 12,
+                "wlion_egg": 2
+            }
+        }
+    },
+    "Celestial Winged Lion King": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.205,
+            1.235
+        ]
+    },
+    "Blood Winged Lion": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.17,
+            1.21
+        ],
+        "evolution": {
+            "target_name": "Blood-Infused Solar Winged Lion",
+            "required_stage": {
+                "major": 4,
+                "minor": 8
+            },
+            "required_items": {
+                "majestic_mane": 8
+            }
+        }
+    },
+    "Blood-Infused Solar Winged Lion": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 5,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.175,
+            1.215
+        ],
+        "evolution": {
+            "target_name": "Nightfall Celestial Winged Lion King",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "majestic_mane": 16,
+                "wlion_egg": 4
+            }
+        }
+    },
+    "Nightfall Celestial Winged Lion King": {
+        "parent_beast_name": "Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.185,
+            1.225
+        ]
+    },
+    "Two-Headed Flame Spirit Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.22,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Two-Headed Inferno Serpent",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "snake_venom": 6
+            }
+        }
+    },
+    "Two-Headed Inferno Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Three-Headed Flame Emperor Serpent",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "snake_venom": 12,
+                "sserpent_egg": 2
+            }
+        }
+    },
+    "Three-Headed Flame Emperor Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.235,
+            1.26
+        ]
+    },
+    "Wind-Infused Two-Headed Flame Spirit Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.21,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Two-Headed Tempest Serpent",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "snake_venom": 8
+            }
+        }
+    },
+    "Two-Headed Tempest Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.215,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Three-Headed Gale Emperor Serpent",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "snake_venom": 16,
+                "sserpent_egg": 4
+            }
+        }
+    },
+    "Three-Headed Gale Emperor Serpent": {
+        "parent_beast_name": "Two-Headed Flame Spirit Serpent",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.26
+        ]
+    },
+    "Tiger Eagle Beast": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.22,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Storm Tiger Eagle",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 6
+            }
+        }
+    },
+    "Storm Tiger Eagle": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Thundering Beast Eagle",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 12,
+                "teagle_egg": 2
+            }
+        }
+    },
+    "Thundering Beast Eagle": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.235,
+            1.26
+        ]
+    },
+    "Aquatic Tiger Eagle Beast": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.21,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Stormy Sea Tiger Eagle",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 8
+            }
+        }
+    },
+    "Stormy Sea Tiger Eagle": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.215,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Thundering Oceanic Beast Eagle",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 16,
+                "teagle_egg": 4
+            }
+        }
+    },
+    "Thundering Oceanic Beast Eagle": {
+        "parent_beast_name": "Tiger Eagle Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.26
+        ]
+    },
+    "Wind Leopard Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.22,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Cyclone Leopard Beast",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 6
+            }
+        }
+    },
+    "Cyclone Leopard Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Tempest Panther Beast",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 12,
+                "leopard_egg": 2
+            }
+        }
+    },
+    "Tempest Panther Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.235,
+            1.26
+        ]
+    },
+    "Cyclone Drake Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.21,
+            1.245
+        ],
+        "evolution": {
+            "target_name": "Storm Dragon Beast",
+            "required_stage": {
+                "major": 5,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 8
+            }
+        }
+    },
+    "Storm Dragon Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 6,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.215,
+            1.25
+        ],
+        "evolution": {
+            "target_name": "Tempest Wyvern Beast",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "wind_essence": 16,
+                "leopard_egg": 4
+            }
+        }
+    },
+    "Tempest Wyvern Beast": {
+        "parent_beast_name": "Wind Leopard Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.225,
+            1.26
+        ]
+    },
+    "Fiery Breaking Mountain Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.275
+        ],
+        "evolution": {
+            "target_name": "Inferno Breaking Mountain Rhinoceros",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 12
+            }
+        }
+    },
+    "Inferno Breaking Mountain Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Lava Colossus Rhinoceros",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 24,
+                "rhino_egg": 3
+            }
+        }
+    },
+    "Lava Colossus Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.29
+        ]
+    },
+    "Magma Breaking Mountain Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Erupting Mountain Rhinoceros",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 16
+            }
+        }
+    },
+    "Erupting Mountain Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.285
+        ],
+        "evolution": {
+            "target_name": "Volcanic Colossus Rhinoceros",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 32,
+                "rhino_egg": 4
+            }
+        }
+    },
+    "Volcanic Colossus Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.295
+        ]
+    },
+    "Electric Breaking Mountain Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Electric Inferno Colossus Rhinoceros",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 20,
+                "rhino_egg": 2
+            }
+        }
+    },
+    "Electric Inferno Colossus Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Electric Behemoth Rhinoceros",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_essence": 40,
+                "rhino_egg": 5
+            }
+        }
+    },
+    "Electric Behemoth Rhinoceros": {
+        "parent_beast_name": "Fiery Breaking Mountain Rhinoceros",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.31
+        ]
+    },
+    "Searing Iron Poison Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.275
+        ],
+        "evolution": {
+            "target_name": "Venomous Iron Thorn Weed",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 12
+            }
+        }
+    },
+    "Venomous Iron Thorn Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Corrosive Iron Weed",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 24,
+                "weed_egg": 3
+            }
+        }
+    },
+    "Corrosive Iron Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.29
+        ]
+    },
+    "Blaze Iron Poison Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Inferno Iron Thorn Weed",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 16
+            }
+        }
+    },
+    "Inferno Iron Thorn Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.285
+        ],
+        "evolution": {
+            "target_name": "Incendiary Iron Weed",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 32,
+                "weed_egg": 4
+            }
+        }
+    },
+    "Incendiary Iron Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.295
+        ]
+    },
+    "Crystalline Iron Poison Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Frostbite Iron Thorn Weed",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 20,
+                "weed_egg": 2
+            }
+        }
+    },
+    "Frostbite Iron Thorn Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Glacial Iron Weed",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ironwood_ore": 40,
+                "weed_egg": 5
+            }
+        }
+    },
+    "Glacial Iron Weed": {
+        "parent_beast_name": "Searing Iron Poison Weed",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.31
+        ]
+    },
+    "Kui Wood Beast": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.275
+        ],
+        "evolution": {
+            "target_name": "Kui Wood Emperor",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 12
+            }
+        }
+    },
+    "Kui Wood Emperor": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Kui Wood Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 24,
+                "wood_egg": 3
+            }
+        }
+    },
+    "Kui Wood Dragon": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.29
+        ]
+    },
+    "Kui Earth Beast": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Kui Earth Emperor",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 16
+            }
+        }
+    },
+    "Kui Earth Emperor": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.285
+        ],
+        "evolution": {
+            "target_name": "Kui Earth Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 32,
+                "wood_egg": 4
+            }
+        }
+    },
+    "Kui Earth Dragon": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.295
+        ]
+    },
+    "Kui Ice Beast": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Kui Ice Emperor",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 20,
+                "wood_egg": 2
+            }
+        }
+    },
+    "Kui Ice Emperor": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Kui Ice Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "tree_essence": 40,
+                "wood_egg": 5
+            }
+        }
+    },
+    "Kui Ice Dragon": {
+        "parent_beast_name": "Kui Wood Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.31
+        ]
+    },
+    "Snow Demon Sky Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.275
+        ],
+        "evolution": {
+            "target_name": "Snow Emperor Ape",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 12
+            }
+        }
+    },
+    "Snow Emperor Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Frostbite Demon Ape",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 24,
+                "sape_egg": 3
+            }
+        }
+    },
+    "Frostbite Demon Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.29
+        ]
+    },
+    "Snow Demon Lightning Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.28
+        ],
+        "evolution": {
+            "target_name": "Snow Emperor Wind Ape",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 16
+            }
+        }
+    },
+    "Snow Emperor Wind Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.285
+        ],
+        "evolution": {
+            "target_name": "Frostbite Demon Dark Ape",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 32,
+                "sape_egg": 4
+            }
+        }
+    },
+    "Frostbite Demon Dark Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.295
+        ]
+    },
+    "Snow Demon Blood Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.245,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Dark Emperor Ape",
+            "required_stage": {
+                "major": 6,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 20,
+                "sape_egg": 2
+            }
+        }
+    },
+    "Dark Emperor Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 7,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.25,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Draconic Demon Ape",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "snow_essence": 40,
+                "sape_egg": 5
+            }
+        }
+    },
+    "Draconic Demon Ape": {
+        "parent_beast_name": "Snow Demon Sky Ape",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.26,
+            1.31
+        ]
+    },
+    "Amethyst Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Glowing Amethyst Winged Lion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "amethyst": 12
+            }
+        }
+    },
+    "Glowing Amethyst Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Radiant Amethyst Skywing Lion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "amethyst": 24,
+                "awlion_egg": 3
+            }
+        }
+    },
+    "Radiant Amethyst Skywing Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Sapphire Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Glowing Sapphire Winged Lion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "amethyst": 16
+            }
+        }
+    },
+    "Glowing Sapphire Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Radiant Sapphire Skywing Lion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "amethyst": 32,
+                "awlion_egg": 4
+            }
+        }
+    },
+    "Radiant Sapphire Skywing Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Ruby Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Glowing Ruby Winged Lion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "amethyst": 20,
+                "awlion_egg": 2
+            }
+        }
+    },
+    "Glowing Ruby Winged Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Radiant Ruby Skywing Lion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "amethyst": 40,
+                "awlion_egg": 5
+            }
+        }
+    },
+    "Radiant Ruby Skywing Lion": {
+        "parent_beast_name": "Amethyst Winged Lion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Stone Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Granite Colossus Golem",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "earthen_essence": 12
+            }
+        }
+    },
+    "Granite Colossus Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Obsidian Golem Prime",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "earthen_essence": 24,
+                "golem_egg": 3
+            }
+        }
+    },
+    "Obsidian Golem Prime": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Bronze Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Silver Golem",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "earthen_essence": 16
+            }
+        }
+    },
+    "Silver Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Gold Golem",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "earthen_essence": 32,
+                "golem_egg": 4
+            }
+        }
+    },
+    "Gold Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Diamond Stone Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Diamond-Encrusted Golem",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "earthen_essence": 20,
+                "golem_egg": 2
+            }
+        }
+    },
+    "Diamond-Encrusted Golem": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Diamond-Core Golem Prime",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "earthen_essence": 40,
+                "golem_egg": 5
+            }
+        }
+    },
+    "Diamond-Core Golem Prime": {
+        "parent_beast_name": "Stone Golem",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Eight-Winged Black Serpent Emperor": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Ten-Winged Black Serpent Overlord",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "emperor_snake_venom": 12
+            }
+        }
+    },
+    "Ten-Winged Black Serpent Overlord": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Twelve-Winged Black Serpent Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "emperor_snake_venom": 24,
+                "bserpent_egg": 3
+            }
+        }
+    },
+    "Twelve-Winged Black Serpent Sovereign": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Eight-Winged White Serpent Emperor": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Ten-Winged White Serpent Overlord",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "emperor_snake_venom": 16
+            }
+        }
+    },
+    "Ten-Winged White Serpent Overlord": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Twelve-Winged White Serpent Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "emperor_snake_venom": 32,
+                "bserpent_egg": 4
+            }
+        }
+    },
+    "Twelve-Winged White Serpent Sovereign": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Legendary Ten-Winged Serpent Emperor": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Fabled Twelve-Winged Serpent Overlord",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "emperor_snake_venom": 20
+            }
+        }
+    },
+    "Fabled Twelve-Winged Serpent Overlord": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Mythical Fourteen-Winged Serpent Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "emperor_snake_venom": 40,
+                "bserpent_egg": 5
+            }
+        }
+    },
+    "Mythical Fourteen-Winged Serpent Sovereign": {
+        "parent_beast_name": "Eight-Winged Black Serpent Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Fire Scale Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Inferno King Crocodile",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_scale": 12
+            }
+        }
+    },
+    "Inferno King Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Scorching Emperor Crocodile",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "fire_scale": 24,
+                "croc_egg": 3
+            }
+        }
+    },
+    "Scorching Emperor Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Aquatic Fire Scale Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Oceanic Inferno King Crocodile",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_scale": 16
+            }
+        }
+    },
+    "Oceanic Inferno King Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Hydro Scorching Emperor Crocodile",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "fire_scale": 32,
+                "croc_egg": 4
+            }
+        }
+    },
+    "Hydro Scorching Emperor Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Venomous Flamed-scaled Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Corrosive Blaze King Crocodile",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "fire_scale": 20,
+                "croc_egg": 2
+            }
+        }
+    },
+    "Corrosive Blaze King Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Noxious Inferno Sovereign Crocodile",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "fire_scale": 40,
+                "croc_egg": 5
+            }
+        }
+    },
+    "Noxious Inferno Sovereign Crocodile": {
+        "parent_beast_name": "Fire Scale Crocodile",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Serene Sea Scaly Beast": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Majestic Oceanic Leviathan",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_coral": 12
+            }
+        }
+    },
+    "Majestic Oceanic Leviathan": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Aquatic Sovereign Dragon",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_coral": 24,
+                "sbeast_egg": 3
+            }
+        }
+    },
+    "Aquatic Sovereign Dragon": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Thunder Seraph Scaled Beast": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Electric Mirage Leviathan",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_coral": 16
+            }
+        }
+    },
+    "Electric Mirage Leviathan": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Shock Sovereign Dragon",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_coral": 32,
+                "sbeast_egg": 4
+            }
+        }
+    },
+    "Shock Sovereign Dragon": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Hematic Terra Scaled Beast": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Sanguine Leviathan",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_coral": 20,
+                "sbeast_egg": 2
+            }
+        }
+    },
+    "Sanguine Leviathan": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Crimson Divine Dragon",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_coral": 40,
+                "sbeast_egg": 5
+            }
+        }
+    },
+    "Crimson Divine Dragon": {
+        "parent_beast_name": "Serene Sea Scaly Beast",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Four Winged Sky Demon Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Four Winged Sky Demolition Scorpion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 12
+            }
+        }
+    },
+    "Four Winged Sky Demolition Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Four Winged Sky Devastation Emperor Scorpion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 24,
+                "sdscorp_egg": 3
+            }
+        }
+    },
+    "Four Winged Sky Devastation Emperor Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Four Winged Nightfall Demon Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Four Winged Nightfall Demolition Scorpion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 16
+            }
+        }
+    },
+    "Four Winged Nightfall Demolition Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Four Winged Nightfall Devastation Emperor Scorpion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 32,
+                "sdscorp_egg": 4
+            }
+        }
+    },
+    "Four Winged Nightfall Devastation Emperor Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Four Winged Heavenly Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Six Winged Galactic Scorpion",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 20,
+                "sdscorp_egg": 2
+            }
+        }
+    },
+    "Six Winged Galactic Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Eight Winged Cosmic Scorpion",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 40,
+                "sdscorp_egg": 5
+            }
+        }
+    },
+    "Eight Winged Cosmic Scorpion": {
+        "parent_beast_name": "Four Winged Sky Demon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Blood Demon Scorpion Emperor": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.275,
+            1.295
+        ],
+        "evolution": {
+            "target_name": "Blood-Soaked Arachnid Overlord",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 12
+            }
+        }
+    },
+    "Blood-Soaked Arachnid Overlord": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.3
+        ],
+        "evolution": {
+            "target_name": "Venomous Blood Demon Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 24,
+                "scorpemp_egg": 3
+            }
+        }
+    },
+    "Venomous Blood Demon Sovereign": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.29,
+            1.31
+        ]
+    },
+    "Aerial Scorpion Emperor": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.28,
+            1.315
+        ],
+        "evolution": {
+            "target_name": "Galeswept Arachnid Overlord",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 16
+            }
+        }
+    },
+    "Galeswept Arachnid Overlord": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.285,
+            1.32
+        ],
+        "evolution": {
+            "target_name": "Tempestuous Demon Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 32,
+                "scorpemp_egg": 4
+            }
+        }
+    },
+    "Tempestuous Demon Sovereign": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ]
+    },
+    "Tidal Scorpion Monarch": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Seafaring Arachnid-Scorpion Hybrid",
+            "required_stage": {
+                "major": 7,
+                "minor": 8
+            },
+            "required_items": {
+                "scorpion_venom": 20,
+                "scorpemp_egg": 2
+            }
+        }
+    },
+    "Seafaring Arachnid-Scorpion Hybrid": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 8,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.34
+        ],
+        "evolution": {
+            "target_name": "Divine Aquatic Arachnid Sovereign",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "scorpion_venom": 40,
+                "scorpemp_egg": 5
+            }
+        }
+    },
+    "Divine Aquatic Arachnid Sovereign": {
+        "parent_beast_name": "Blood Demon Scorpion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.35
+        ]
+    },
+    "Great Land Demon Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Demonic King Bear",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "bear_claw": 24
+            }
+        }
+    },
+    "Demonic King Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Hell Emperor Bear",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "bear_claw": 48,
+                "dbear_egg": 4
+            }
+        }
+    },
+    "Hell Emperor Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Aquatic Great Land Demon Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Sea Demonic King Bear",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "bear_claw": 32,
+                "dbear_egg": 3
+            }
+        }
+    },
+    "Sea Demonic King Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Oceanic Hell Emperor Bear",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "bear_claw": 64,
+                "dbear_egg": 6
+            }
+        }
+    },
+    "Oceanic Hell Emperor Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Frost Great Land Demon Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Glacial Demonic King Bear",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "bear_claw": 40,
+                "dbear_egg": 4
+            }
+        }
+    },
+    "Glacial Demonic King Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Arctic Hell Emperor Bear",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "bear_claw": 80,
+                "dbear_egg": 8
+            }
+        }
+    },
+    "Arctic Hell Emperor Bear": {
+        "parent_beast_name": "Great Land Demon Bear",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Void Heavenly Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Time Heavenly Horse",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "void_mane": 24
+            }
+        }
+    },
+    "Time Heavenly Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Space Heavenly Horse",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "void_mane": 48,
+                "horse_egg": 4
+            }
+        }
+    },
+    "Space Heavenly Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Mighty Yin Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Majestic Yang Horse",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "void_mane": 32,
+                "horse_egg": 3
+            }
+        }
+    },
+    "Majestic Yang Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Marvelous Yin-Yang Horse",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "void_mane": 64,
+                "horse_egg": 6
+            }
+        }
+    },
+    "Marvelous Yin-Yang Horse": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Angelic Pegasus Empress": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Seraphic Pegasus Overlord",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "void_mane": 40,
+                "horse_egg": 4
+            }
+        }
+    },
+    "Seraphic Pegasus Overlord": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Divine Ethereal Pegasus Sovereign",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "void_mane": 80,
+                "horse_egg": 8
+            }
+        }
+    },
+    "Divine Ethereal Pegasus Sovereign": {
+        "parent_beast_name": "Void Heavenly Horse",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Illusionary Fire Scorpion Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Incendiary Mirage Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 24
+            }
+        }
+    },
+    "Incendiary Mirage Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Phantom Inferno Dragon Emperor",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 48,
+                "sdragon_egg": 4
+            }
+        }
+    },
+    "Phantom Inferno Dragon Emperor": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Illusionary Earth Scorpion Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Mirage Terra Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 32,
+                "sdragon_egg": 3
+            }
+        }
+    },
+    "Mirage Terra Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Phantom Earth Dragon Emperor",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 64,
+                "sdragon_egg": 6
+            }
+        }
+    },
+    "Phantom Earth Dragon Emperor": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Shadow-Veiled Illusionary Scorpion Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Umbral Mirage Quasi-God Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 40,
+                "sdragon_egg": 4
+            }
+        }
+    },
+    "Umbral Mirage Quasi-God Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Enshrouded Phantom Demi-God Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragon_scorpion_venom": 80,
+                "sdragon_egg": 8
+            }
+        }
+    },
+    "Enshrouded Phantom Demi-God Dragon": {
+        "parent_beast_name": "Illusionary Fire Scorpion Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Ancient Undead General": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Skeletal Warlord",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ancient_metal_scrap": 24
+            }
+        }
+    },
+    "Skeletal Warlord": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Necrotic Emperor",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "ancient_metal_scrap": 48,
+                "undead_egg": 4
+            }
+        }
+    },
+    "Necrotic Emperor": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Bloodcurdling Undead Commander": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Hemovorous Skeletal Warlord",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ancient_metal_scrap": 32,
+                "undead_egg": 3
+            }
+        }
+    },
+    "Hemovorous Skeletal Warlord": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Blood-Bound Necrotic Emperor",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "ancient_metal_scrap": 64,
+                "undead_egg": 6
+            }
+        }
+    },
+    "Blood-Bound Necrotic Emperor": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Aquatic Spectral General": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Skeletal Nautical Overlord",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "ancient_metal_scrap": 40,
+                "undead_egg": 4
+            }
+        }
+    },
+    "Skeletal Nautical Overlord": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Underwater Necromantic Sovereign",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "ancient_metal_scrap": 80,
+                "undead_egg": 8
+            }
+        }
+    },
+    "Underwater Necromantic Sovereign": {
+        "parent_beast_name": "Ancient Undead General",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Sky Poison Dragon Scorpion": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Galactic Poison Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "sky_scorpion_venom": 24
+            }
+        }
+    },
+    "Galactic Poison Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Celestial Poison Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "sky_scorpion_venom": 48,
+                "dscorp_egg": 4
+            }
+        }
+    },
+    "Celestial Poison Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Apocalypse Dragon Scorpion": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Cataclysm Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "sky_scorpion_venom": 32,
+                "dscorp_egg": 3
+            }
+        }
+    },
+    "Cataclysm Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Underworld Armageddon Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "sky_scorpion_venom": 64,
+                "dscorp_egg": 6
+            }
+        }
+    },
+    "Underworld Armageddon Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Heavenly Thunder Dragon Scorpion": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Celestial Galvanic Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "sky_scorpion_venom": 40,
+                "dscorp_egg": 4
+            }
+        }
+    },
+    "Celestial Galvanic Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Divine Voltaic Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "sky_scorpion_venom": 80,
+                "dscorp_egg": 8
+            }
+        }
+    },
+    "Divine Voltaic Dragon": {
+        "parent_beast_name": "Sky Poison Dragon Scorpion",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Gray Wolf King": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "White Wolf Emperor",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "wolf_kings_tail": 24
+            }
+        }
+    },
+    "White Wolf Emperor": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Northern White Werewolf Overlord",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "wolf_kings_tail": 48,
+                "gwolf_egg": 4
+            }
+        }
+    },
+    "Northern White Werewolf Overlord": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Gale Wolf King": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Tempest Wolf Emperor",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "wolf_kings_tail": 32,
+                "gwolf_egg": 3
+            }
+        }
+    },
+    "Tempest Wolf Emperor": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Strombringer Werewolf Overlord",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "wolf_kings_tail": 64,
+                "gwolf_egg": 6
+            }
+        }
+    },
+    "Strombringer Werewolf Overlord": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Lunar Wolf Emperor": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Solaris Wolf Overlord",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "wolf_kings_tail": 40,
+                "gwolf_egg": 4
+            }
+        }
+    },
+    "Solaris Wolf Overlord": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Stellar Werewolf Sovereign",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "wolf_kings_tail": 80,
+                "gwolf_egg": 8
+            }
+        }
+    },
+    "Stellar Werewolf Sovereign": {
+        "parent_beast_name": "Gray Wolf King",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Heaven Reaching Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Heaven Emperor Semi-Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragonbone": 24
+            }
+        }
+    },
+    "Heaven Emperor Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Heavenly Flame Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragonbone": 48,
+                "semidragon_egg": 4
+            }
+        }
+    },
+    "Heavenly Flame Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Hell Reaching Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Hell Overlord Semi-Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragonbone": 32,
+                "semidragon_egg": 3
+            }
+        }
+    },
+    "Hell Overlord Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Hell Flame Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragonbone": 64,
+                "semidragon_egg": 6
+            }
+        }
+    },
+    "Hell Flame Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Astral Reaching Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Celestial Sovereign Semi-Dragon",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "dragonbone": 40,
+                "semidragon_egg": 4
+            }
+        }
+    },
+    "Celestial Sovereign Semi-Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Eternal Cosmic Dragon",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "dragonbone": 80,
+                "semidragon_egg": 8
+            }
+        }
+    },
+    "Eternal Cosmic Dragon": {
+        "parent_beast_name": "Heaven Reaching Semi-Dragon",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Colossal Mountain Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.295,
+            1.33
+        ],
+        "evolution": {
+            "target_name": "Tectonic Titan Spirit",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_iron_ore": 24
+            }
+        }
+    },
+    "Tectonic Titan Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.3,
+            1.335
+        ],
+        "evolution": {
+            "target_name": "Earthshaker Tyrant Spirit",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_iron_ore": 48,
+                "mspirit_egg": 4
+            }
+        }
+    },
+    "Earthshaker Tyrant Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.31,
+            1.345
+        ]
+    },
+    "Frostbite Summit Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.315,
+            1.35
+        ],
+        "evolution": {
+            "target_name": "Avalanche Assassin Spirit",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_iron_ore": 32,
+                "mspirit_egg": 3
+            }
+        }
+    },
+    "Avalanche Assassin Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.32,
+            1.355
+        ],
+        "evolution": {
+            "target_name": "Glacial Executioner Spirit",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_iron_ore": 64,
+                "mspirit_egg": 6
+            }
+        }
+    },
+    "Glacial Executioner Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.365
+        ]
+    },
+    "Sacred Enigma Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Geomancer Peak Spirit",
+            "required_stage": {
+                "major": 8,
+                "minor": 8
+            },
+            "required_items": {
+                "mystic_iron_ore": 40,
+                "mspirit_egg": 4
+            }
+        }
+    },
+    "Geomancer Peak Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 9,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.34,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Celestial Guardian Spirit",
+            "required_stage": {
+                "major": 10,
+                "minor": 2
+            },
+            "required_items": {
+                "mystic_iron_ore": 80,
+                "mspirit_egg": 8
+            }
+        }
+    },
+    "Celestial Guardian Spirit": {
+        "parent_beast_name": "Colossal Mountain Spirit",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 11,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.39
+        ]
+    },
+    "Dark Sky Lion Emperor": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.348
+        ],
+        "evolution": {
+            "target_name": "Nightfall Lion Overlord",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 24,
+                "lionemp_egg": 3
+            }
+        }
+    },
+    "Nightfall Lion Overlord": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.353
+        ],
+        "evolution": {
+            "target_name": "Abyssal Lion God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 48,
+                "lionemp_egg": 6
+            }
+        }
+    },
+    "Abyssal Lion God": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.345,
+            1.363
+        ]
+    },
+    "Inferno Lion Emperor": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Hellfire Lion Overlord",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 32,
+                "lionemp_egg": 5
+            }
+        }
+    },
+    "Hellfire Lion Overlord": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.355,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Blazing-Draconic Lion God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 64,
+                "lionemp_egg": 10
+            }
+        }
+    },
+    "Blazing-Draconic Lion God": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.365,
+            1.39
+        ]
+    },
+    "Thunderous-Poison Lion Overlord": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.375,
+            1.399
+        ],
+        "evolution": {
+            "target_name": "Electro-Venomous Lion Demi-God",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 40,
+                "lionemp_egg": 8
+            }
+        }
+    },
+    "Electro-Venomous Lion Demi-God": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.38,
+            1.404
+        ],
+        "evolution": {
+            "target_name": "Divine Voltaic-Noxious Lion God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "purple_lion_crystal": 80,
+                "lionemp_egg": 15
+            }
+        }
+    },
+    "Divine Voltaic-Noxious Lion God": {
+        "parent_beast_name": "Dark Sky Lion Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.39,
+            1.414
+        ]
+    },
+    "Black-Gold Bear Emperor": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.33,
+            1.348
+        ],
+        "evolution": {
+            "target_name": "Black-Gold Bear Overlord",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 12,
+                "black_gold_armor": 12,
+                "bearemp_egg": 3
+            }
+        }
+    },
+    "Black-Gold Bear Overlord": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.335,
+            1.353
+        ],
+        "evolution": {
+            "target_name": "Black-Gold Bear Demi-God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 24,
+                "black_gold_armor": 24,
+                "bearemp_egg": 6
+            }
+        }
+    },
+    "Black-Gold Bear Demi-God": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "abundant",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.345,
+            1.363
+        ]
+    },
+    "Timekeeper Bear Emperor": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.35,
+            1.375
+        ],
+        "evolution": {
+            "target_name": "Chronomancer Bear Overlord",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 16,
+                "black_gold_armor": 16,
+                "bearemp_egg": 5
+            }
+        }
+    },
+    "Chronomancer Bear Overlord": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.355,
+            1.38
+        ],
+        "evolution": {
+            "target_name": "Temporal Guardian Bear Demi-God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 32,
+                "black_gold_armor": 32,
+                "bearemp_egg": 10
+            }
+        }
+    },
+    "Temporal Guardian Bear Demi-God": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "scarce",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.365,
+            1.39
+        ]
+    },
+    "Spectrum Bear Emperor": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 1,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.375,
+            1.399
+        ],
+        "evolution": {
+            "target_name": "Elemental Bear Overlord",
+            "required_stage": {
+                "major": 9,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 20,
+                "black_gold_armor": 20,
+                "bearemp_egg": 8
+            }
+        }
+    },
+    "Elemental Bear Overlord": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 10,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.38,
+            1.404
+        ],
+        "evolution": {
+            "target_name": "Divine Aurora Bear God",
+            "required_stage": {
+                "major": 11,
+                "minor": 2
+            },
+            "required_items": {
+                "golden_bear_claw": 40,
+                "black_gold_armor": 40,
+                "bearemp_egg": 15
+            }
+        }
+    },
+    "Divine Aurora Bear God": {
+        "parent_beast_name": "Black-Gold Bear Emperor",
+        "rarity": "exotic",
+        "initial_stage": {
+            "major": 12,
+            "minor": 0
+        },
+        "growth_rate_range": [
+            1.39,
+            1.414
+        ]
+    }
+}
