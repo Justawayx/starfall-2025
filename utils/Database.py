@@ -1,370 +1,439 @@
-from tortoise import Tortoise, fields
+from typing import Optional, Any
+from tortoise import fields
 from tortoise.models import Model
 
-DB_CONFIG = {
-    "connections": {"default": "sqlite://./data.sqlite"},
-    "apps": {
-        "models": {
-            "models": ["utils.Database", "aerich.models"],
-            "default_connection": "default",
-        },
-    },
-}
-
-ID_UNCREATED: int = -1
-
-
-# ==============================
-# PLAYER DATA
-# ==============================
-class Users(Model):
-    user_id = fields.BigIntField(pk=True, generated=False)  # Discord user ID
-
-    # Money and energy
-    money = fields.BigIntField(default=0)  # Gold
-    money_cooldown = fields.BigIntField(default=0)  # Daily stipend cooldown
-    star = fields.BigIntField(default=0)
-    energy = fields.SmallIntField(default=60)  # Current energy
-    max_energy = fields.SmallIntField(default=60)
-    market_points = fields.BigIntField(default=0)
-    patreon_cooldown = fields.BigIntField(default=0)
-
-    # Things on body
-    pill_used = fields.JSONField(default=[])  # List of IDs of pills in effect
-    equipped = fields.JSONField(default={"techniques": {}, "method": None, "weapons": {}, "ring": None})  # For now, learned techniques and method
-    bonuses = fields.JSONField(default={"exp": 0, "cp": 0})  # Permanent bonuses
-    battle_boost = fields.JSONField(default=[0, 0], null=True)  # number of battle boost is for
-
-    # Other table references
-    cultivation: fields.ReverseRelation["Cultivation"]
-    crafting: fields.ReverseRelation["Crafting"]
-    pet: fields.ReverseRelation["Pet"]
-    alchemy: fields.ReverseRelation["Alchemy"]
-    pvp: fields.ReverseRelation["Pvp"]
-
-    faction: fields.ReverseRelation["Factions"]
-
-    inventory: fields.ReverseRelation["Inventory"]
-    temp: fields.ReverseRelation["Temp"]
-
-    market_author: fields.ReverseRelation["Market"]
-    quests: fields.ReverseRelation["Quests"]
-
-    auction_author: fields.ReverseRelation["AuctionDao"]
-    auction_bidder: fields.ReverseRelation["AuctionDao"]
-
-    ruins_discovered: fields.ReverseRelation["RuinsDao"]
-
-
-class Cultivation(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="cultivation", pk=True)
-
-    major = fields.SmallIntField(default=0)
-    minor = fields.SmallIntField(default=0)
-    current_exp = fields.BigIntField(default=0)
-    total_exp = fields.BigIntField(default=0)
-
-    msg_limit = fields.SmallIntField(default=0)
-    in_voice = fields.SmallIntField(default=0)
-
-    cooldown = fields.DatetimeField()
-    cultivate_cooldown = fields.DatetimeField()  # New
-
-
-class Crafting(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="crafting", pk=True)
-
-    # Crafting status
-    c_lvl = fields.SmallIntField(default=0)  # crafting tier
-    c_exp = fields.SmallIntField(default=0)  # Total crafting EXP
-
-    crafted = fields.JSONField(default=[])  # History of items crafted
-    craft_cooldown = fields.IntField(default=0)  # Cooldown since last crafting attempt
-
-
-class Pet(Model):
-    id = fields.IntField(pk=True, generated=True)
-    user = fields.ForeignKeyField("models.Users", related_name="pet")
-
-    beast = fields.ForeignKeyField("models.AllBeasts", related_name="human_pet")
-
-    pet = fields.ForeignKeyField("models.AllPets", related_name="hatched")
-    nickname = fields.CharField(max_length=255)
-    main = fields.SmallIntField(default=0)
-
-    p_cp = fields.BigIntField()
-    p_major = fields.SmallIntField(default=0)
-    p_minor = fields.SmallIntField(default=0)
-    p_exp = fields.BigIntField(default=1)
-
-    growth_rate = fields.FloatField()
-    reroll_count = fields.SmallIntField(default=0)
-
-
-class Alchemy(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="alchemy", pk=True)
-
-    # Alchemy status
-    a_lvl = fields.SmallIntField(default=0)  # Alchemy tier
-    a_exp = fields.SmallIntField(default=0)  # Total alchemy EXP
-
-    # Cauldron and flame
-    cauldron = fields.CharField(max_length=255, null=True)  # Cauldron ID
-    flame = fields.CharField(max_length=255, null=True)  # Equipped Flame ID
-
-    # Pill refinement
-    pill_refined = fields.JSONField(default={})  # History of # pills refined per tier
-    pill_cooldown = fields.IntField(default=0)  # Cooldown since last pill refine attempt
-    next_tier_chance = fields.SmallIntField(default=50)  # Refinement rate for next tier pill
-    pill_pity = fields.SmallIntField(default=0)  # Pity for alchemy tier breakthrough
-
-
-class Pvp(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="pvp", pk=True)
-
-    pvp_promo = fields.SmallIntField(default=0)  # PVP promos status
-    pvp_demote = fields.SmallIntField(default=0)  # Whether about to demote
-    rank_points_before_promo = fields.SmallIntField(default=0)  # Rank points before promos
-    rank_points = fields.IntField(default=0)  # PVP rank points
-    pvp_coins = fields.BigIntField(default=0)  # PVP Arena Coins
-    pvp_cooldown = fields.IntField(default=0)  # Amount of PVP matches remaining for the day
-
-
-class Quests(Model):
-    id = fields.IntField(pk=True, generated=True)
-    rank = fields.SmallIntField(default=0)
-    user = fields.ForeignKeyField("models.Users", related_name="quests", null=True)
-    item = fields.ForeignKeyField("models.AllItems", related_name="quest_item")
-    max_count = fields.SmallIntField(default=1)
-    count = fields.SmallIntField(default=1)
-    reward = fields.JSONField(default={})
-    contributors = fields.JSONField(default={})
-    till = fields.BigIntField()
-
-
-# ==============================
-# CONSTANT DATA
-# ==============================
-
-
-class AllBeasts(Model):
-    name = fields.CharField(max_length=255, pk=True)  # Name of beast
-    rank = fields.SmallIntField()  # Rank of beast
-    health = fields.IntField()  # Total health of beast (hunt)
-    affinity = fields.CharField(max_length=255, null=True)  # Elemental affinity of beast
-    exp_given = fields.IntField()  # Total EXP given
-    drop_rate = fields.IntField()  # Monster core drop rate
-    mat_drop_types = fields.JSONField(default=[])  # List of possible material drop IDs
-
-    spawned: fields.ReverseRelation["Beast"]
-    human_pet: fields.ReverseRelation["Pet"]
-
-
-class AllPets(Model):
-    name = fields.CharField(max_length=255, pk=True)
-    rank = fields.SmallIntField()
-    rarity = fields.CharField(max_length=255)
-    growth_rate = fields.JSONField(default=[])
-    base_cp = fields.BigIntField()
-    evolution = fields.JSONField(default={})
-    start_stage = fields.JSONField(default={})
-
-    hatched: fields.ReverseRelation["Pet"]
-
-
-class AllItems(Model):
-    id = fields.CharField(max_length=255, pk=True)
-
-    type = fields.CharField(max_length=255)  # Item type
-    tier = fields.SmallIntField(default=0)  # Item tier
-    weight = fields.SmallIntField(default=1)
-    name = fields.CharField(max_length=255)  # Item name
-    description = fields.CharField(max_length=999, default="No description")  # Item description
-    e_description = fields.CharField(max_length=999, default="No effect")  # Item effect description
-    properties = fields.JSONField(default={})  # Item-specific properties dictionary
-    max = fields.SmallIntField(default=99)  # Maximum allowed in inventory
-
-    buy_cost_d = fields.JSONField(default={})  # Cost to buy (in gold)
-    # buy_ac_cost = fields.JSONField(default=0) # Cost to buy (in Arena Coins)
-    sell_cost_d = fields.JSONField(default={})  # Sell price (in gold)
-
-    inventory_item: fields.ReverseRelation["Inventory"]
-    crafted_item: fields.ReverseRelation["Crafted"]
-    market_item: fields.ReverseRelation["Market"]
-    ring_item: fields.ReverseRelation["RingInventory"]
-    temp_item: fields.ReverseRelation["Temp"]
-    quest_item: fields.ReverseRelation["Quests"]
-
-
-class Factions(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="faction", pk=True)
-    name = fields.CharField(max_length=255)
-    role_id = fields.BigIntField()
-    multiplier = fields.SmallIntField()
-
-
-# ==============================
-# DYNAMIC PLAYER DATA
-# ==============================
-
-class Market(Model):
-    id = fields.BigIntField(pk=True, generated=True)
-    user = fields.ForeignKeyField("models.Users", related_name="market_author")
-    item = fields.ForeignKeyField("models.AllItems", related_name="market_item")
-    amount = fields.SmallIntField(default=1)
-    price = fields.IntField(default=1)
-    created = fields.DatetimeField(auto_now_add=True)
-    expiry = fields.DatetimeField()
-    unique_id = fields.IntField(null=True)
-
-
-class Beast(Model):
-    beast = fields.ForeignKeyField("models.AllBeasts", related_name="spawned")
-    beast_type = fields.CharField(max_length=255, null=True)
-    msg_id = fields.BigIntField()
-    total_health = fields.IntField()
-    current_health = fields.IntField()
-    attackers = fields.JSONField(default={})
-    till = fields.DatetimeField(null=True)
-    mcore_drop = fields.BigIntField(null=True)
-    bflame_drop = fields.BigIntField(null=True)
-    mat_drops = fields.JSONField(default=[])
-
-
-class BeastBattleDao(Model):
-    # Using the database as a NoSQL one for this case to add flexibility to the model without touching the database since this object will always be completely read and written
-    # Furthermore, there are no hard relationship with other table beside some player ids and beast name and the latter should not really have been a table to begin with
-    # Just keeping the PK and history columns since PK is needed for lookup and history for purges
-    # There's obviously a risk doing so in case someone alters the database directly since there are no database integrity constraints
-    id = fields.BigIntField(pk=True, generated=True)
-    data = fields.JSONField(default={})
-    created_at = fields.DatetimeField()
-    updated_at = fields.DatetimeField()
-
-    class Meta:
-        table = "beast_battle"
-
-
-class GuildOptions(Model):
-    name = fields.CharField(max_length=255)
-    value = fields.CharField(max_length=255)
-
-
-class GuildOptionsDict(Model):
-    name = fields.CharField(max_length=255)
-    value = fields.JSONField()
-
-
-class Inventory(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="inventory")
-    item = fields.ForeignKeyField("models.AllItems", related_name="inventory_item")
-    unique_id = fields.IntField(null=True)
-    count = fields.SmallIntField(default=1)
-
-
-class Crafted(Model):
-    id = fields.IntField(pk=True, generated=True)
-    item = fields.ForeignKeyField("models.AllItems", related_name="crafted_item")
-    stats = fields.JSONField(default={})
-
-
-class AllRings(Model):
-    id = fields.IntField(pk=True, generated=True)
-    ring = fields.CharField(max_length=255, null=True)
-    total_weight = fields.IntField(null=True)
-
-    items: fields.ReverseRelation["RingInventory"]
-
-
-class RingInventory(Model):
-    ring = fields.ForeignKeyField("models.AllRings", related_name="items", null=True)
-    item = fields.ForeignKeyField("models.AllItems", related_name="ring_item")
-    unique_id = fields.IntField(null=True)
-    count = fields.SmallIntField(default=1)
-
-
-class Temp(Model):
-    user = fields.ForeignKeyField("models.Users", related_name="temp", pk=True)
-    till = fields.BigIntField()  # Time when breakthrough ends
-    role_id = fields.BigIntField(null=True)
-    item = fields.ForeignKeyField("models.AllItems", related_name="temp_item", null=True)
-    cp = fields.SmallIntField(null=True)
-    exp = fields.SmallIntField(null=True)
-    event_exp = fields.SmallIntField(null=True)
-    event_cp = fields.SmallIntField(null=True)
-
-
-class AuctionDao(Model):
-    # PK
-    id = fields.BigIntField(pk=True, generated=True)
-
-    # The new auctioned item post id on the auction channel
-    msg_id = fields.BigIntField(null=True)
-
-    # Source detail
-    user = fields.ForeignKeyField("models.Users", related_name="auction_author", null=True)
-    system_auction = fields.BooleanField(default=False)
-
-    # Unique id to allow users to select the entry to place their bids
-    item = fields.ForeignKeyField("models.AllItems", related_name="auction_item")
-    unique_id = fields.IntField(null=True)
-    quantity = fields.SmallIntField(default=1)
-    minimum_bid = fields.IntField(default=1)
-    minimum_increment = fields.IntField(default=1)
-    start_time = fields.DatetimeField(null=True)
-    duration = fields.IntField(default=6)
-    countdown_start_time = fields.DatetimeField(null=True)
-    end_time = fields.DatetimeField(null=True)
-    item_remaining_lifespan = fields.IntField(null=True)
-    item_retrieved = fields.BooleanField(default=False)
-
-    # the user currently winning this auction
-    winning_user = fields.ForeignKeyField("models.Users", related_name="auction_bidder", null=True)
-    winning_current_amount = fields.BigIntField(null=True)
-    winning_maximum_amount = fields.BigIntField(null=True)
-    winning_reserved_amount = fields.IntField(null=True)
-    winning_tax_rate = fields.IntField(null=True)
-    winning_bid_time = fields.DatetimeField(null=True)
-
-    class Meta:
-        table = "auction"
-
+# Special ID constants
+ID_UNCREATED = "uncreated"  # Used to indicate an entity that hasn't been persisted yet
 
 class RuinsDao(Model):
-    id = fields.BigIntField(pk=True, generated=True)
-    msg_id = fields.BigIntField()
-    user = fields.ForeignKeyField(model_name="models.Users", related_name="ruins_discovered", null=True, on_delete=fields.SET_NULL)
-    ended = fields.BooleanField(default=False)
-    data = fields.JSONField(default={})
-    created_at = fields.DatetimeField()
-    updated_at = fields.DatetimeField()
+    """Database model for ruins exploration"""
+    exploration_id = fields.UUIDField(pk=True)
+    user_id = fields.BigIntField()
+    ruin_id = fields.UUIDField()
+    status = fields.CharField(max_length=20, default='exploring')
+    progress = fields.IntField(default=0)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     class Meta:
-        table = "ruins"
+        table = "ruins_explorations"
 
+    @property
+    def is_active(self) -> bool:
+        """Check if exploration is still active"""
+        return self.status == 'exploring'
 
-class GamingTableDao(Model):
-    id = fields.BigIntField(pk=True, generated=True)
-    game_id = fields.CharField(max_length=255)
-    data = fields.JSONField(default=None)
-    ended = fields.BooleanField(default=False)
-    expires_at = fields.DatetimeField(null=True)
-    created_at = fields.DatetimeField()
-    updated_at = fields.DatetimeField()
+    @classmethod
+    async def get_active_explorations(cls, user_id: int) -> list['RuinsDao']:
+        """Get all active explorations for a user"""
+        return await cls.filter(user_id=user_id, status='exploring')
+
+__all__ = ['Alchemy', 'Cultivation', 'PvpStatsDao', 'Users', 'Pvp', 'RingInventory', 'Pet', 'Temp', 'Factions', 'Inventory', 'Techniques', 'Quests', 'AllRings', 'AllItems', 'Market', 'GuildOptions', 'Crafted', 'GuildOptionsDict', 'AllBeasts', 'AllPets', 'Character', 'AuctionDao', 'BeastBattleDao', 'ID_UNCREATED', 'RuinsDao']
+
+# Move Character model to top of file
+class Character(Model):
+    """Database model for player characters"""
+    user_id = fields.BigIntField(pk=True)
+    name = fields.CharField(max_length=100)
+    level = fields.IntField(default=1)
+    experience = fields.IntField(default=0)
+    stats = fields.JSONField(default={})
+    skills = fields.JSONField(default=[])
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
     class Meta:
-        table = "gaming_table"
+        table = "characters"
 
+class AllPets(Model):
+    """Database model for all available pets"""
+    pet_id = fields.UUIDField(pk=True)
+    name = fields.CharField(max_length=100)
+    description = fields.TextField()
+    type = fields.CharField(max_length=50)
+    stats = fields.JSONField()
+    rarity = fields.CharField(max_length=50)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
 
-# Initialize models and database
+    class Meta:
+        table = "all_pets"
+
+class AllBeasts(Model):
+    """Database model for all available beasts"""
+    beast_id = fields.UUIDField(pk=True)
+    name = fields.CharField(max_length=100)
+    description = fields.TextField()
+    type = fields.CharField(max_length=50)
+    stats = fields.JSONField()
+    rarity = fields.CharField(max_length=50)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "all_beasts"
+
+class GuildOptionsDict(Model):
+    """Database model for guild options dictionary"""
+    guild_id = fields.BigIntField(pk=True)
+    options = fields.JSONField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "guild_options_dict"
+
+class Crafted(Model):
+    """Database model for crafted items"""
+    item_id = fields.UUIDField(pk=True)
+    crafter_id = fields.BigIntField()
+    recipe_id = fields.IntField()
+    quality = fields.IntField()
+    stats = fields.JSONField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "crafted_items"
+
+class GuildOptions(Model):
+    """Database model for guild-specific settings"""
+    guild_id = fields.BigIntField(pk=True)
+    name = fields.CharField(max_length=100, null=True)  # Added name field
+    pvp_enabled = fields.BooleanField(default=True)
+    economy_enabled = fields.BooleanField(default=True)
+    value = fields.JSONField(default={})  # Added value field for storing additional settings
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "guild_options"
+
+    @classmethod
+    async def get_or_create(cls, guild_id: int, name: Optional[str] = None) -> 'GuildOptions':
+        """Get or create guild options"""
+        options, _ = await cls.get_or_create(guild_id=guild_id, defaults={'name': name})
+        return options
+
+    async def update_value(self, key: str, value: Any):
+        """Update a specific value in the settings"""
+        self.value[key] = value
+        await self.save()
+
+    @classmethod
+    async def get_by_name(cls, name: str) -> Optional['GuildOptions']:
+        """Get guild options by name"""
+        return await cls.filter(name=name).first()
+
+class Market(Model):
+    """Database model for marketplace listings"""
+    listing_id = fields.UUIDField(pk=True)
+    seller_id = fields.BigIntField()
+    item = fields.JSONField()
+    price = fields.IntField()
+    quantity = fields.IntField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "market"
+
+class AllItems(Model):
+    """Database model for all available items"""
+    item_id = fields.UUIDField(pk=True)
+    name = fields.CharField(max_length=100)
+    description = fields.TextField()
+    type = fields.CharField(max_length=50)
+    stats = fields.JSONField()
+    rarity = fields.CharField(max_length=50)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "all_items"
+
+class AllRings(Model):
+    """Database model for all available rings"""
+    ring_id = fields.UUIDField(pk=True)
+    name = fields.CharField(max_length=100)
+    description = fields.TextField()
+    stats = fields.JSONField()
+    rarity = fields.CharField(max_length=50)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "all_rings"
+
+class Inventory(Model):
+    """Database model for player inventory"""
+    user_id = fields.BigIntField(pk=True)
+    items = fields.JSONField(default={})
+    equipment = fields.JSONField(default={})
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "inventory"
+
+class Techniques(Model):
+    """Database model for player techniques"""
+    user_id = fields.BigIntField(pk=True)
+    techniques = fields.JSONField(default=[])
+    equipped = fields.JSONField(default=[])
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "techniques"
+
+class Quests(Model):
+    """Database model for player quests"""
+    user_id = fields.BigIntField(pk=True)
+    active_quests = fields.JSONField(default=[])
+    completed_quests = fields.JSONField(default=[])
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "quests"
+
+class Factions(Model):
+    """Database model for player factions"""
+    user_id = fields.BigIntField(pk=True)
+    faction = fields.CharField(max_length=50)
+    rank = fields.CharField(max_length=50)
+    reputation = fields.IntField(default=0)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "factions"
+
+class Temp(Model):
+    """Database model for temporary data storage"""
+    id = fields.UUIDField(pk=True)
+    user_id = fields.BigIntField()
+    data = fields.JSONField()
+    expires_at = fields.DatetimeField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "temp_data"
+
+class Pet(Model):
+    """Database model for player pets"""
+    pet_id = fields.UUIDField(pk=True)
+    user_id = fields.BigIntField()
+    name = fields.CharField(max_length=50)
+    type = fields.CharField(max_length=50)
+    level = fields.IntField(default=1)
+    experience = fields.IntField(default=0)
+    stats = fields.JSONField(default={})
+    skills = fields.JSONField(default=[])
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "pets"
+
+class RingInventory(Model):
+    """Database model for ring inventory"""
+    user_id = fields.BigIntField(pk=True)
+    rings = fields.JSONField(default=[])
+    equipped_rings = fields.JSONField(default=[])
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "ring_inventory"
+
+class Pvp(Model):
+    """Database model for active PvP matches"""
+    match_id = fields.UUIDField(pk=True)
+    challenger_id = fields.BigIntField()
+    defender_id = fields.BigIntField()
+    status = fields.CharField(max_length=20, default='pending')
+    turn = fields.IntField(default=0)
+    challenger_energy = fields.IntField(default=100)
+    challenger_dou_qi = fields.IntField(default=100)
+    defender_energy = fields.IntField(default=100)
+    defender_dou_qi = fields.IntField(default=100)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "pvp_matches"
+
+class Users(Model):
+    """Database model for user accounts"""
+    user_id = fields.BigIntField(pk=True)
+    energy = fields.IntField(default=100)
+    dou_qi = fields.IntField(default=100)
+    max_energy = fields.IntField(default=100)
+    max_dou_qi = fields.IntField(default=100)
+    money = fields.IntField(default=0)
+    star = fields.IntField(default=0)
+    money_cooldown = fields.IntField(default=0)
+    status_effects = fields.JSONField(default={})
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "users"
+
+class Alchemy(Model):
+    """Database model for alchemy recipes"""
+    id = fields.IntField(pk=True)
+    recipe_name = fields.CharField(max_length=100)
+    ingredients = fields.JSONField()
+    result = fields.JSONField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "alchemy_recipes"
+
+class Cultivation(Model):
+    """Database model for cultivation progress"""
+    user_id = fields.BigIntField(pk=True)
+    stage = fields.CharField(max_length=50)
+    experience = fields.IntField(default=0)
+    max_energy = fields.IntField(default=100)
+    max_dou_qi = fields.IntField(default=100)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "cultivation"
+
+class AuctionDao(Model):
+    """Database model for auction listings"""
+    auction_id = fields.UUIDField(pk=True)
+    seller_id = fields.BigIntField()
+    item = fields.JSONField()
+    starting_price = fields.IntField()
+    current_bid = fields.IntField(null=True)
+    bidder_id = fields.BigIntField(null=True)
+    end_time = fields.DatetimeField()
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "auctions"
+
+    @property
+    def is_active(self) -> bool:
+        """Check if auction is still active"""
+        return datetime.now(timezone.utc) < self.end_time
+
+    @classmethod
+    async def get_active_auctions(cls) -> list['AuctionDao']:
+        """Get all active auctions"""
+        return await cls.filter(end_time__gt=datetime.now(timezone.utc))
+
+class BeastBattleDao(Model):
+    """Database model for PvE beast battles"""
+    battle_id = fields.UUIDField(pk=True)
+    user_id = fields.BigIntField()
+    beast_id = fields.UUIDField()
+    status = fields.CharField(max_length=20, default='active')
+    turn = fields.IntField(default=0)
+    player_energy = fields.IntField(default=100)
+    player_dou_qi = fields.IntField(default=100)
+    beast_energy = fields.IntField(default=100)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "beast_battles"
+
+    @property
+    def is_active(self) -> bool:
+        """Check if battle is still active"""
+        return self.status == 'active'
+
+    @classmethod
+    async def get_active_battles(cls, user_id: int) -> list['BeastBattleDao']:
+        """Get all active battles for a user"""
+        return await cls.filter(user_id=user_id, status='active')
+
+class RuinsDao(Model):
+    """Database model for ruins exploration"""
+    exploration_id = fields.UUIDField(pk=True)
+    user_id = fields.BigIntField()
+    ruin_id = fields.UUIDField()
+    status = fields.CharField(max_length=20, default='exploring')
+    progress = fields.IntField(default=0)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "ruins_explorations"
+
+    @property
+    def is_active(self) -> bool:
+        """Check if exploration is still active"""
+        return self.status == 'exploring'
+
+    @classmethod
+    async def get_active_explorations(cls, user_id: int) -> list['RuinsDao']:
+        """Get all active explorations for a user"""
+        return await cls.filter(user_id=user_id, status='exploring')
+
+class PvpStatsDao(Model):
+    """Database model for PvP statistics"""
+    user_id = fields.BigIntField(pk=True)
+    wins = fields.IntField(default=0)
+    losses = fields.IntField(default=0)
+    draws = fields.IntField(default=0)
+    last_match = fields.DatetimeField(null=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "pvp_stats"
+
+    @property
+    def win_rate(self) -> float:
+        """Calculate win rate percentage"""
+        total = self.wins + self.losses + self.draws
+        if total == 0:
+            return 0.0
+        return (self.wins / total) * 100
+
+    @classmethod
+    async def get(cls, user_id: int) -> Optional['PvpStatsDao']:
+        """Get or create PvP stats for a user"""
+        stats, _ = await cls.get_or_create(user_id=user_id)
+        return stats
+
+    async def add_win(self):
+        """Increment win count"""
+        self.wins += 1
+        self.last_match = fields.now()
+        await self.save()
+
+    async def add_loss(self):
+        """Increment loss count"""
+        self.losses += 1
+        self.last_match = fields.now()
+        await self.save()
+
+    async def add_draw(self):
+        """Increment draw count"""
+        self.draws += 1
+        self.last_match = fields.now()
+        await self.save()
+
 async def init_database():
-    # Create SQLite DB using models specified above
+    """Initialize database connection"""
+    from tortoise import Tortoise
     await Tortoise.init(
-        db_url="sqlite://./data.sqlite",
-        modules={"models": ["utils.Database"]}
+        db_url='sqlite://db.sqlite3',
+        modules={'models': ['utils.Database']}
     )
+    await Tortoise.generate_schemas()
 
-    # Generate schema
-    await Tortoise.generate_schemas(safe=True)
-
-    print("[Database] Initialized")
+__all__.append('init_database')
