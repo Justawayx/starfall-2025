@@ -53,6 +53,9 @@ class Users(Model):
     auction_author: fields.ReverseRelation["AuctionDao"]
     auction_bidder: fields.ReverseRelation["AuctionDao"]
 
+    pvp_challenger: fields.ReverseRelation["PvpMatches"]
+    pvp_defender: fields.ReverseRelation["PvpMatches"]
+
     ruins_discovered: fields.ReverseRelation["RuinsDao"]
 
 
@@ -293,6 +296,23 @@ class Temp(Model):
     event_exp = fields.SmallIntField(null=True)
     event_cp = fields.SmallIntField(null=True)
 
+class PvpMatches(Model):
+    id = fields.BigIntField(pk=True, generated=True)
+    challenger = fields.ForeignKeyField("models.Users", related_name="pvp_challenger", null=True)
+    defender = fields.ForeignKeyField("models.Users", related_name="pvp_defender", null=True)
+    status = fields.JSONField(default={})
+    turn = fields.SmallIntField(default=0)
+    challenger_HP = fields.SmallIntField(default=100)
+    challenger_Qi = fields.SmallIntField(default=100)
+    defender_HP = fields.SmallIntField(default=100)
+    defender_Qi = fields.SmallIntField(default=100)
+    created_at = fields.DatetimeField(null=True)
+    updated_at = fields.DatetimeField(null=True)
+    challenger_action = fields.CharField(max_length=255, default='None')
+    defender_action = fields.CharField(max_length=255, default='None')
+
+    class Meta:
+        table = "pvp_matches"
 
 class AuctionDao(Model):
     # PK
