@@ -308,8 +308,8 @@ class PvpMatches(Model):
     defender_Qi = fields.SmallIntField(default=100)
     created_at = fields.DatetimeField(null=True)
     updated_at = fields.DatetimeField(null=True)
-    challenger_action = fields.CharField(max_length=255, default='None')
-    defender_action = fields.CharField(max_length=255, default='None')
+    challenger_action = fields.JSONField(default={})
+    defender_action = fields.JSONField(default={})
 
     class Meta:
         table = "pvp_matches"

@@ -8,13 +8,21 @@ from adventure.pvp import start_pvp_battle
 from utils.Database import Users, PvpMatches
 from utils.Styles import EXCLAMATION
 from utils.base import CogNotLoadedError
-import random, asyncio
+from utils.ParamsUtils import format_num_abbr1
+import random, asyncio, json, math
 # from character.pvp_stats import PvPStats
 
-# TODO: Add action logs to public channel, address win/loss when health goes to 0
-'''
-{'id': 417239126849355776, 'Member': <Member id=417239126849355776 name='justawayx' global_name='Daisy' discriminator='0' bot=False nick=None guild=<Guild id=779435063678861383 name='Starfall PBE' shard_id=0 chunked=True member_count=25>>, 'Player': Player {user_id: 417239126849355776}, 'HP': 36, 'Max HP': 41, 'Qi': 100, 'Max Qi': 100, 'action': 'None'} {'id': 224668599409704961, 'Member': <Member id=224668599409704961 name='neutralizinq' global_name='Neutralizinq' discriminator='0' bot=False nick=None guild=<Guild id=779435063678861383 name='Starfall PBE' shard_id=0 chunked=True member_count=25>>, 'Player': Player {user_id: 224668599409704961}, 'HP': 10, 'Max HP': 10, 'Qi': 100, 'Max Qi': 100, 'action': '<@224668599409704961> used "basic_attack", dealing 4.92 damage to <@417239126849355776>'}
-'''
+
+class BattleAction():
+    def __init__(self, name: str, player_id: int, target_id: int, damage: int):
+        self.name = name
+        self.player_id = player_id
+        self.target_id = target_id
+        self.damage = damage
+        self.description = self.__str__()
+    
+    def __str__(self):
+        return f'<@{self.player_id}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_id}>'
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -23,20 +31,21 @@ def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake
         color=color
     )
 
+def to_nonneg(number):
+    return max(0, number)
+
 class MainBattleView(View):
 
     def __init__(self, guild: disnake.Guild, channel: disnake.TextChannel, match_id: int, user_id: int):
-        
-        ACTION_TIMEOUT = 30 # seconds
         super().__init__(timeout=None)  # Handle timeout manually
-        self.countdown = ACTION_TIMEOUT
+        self.countdown = 30
         self.message = None  # Store this user's message (for updating)
         self.opponent_message = None  # Store the opponent's message (for updating)
         self.guild = guild  # Store the guild
         self.channel = channel  # Store the channel
         self._id = match_id  # Store the match ID
         self.user_id = user_id  # Store this user's ID
-
+        
         # Start the countdown task
         self.countdown_task = asyncio.create_task(self.update_countdown())
     
@@ -45,7 +54,7 @@ class MainBattleView(View):
         match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "status", "turn", "challenger_HP", "defender_HP", "challenger_Qi", "defender_Qi", "challenger_action", "defender_action")
         
         challenger_id, defender_id, status, turn, challenger_HP, defender_HP, challenger_Qi, defender_Qi, challenger_action, defender_action = match_data
-
+        
         challenger = self.guild.get_member(challenger_id)
         defender = self.guild.get_member(defender_id)
         
@@ -89,19 +98,40 @@ class MainBattleView(View):
 
         return challenger_info, defender_info, turn, am_challenger
     
+    async def display_final_turn(self, challenger_info: dict, defender_info: dict, turn: int):
+        
+        winner_info, loser_info = (challenger_info, defender_info) if defender_info['HP'] <= 0 else (defender_info, challenger_info)
+        
+        # Generate updated embeds
+        battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
+        action_embed = disnake.Embed(
+            description=f"{challenger_info['action']['description']}\n{defender_info['action']['description']}",
+            color=disnake.Color.red()
+        )
+
+        victory_title_options = ["Fate Sealed!", "A Decisive Blow!", "The Final Strike!", "Victory!", f"The End of <@{loser_info['Member'].display_name}>!", f"<@{winner_info['Member'].display_name}>'s Triumph!", "The Battle's Turning Point!", f"<@{loser_info['Member'].display_name}> Falls!", "The Ultimate Move!", "Destiny Fulfilled!", f"<@{winner_info['Member'].display_name}> Reigns Supreme!", "The Last Stand!"]
+        victory_title = random.choice(victory_title_options)
+        victory_description = f"<@{winner_info['id']}>'s `{winner_info['action']['name']}` sealed the fate of <@{loser_info['id']}>!"
+
+        result_embed = simple_embed(victory_title, victory_description)
+
+        # Send embeds to public channel and both players
+        await self.channel.send(embeds=[action_embed, battle_embed, result_embed])
+        await challenger_info['Member'].send(embeds=[action_embed, battle_embed, result_embed])
+        await defender_info['Member'].send(embeds=[action_embed, battle_embed, result_embed])
 
     async def display_next_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
-            description=f"{challenger_info['action']}\n{defender_info['action']}",
+            description=f"{challenger_info['action']['description']}\n{defender_info['action']['description']}",
             color=disnake.Color.red()
         )
         initial_countdown_embed = simple_embed('', "Starting turn...", color=disnake.Color.blue())
 
         # Send updated battle embed to public channel
-        await self.channel.send(embeds=[battle_embed])
+        await self.channel.send(embeds=[action_embed, battle_embed])
         
         # Send updated embeds to the challenger and store the message object
         challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=challenger_info['id'])
@@ -131,20 +161,20 @@ class MainBattleView(View):
         challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
 
         if am_challenger:
-            challenger_info['action'] = f'<@{challenger_info['id']}> did nothing.'
+            challenger_info['action'] = BattleAction(name="nothing", player_id=challenger_info['id'], target_id=defender_info['id'], damage=0).__dict__
         else:
-            defender_info['action'] = f'<@{defender_info['id']}> did nothing.'
+            defender_info['action'] = BattleAction(name="nothing", player_id=defender_info['id'], target_id=challenger_info['id'], damage=0).__dict__
 
         # Challenger side sends message if both players timed out, otherwise defender side sends message
-        if challenger_info['action'] != 'None' or am_challenger:
+        if (challenger_info['action']) or am_challenger:
 
             turn += 1
-            await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action='None', defender_action='None')
+            await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
             await self.display_next_turn(challenger_info, defender_info, turn)
             
-            # Delete original messages for both players
-            await self.message.delete()
-            await self.opponent_message.delete()
+            # Delete original messages (except for first action embed) for both players
+            await self.message.edit(embed=self.message.embeds[0], view=None)
+            await self.opponent_message.edit(embed=self.opponent_message.embeds[0], view=None)
 
 
     async def update_countdown(self):
@@ -178,32 +208,36 @@ class MainBattleView(View):
 
             if am_challenger: # Challenger submitted attack
                 # Perform basic attack
-                attack_damage = (random.randint(5, 15)/100.0)*defender_info['HP']
-                action = f'<@{challenger_info['id']}> used "basic_attack", dealing {attack_damage} damage to <@{defender_info['id']}>'
-
-                await PvpMatches.filter(id=self._id).update(defender_HP=(defender_info['HP'] - attack_damage), challenger_action=action)
-
-                defender_info['HP'] -= attack_damage
+                attack_damage = math.ceil((random.randint(5, 30)/100.0)*defender_info['HP'])
+                action = BattleAction(name="basic_attack", player_id=challenger_info['id'], target_id=defender_info['id'], damage=attack_damage).__dict__
+                
+                defender_info['HP'] = to_nonneg(defender_info['HP'] - attack_damage)
                 challenger_info['action'] = action
+
+                await PvpMatches.filter(id=self._id).update(defender_HP=(defender_info['HP']), challenger_action=action)
 
             else: # Defender submitted attack
                 # Perform basic attack
-                attack_damage = (random.randint(5, 15)/100.0)*challenger_info['HP']
-                action = f'<@{defender_info['id']}> used "basic_attack", dealing {attack_damage} damage to <@{challenger_info['id']}>'
+                attack_damage = math.ceil((random.randint(5, 40)/100.0)*challenger_info['HP'])
+                action = BattleAction(name="basic_attack", player_id=defender_info['id'], target_id=challenger_info['id'], damage=attack_damage).__dict__
                 
-                await PvpMatches.filter(id=self._id).update(challenger_HP=(challenger_info['HP'] - attack_damage), defender_action=action)
-
-                challenger_info['HP'] -= attack_damage
+                challenger_info['HP'] = to_nonneg(challenger_info['HP'] - attack_damage)
                 defender_info['action'] = action
+
+                await PvpMatches.filter(id=self._id).update(challenger_HP=(challenger_info['HP']), defender_action=action)
             
-            if challenger_info['action'] != 'None' and defender_info['action'] != 'None': # Both players have submitted moves, move on to next turn
-                turn += 1
-                await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action='None', defender_action='None')
-                await self.display_next_turn(challenger_info, defender_info, turn)
+            if challenger_info['action'] and defender_info['action']: # Both players have submitted moves, move on to next turn
+                
+                if challenger_info['HP'] <= 0 or defender_info['HP'] <= 0: # Handle end of match
+                    await self.display_final_turn(challenger_info, defender_info, turn)
+                else:
+                    turn += 1
+                    await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
+                    await self.display_next_turn(challenger_info, defender_info, turn)
                 
                 # Delete original messages for both players
-                await self.message.delete()
-                await self.opponent_message.delete()
+                await self.message.edit(embed=self.message.embeds[0], view=None)
+                await self.opponent_message.edit(embed=self.opponent_message.embeds[0], view=None)
             
             else: # Waiting for opponent to submit move
                 waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
@@ -217,7 +251,11 @@ class MainBattleView(View):
     async def use_technique_turn(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         pass
 
+
 def generate_battle_embed(challenger_info: dict, defender_info: dict, turn: int) -> disnake.Embed:
+    
+
+    
     """Generate an embed for the battle"""
     embed = disnake.Embed(
         title=f"⚔️ PvP Battle: Turn {turn}",
@@ -338,21 +376,21 @@ class InitialChallengeView(View):
             print(f"Error in accept_challenge: {e}")
             await inter.response.send_message("Something went wrong. Please try again.", ephemeral=True)
 
-    @disnake.ui.button(label="Reject", style=disnake.ButtonStyle.danger, custom_id="reject_challenge")
-    async def reject_challenge(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+    @disnake.ui.button(label="Decline", style=disnake.ButtonStyle.danger, custom_id="decline_challenge")
+    async def decline_challenge(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         try:
             # Send a DM to the challenger
             challenger_embed = disnake.Embed(
-                title="Challenge Rejected",
-                description=f"{inter.author.mention} has rejected your challenge.",
+                title="Challenge Declined",
+                description=f"{inter.author.mention} has declined your challenge.",
                 color=disnake.Color.red()
             )
             await self.challenger.send(embed=challenger_embed)
 
             # Respond to the opponent
-            await inter.response.send_message("You rejected the challenge.", ephemeral=True)
+            await inter.response.send_message("You declined the challenge.", ephemeral=True)
         except Exception as e:
-            print(f"Error in reject_challenge: {e}")
+            print(f"Error in decline_challenge: {e}")
             await inter.response.send_message("Something went wrong. Please try again.", ephemeral=True)
 
 
