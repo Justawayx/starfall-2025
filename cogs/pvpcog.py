@@ -36,19 +36,35 @@ def to_nonneg(number):
 
 class MainBattleView(View):
 
-    def __init__(self, guild: disnake.Guild, channel: disnake.TextChannel, match_id: int, user_id: int):
+    def __init__(self, guild: disnake.Guild, channel: disnake.TextChannel, match_id: int, user_id: int, opponent_user_id: int,
+        message: disnake.Message = None, opponent_message: disnake.Message = None, public_message: disnake.Message = None):
         super().__init__(timeout=None)  # Handle timeout manually
         self.countdown = 30
-        self.message = None  # Store this user's message (for updating)
-        self.opponent_message = None  # Store the opponent's message (for updating)
+        self.message = message  # Store this user's message (for updating)
+        self.opponent_message = opponent_message  # Store the opponent's message (for updating)
+        self.public_message = public_message # Store the public message (for updating)
         self.guild = guild  # Store the guild
         self.channel = channel  # Store the channel
         self._id = match_id  # Store the match ID
         self.user_id = user_id  # Store this user's ID
+        self.opponent_user_id = opponent_user_id # Store the opponent's view (for updating)
         
         # Start the countdown task
         self.countdown_task = asyncio.create_task(self.update_countdown())
     
+    def toggle_buttons(self, enabled: bool):
+        """Enable or disable all buttons dynamically."""
+        for child in self.children:
+            if isinstance(child, disnake.ui.Button):
+                child.disabled = (not enabled)
+    
+    def restart_countdown_task(self):
+        # Cancel the existing task if it exists and is not already done
+        if self.countdown_task and not self.countdown_task.done():
+            self.countdown_task.cancel()
+        # Reset the countdown and create a new task
+        self.countdown_task = asyncio.create_task(self.update_countdown())
+
     async def get_match_data(self) -> Tuple[dict, dict, int, bool]:
 
         match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "status", "turn", "challenger_HP", "defender_HP", "challenger_Qi", "defender_Qi", "challenger_action", "defender_action")
@@ -100,6 +116,7 @@ class MainBattleView(View):
     
     async def display_final_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
+        self.stop() # Stop the view
         winner_info, loser_info = (challenger_info, defender_info) if defender_info['HP'] <= 0 else (defender_info, challenger_info)
         
         # Generate updated embeds
@@ -115,10 +132,10 @@ class MainBattleView(View):
 
         result_embed = simple_embed(victory_title, victory_description)
 
-        # Send embeds to public channel and both players
-        await self.channel.send(embeds=[action_embed, battle_embed, result_embed])
-        await challenger_info['Member'].send(embeds=[action_embed, battle_embed, result_embed])
-        await defender_info['Member'].send(embeds=[action_embed, battle_embed, result_embed])
+        # Updates embeds in public channel and for both players
+        await self.public_message.edit(embeds=[action_embed, battle_embed, result_embed])
+        await self.message.edit(embeds=[action_embed, battle_embed, result_embed])
+        await self.opponent_message.edit(embeds=[action_embed, battle_embed, result_embed])
 
     async def display_next_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
@@ -130,32 +147,33 @@ class MainBattleView(View):
         )
         initial_countdown_embed = simple_embed('', "Starting turn...", color=disnake.Color.blue())
 
-        # Send updated battle embed to public channel
-        await self.channel.send(embeds=[action_embed, battle_embed])
+        # Updates embed in public channel
+        await self.public_message.edit(embeds=[action_embed, battle_embed])
         
         # Send updated embeds to the challenger and store the message object
-        challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=challenger_info['id'])
+        challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=challenger_info['id'], opponent_user_id=defender_info['id'], public_message=self.public_message)
         challenger_message = await challenger_info['Member'].send(embeds=[action_embed, battle_embed, initial_countdown_embed], view=challengerBattleView)
         challengerBattleView.message = challenger_message  # Store the message for dynamic updates
 
         # Send updated embeds to the defender and store the message object
-        defenderBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=defender_info['id'])
+        defenderBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=defender_info['id'], opponent_user_id=challenger_info['id'], public_message=self.public_message)
         defender_message = await defender_info['Member'].send(embeds=[action_embed, battle_embed, initial_countdown_embed], view=defenderBattleView)
         defenderBattleView.message = defender_message  # Store the message for dynamic updates
 
         # Store references to the other player's message
         challengerBattleView.opponent_message = defender_message
         defenderBattleView.opponent_message = challenger_message
-
-        self.stop()
+        
+        # Delete original messages for both players
+        await self.message.delete()
+        await self.opponent_message.delete()
     
     # Handle timeout (when the user doesn't click a button in time)
     async def on_timeout(self):
-        
-        # self.countdown_task.cancel()
 
         timeout_embed = disnake.Embed(description="⏰ Time's up! You didn't respond in time.")
-        await self.message.edit(embeds=[*self.message.embeds[:-1], timeout_embed], view=None)
+        self.toggle_buttons(enabled=False) # Disable the buttons
+        await self.message.edit(embeds=[*self.message.embeds[:-1], timeout_embed], view=self)
 
         # For now, do nothing and move on to next turn
         challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
@@ -167,15 +185,9 @@ class MainBattleView(View):
 
         # Challenger side sends message if both players timed out, otherwise defender side sends message
         if (challenger_info['action']) or am_challenger:
-
             turn += 1
             await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
             await self.display_next_turn(challenger_info, defender_info, turn)
-            
-            # Delete original messages (except for first action embed) for both players
-            await self.message.edit(embed=self.message.embeds[0], view=None)
-            await self.opponent_message.edit(embed=self.opponent_message.embeds[0], view=None)
-
 
     async def update_countdown(self):
         # Update the countdown every second
@@ -201,14 +213,15 @@ class MainBattleView(View):
         
         await inter.response.defer()
         self.countdown_task.cancel() # Stop the countdown
-        self.stop() # Remove the buttons
+        self.toggle_buttons(enabled=False) # Disable the buttons
+        await self.message.edit(view=self)
         
         try:
             challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
 
             if am_challenger: # Challenger submitted attack
                 # Perform basic attack
-                attack_damage = math.ceil((random.randint(5, 30)/100.0)*defender_info['HP'])
+                attack_damage = math.ceil((random.randint(20, 60)/100.0)*defender_info['HP'])
                 action = BattleAction(name="basic_attack", player_id=challenger_info['id'], target_id=defender_info['id'], damage=attack_damage).__dict__
                 
                 defender_info['HP'] = to_nonneg(defender_info['HP'] - attack_damage)
@@ -218,7 +231,7 @@ class MainBattleView(View):
 
             else: # Defender submitted attack
                 # Perform basic attack
-                attack_damage = math.ceil((random.randint(5, 40)/100.0)*challenger_info['HP'])
+                attack_damage = math.ceil((random.randint(20, 60)/100.0)*challenger_info['HP'])
                 action = BattleAction(name="basic_attack", player_id=defender_info['id'], target_id=challenger_info['id'], damage=attack_damage).__dict__
                 
                 challenger_info['HP'] = to_nonneg(challenger_info['HP'] - attack_damage)
@@ -234,14 +247,10 @@ class MainBattleView(View):
                     turn += 1
                     await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
                     await self.display_next_turn(challenger_info, defender_info, turn)
-                
-                # Delete original messages for both players
-                await self.message.edit(embed=self.message.embeds[0], view=None)
-                await self.opponent_message.edit(embed=self.opponent_message.embeds[0], view=None)
             
             else: # Waiting for opponent to submit move
                 waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
-                await inter.edit_original_message(embeds=[*self.message.embeds[:-1], waiting_embed], view=None)
+                await inter.edit_original_message(embeds=[*self.message.embeds[:-1], waiting_embed])
         
         except Exception as e:
             print(f"Error in basic_attack: {e}")
@@ -254,9 +263,6 @@ class MainBattleView(View):
 
 def generate_battle_embed(challenger_info: dict, defender_info: dict, turn: int) -> disnake.Embed:
     
-
-    
-    """Generate an embed for the battle"""
     embed = disnake.Embed(
         title=f"⚔️ PvP Battle: Turn {turn}",
         color=disnake.Color.blue()
@@ -288,6 +294,9 @@ class InitialChallengeView(View):
 
     @disnake.ui.button(label="Accept", style=disnake.ButtonStyle.success, custom_id="accept_challenge")
     async def accept_challenge(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        
+        await inter.response.defer()
+        
         try:
             # Get initial stats
             challengerCP = await self.challengerPlayer.compute_total_cp()
@@ -332,40 +341,31 @@ class InitialChallengeView(View):
             
             if self.channel:
                 
-                # Send a message to the public channel
-                accept_embed = disnake.Embed(
-                    title="Challenge Accepted!",
-                    description=f"{inter.author.mention} has accepted {self.challenger.mention}'s challenge!",
-                    color=disnake.Color.green()
-                )
-
+                # Generate battle and countdown embeds
                 battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
-
-                await self.channel.send(embeds=[accept_embed, battle_embed])
-
-                # Notify both players / initiate the match
-
-                defender_accept_DM_embed = simple_embed("Challenge Accepted!", f"You accepted the challenge from {self.challenger.mention}!", disnake.Color.green())
-                challenger_accept_DM_embed = simple_embed("Challenge Accepted!", f"Your challenge has been accepted by {inter.author.mention}!", disnake.Color.green())
-                
-                challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=pvpmatch.id, user_id=self.challenger.id)
-                defenderBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=pvpmatch.id, user_id=self.defender.id)
-                
                 initial_countdown_embed = simple_embed('', "Starting turn...", color=disnake.Color.blue())
+                
+                # Send messages to the public channel
+                accept_embed = simple_embed("Challenge Accepted!", f"{inter.author.mention} has accepted {self.challenger.mention}'s challenge!", disnake.Color.green())
+                initial_action_embed = simple_embed('', 'The battle has begun!', disnake.Color.red())
+                await self.channel.send(embed=accept_embed)
+                public_message = await self.channel.send(embeds=[accept_embed, battle_embed])
 
-                # Send the initial message to the challenger and store the message object
-                await self.challenger.send(embed=challenger_accept_DM_embed)
-                challenger_message = await self.challenger.send(embeds=[battle_embed, initial_countdown_embed], view=challengerBattleView)
-                challengerBattleView.message = challenger_message  # Store the message for dynamic updates
-
-                # Send the initial message to the defender and store the message object
-                await inter.response.send_message(embed=defender_accept_DM_embed)
-                defender_message = await self.defender.send(embeds=[battle_embed, initial_countdown_embed], view=defenderBattleView)
-                defenderBattleView.message = defender_message  # Store the message for dynamic updates
-
-                # Store references to the other player's message
-                challengerBattleView.opponent_message = defender_message
-                defenderBattleView.opponent_message = challenger_message
+                # Send messages with MainBattleViews to both players
+                player_messages = []; player_views = [] # Order is challenger, defender
+                for player, other_player in ((self.challenger, self.defender), (self.defender, self.challenger)):
+                    acceptance_message = f"Your challenge has been accepted by {other_player.mention}!" if player == self.challenger else f"You accepted the challenge from {other_player.mention}!"
+                    await player.send(embed=simple_embed("Challenge Accepted!", acceptance_message, disnake.Color.green()))
+                    
+                    playerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=pvpmatch.id, user_id=player.id, opponent_user_id=other_player.id)
+                    player_message = await player.send(embeds=[initial_action_embed, battle_embed, initial_countdown_embed], view=playerBattleView)
+                    playerBattleView.message = player_message; playerBattleView.public_message = public_message
+                    player_messages.append(player_message); player_views.append(playerBattleView)
+                
+                player_views[0].opponent_message = player_messages[1]
+                player_views[0].opponent_view = player_views[1]
+                player_views[1].opponent_message = player_messages[0]
+                player_views[1].opponent_view = player_views[0]
                 
             else:
                 # Respond to the opponent
