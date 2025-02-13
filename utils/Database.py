@@ -300,16 +300,14 @@ class PvpMatches(Model):
     id = fields.BigIntField(pk=True, generated=True)
     challenger = fields.ForeignKeyField("models.Users", related_name="pvp_challenger", null=True)
     defender = fields.ForeignKeyField("models.Users", related_name="pvp_defender", null=True)
-    status = fields.JSONField(default={})
+    status = fields.CharField(max_length=255, default="pending")
     turn = fields.SmallIntField(default=0)
-    challenger_HP = fields.SmallIntField(default=100)
-    challenger_Qi = fields.SmallIntField(default=100)
-    defender_HP = fields.SmallIntField(default=100)
-    defender_Qi = fields.SmallIntField(default=100)
-    created_at = fields.DatetimeField(null=True)
-    updated_at = fields.DatetimeField(null=True)
+    challenger_stats = fields.JSONField(default={})
+    defender_stats = fields.JSONField(default={})
     challenger_action = fields.JSONField(default={})
     defender_action = fields.JSONField(default={})
+    created_at = fields.DatetimeField(null=True)
+    updated_at = fields.DatetimeField(null=True)
 
     class Meta:
         table = "pvp_matches"

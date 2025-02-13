@@ -479,6 +479,10 @@ class Player(Character):
 
         return content, embed_content
 
+    async def get_equipped_items(self):
+        equipped, bonuses = await Users.get_or_none(user_id=self.id).values_list("equipped", "bonuses")
+        return equipped
+
     async def compute_total_cp(self) -> int:
         major: int = self.cultivation.major
         equipped, bonuses = await Users.get_or_none(user_id=self.id).values_list("equipped", "bonuses")

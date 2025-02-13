@@ -29,7 +29,7 @@ class Continent:
     async def load(self, bot: commands.Bot):
         self._bot: commands.Bot = bot
         # TODO its not working as intended so commented it out for main bot
-        config: ServerConfig = ServerConfig.production()
+        config: ServerConfig = ServerConfig.beta() # Use production or beta
         self._config = config
         # gld = self._bot.get_guild(config.guild_id)
         # if gld and gld.get_channel(config.general_channel_id) is not None:

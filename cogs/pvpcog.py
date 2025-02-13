@@ -4,6 +4,7 @@ from disnake.ui import Button, View
 from typing import List, Optional, Tuple
 from character.player import Player, PlayerRoster
 from adventure.pvp import start_pvp_battle
+from tortoise.expressions import Q
 # from utils.Embeds import create_embed
 from utils.Database import Users, PvpMatches
 from utils.Styles import EXCLAMATION
@@ -12,6 +13,17 @@ from utils.ParamsUtils import format_num_abbr1
 import random, asyncio, json, math
 # from character.pvp_stats import PvPStats
 
+# TODO: remove bruv from shop
+
+def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
+    return disnake.Embed(
+        title=title,
+        description=description,
+        color=color
+    )
+
+def to_nonneg(number):
+    return max(0, number)
 
 class BattleAction():
     def __init__(self, name: str, player_id: int, target_id: int, damage: int):
@@ -24,15 +36,57 @@ class BattleAction():
     def __str__(self):
         return f'<@{self.player_id}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_id}>'
 
-def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
-    return disnake.Embed(
-        title=title,
-        description=description,
-        color=color
-    )
+class TechniqueDropdown(disnake.ui.Select):
+    """Dropdown for selecting a technique."""
 
-def to_nonneg(number):
-    return max(0, number)
+    def __init__(self, techniques: list, battle_view):
+        options = [
+            disnake.SelectOption(label=tech, description='Cooldown: x | Qi Cost: x', value=tech)
+            for index, tech in enumerate(techniques)
+        ]
+        super().__init__(placeholder="Choose a technique...", min_values=1, max_values=1, options=options)
+        self.battle_view = battle_view
+        self.techniques = techniques
+
+    async def callback(self, inter: disnake.MessageInteraction):
+        """Handles when a technique is selected."""
+        await inter.response.defer()
+        self.battle_view.countdown_task.cancel() # Stop the countdown
+        self.battle_view.toggle_buttons(enabled=False) # Disable the buttons
+        self.battle_view.clear_items()  # Remove dropdown
+        await self.battle_view.message.edit(view=self.battle_view)
+
+        # Get selected technique
+        selected_technique = self.values[0]
+
+        # Store the action (modify this according to your action logic)
+        action = {
+            "name": selected_technique,
+            "description": f"<@{inter.user.id}> used `{selected_technique}`!",
+            "damage": 0
+        }
+
+        # Identify if the user is the challenger or defender
+        challenger_info, defender_info, turn, am_challenger = await self.battle_view.get_match_data()
+        if am_challenger:
+            challenger_info['action'] = action
+            await PvpMatches.filter(id=self.battle_view._id).update(challenger_action=action)
+        else:
+            defender_info['action'] = action
+            await PvpMatches.filter(id=self.battle_view._id).update(defender_action=action)
+
+        # Check if both players have chosen their actions
+        if challenger_info["action"] and defender_info["action"]:
+            if challenger_info['stats']['HP'] <= 0 or defender_info['stats']['HP'] <= 0:
+                await self.battle_view.display_final_turn(challenger_info, defender_info, turn)
+            else:
+                turn += 1
+                await PvpMatches.filter(id=self.battle_view._id).update(turn=turn, challenger_action={}, defender_action={})
+                await self.battle_view.display_next_turn(challenger_info, defender_info, turn)
+        else:
+            waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
+            await self.battle_view.message.edit_message(embeds=[*self.message.embeds[:-1], waiting_embed])
+
 
 class MainBattleView(View):
 
@@ -66,47 +120,25 @@ class MainBattleView(View):
         self.countdown_task = asyncio.create_task(self.update_countdown())
 
     async def get_match_data(self) -> Tuple[dict, dict, int, bool]:
-
-        match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "status", "turn", "challenger_HP", "defender_HP", "challenger_Qi", "defender_Qi", "challenger_action", "defender_action")
         
-        challenger_id, defender_id, status, turn, challenger_HP, defender_HP, challenger_Qi, defender_Qi, challenger_action, defender_action = match_data
+        match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "turn", "challenger_stats", "defender_stats", "challenger_action", "defender_action")
+        challenger_id, defender_id, turn, challenger_stats, defender_stats, challenger_action, defender_action = match_data
         
-        challenger = self.guild.get_member(challenger_id)
-        defender = self.guild.get_member(defender_id)
-        
-        challengerPlayer: Player = PlayerRoster().get(challenger_id)
-        defenderPlayer: Player = PlayerRoster().get(defender_id)
-
-        # Get stats
-        challengerCP = await challengerPlayer.compute_total_cp()
-        challengerMaxHP = 10 + challengerCP
-        challengerMaxQi = 100
-
-        defenderCP = await defenderPlayer.compute_total_cp()
-        defenderMaxHP = 10 + defenderCP
-        defenderMaxQi = 100
-        
-        # Updated stats
+        # Current player info
         challenger_info = {
             'id': challenger_id,
-            'Member': challenger,
-            'Player': challengerPlayer,
-            'HP': challenger_HP,
-            'Max HP': challengerMaxHP,
-            'Qi': challenger_Qi,
-            'Max Qi': challengerMaxQi,
-            'action': challenger_action
+            'Member': self.guild.get_member(challenger_id),
+            'Player': PlayerRoster().get(challenger_id),
+            'action': challenger_action,
+            'stats': challenger_stats
         }
 
         defender_info = {
             'id': defender_id,
-            'Member': defender,
-            'Player': defenderPlayer,
-            'HP': defender_HP,
-            'Max HP': defenderMaxHP,
-            'Qi': defender_Qi,
-            'Max Qi': defenderMaxQi,
-            'action': defender_action
+            'Member': self.guild.get_member(defender_id),
+            'Player': PlayerRoster().get(defender_id),
+            'action': defender_action,
+            'stats': defender_stats
         }
 
         # Determine whether interacting user is challenger or defender
@@ -117,8 +149,8 @@ class MainBattleView(View):
     async def display_final_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
         self.stop() # Stop the view
-        winner_info, loser_info = (challenger_info, defender_info) if defender_info['HP'] <= 0 else (defender_info, challenger_info)
-        
+        winner_info, loser_info = (challenger_info, defender_info) if defender_info['stats']['HP'] <= 0 else (defender_info, challenger_info)
+
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
@@ -136,6 +168,9 @@ class MainBattleView(View):
         await self.public_message.edit(embeds=[action_embed, battle_embed, result_embed])
         await self.message.edit(embeds=[action_embed, battle_embed, result_embed])
         await self.opponent_message.edit(embeds=[action_embed, battle_embed, result_embed])
+
+        # Set match status to 'completed'
+        await PvpMatches.filter(id=self._id).update(status="completed")
 
     async def display_next_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
@@ -210,7 +245,6 @@ class MainBattleView(View):
 
     @disnake.ui.button(label="Basic Attack", style=disnake.ButtonStyle.primary, custom_id="basic_attack")
     async def basic_attack(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        
         await inter.response.defer()
         self.countdown_task.cancel() # Stop the countdown
         self.toggle_buttons(enabled=False) # Disable the buttons
@@ -218,30 +252,31 @@ class MainBattleView(View):
         
         try:
             challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
+            challenger_stats = challenger_info['stats']; defender_stats = defender_info['stats']
 
             if am_challenger: # Challenger submitted attack
                 # Perform basic attack
-                attack_damage = math.ceil((random.randint(20, 60)/100.0)*defender_info['HP'])
+                attack_damage = math.ceil(challenger_stats['pATK']*(random.randint(80,100)/100.0))
                 action = BattleAction(name="basic_attack", player_id=challenger_info['id'], target_id=defender_info['id'], damage=attack_damage).__dict__
                 
-                defender_info['HP'] = to_nonneg(defender_info['HP'] - attack_damage)
+                defender_stats['HP'] = to_nonneg(defender_stats['HP'] - attack_damage)
                 challenger_info['action'] = action
 
-                await PvpMatches.filter(id=self._id).update(defender_HP=(defender_info['HP']), challenger_action=action)
+                await PvpMatches.filter(id=self._id).update(defender_stats=(defender_stats), challenger_action=action)
 
             else: # Defender submitted attack
                 # Perform basic attack
-                attack_damage = math.ceil((random.randint(20, 60)/100.0)*challenger_info['HP'])
+                attack_damage = math.ceil(defender_stats['pATK']*(random.randint(80,100)/100.0))
                 action = BattleAction(name="basic_attack", player_id=defender_info['id'], target_id=challenger_info['id'], damage=attack_damage).__dict__
                 
-                challenger_info['HP'] = to_nonneg(challenger_info['HP'] - attack_damage)
+                challenger_stats['HP'] = to_nonneg(challenger_stats['HP'] - attack_damage)
                 defender_info['action'] = action
 
-                await PvpMatches.filter(id=self._id).update(challenger_HP=(challenger_info['HP']), defender_action=action)
+                await PvpMatches.filter(id=self._id).update(challenger_stats=(challenger_stats), defender_action=action)
             
             if challenger_info['action'] and defender_info['action']: # Both players have submitted moves, move on to next turn
                 
-                if challenger_info['HP'] <= 0 or defender_info['HP'] <= 0: # Handle end of match
+                if challenger_stats['HP'] <= 0 or defender_stats['HP'] <= 0: # Handle end of match
                     await self.display_final_turn(challenger_info, defender_info, turn)
                 else:
                     turn += 1
@@ -257,26 +292,43 @@ class MainBattleView(View):
             await inter.send("An error occurred while processing your request.", ephemeral=True)
     
     @disnake.ui.button(label="Use Technique", style=disnake.ButtonStyle.primary, custom_id="use_technique")
-    async def use_technique_turn(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
-        pass
+    async def use_technique(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        await inter.response.defer()
+
+        # Fetch techniques for this player
+        challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
+        player = challenger_info['Player'] if am_challenger else defender_info['Player']
+        equipped_items = await player.get_equipped_items()
+        techniques = equipped_items['techniques']
+
+        if len(techniques) > 0:
+            # Create a dropdown for technique selection
+            technique_dropdown = TechniqueDropdown(techniques, self)
+            self.add_item(technique_dropdown)
+
+            # Update message with dropdown
+            button.disabled = True
+            await self.message.edit(view=self)
+        else:
+            await inter.followup.send(f"You have not learned any Fight Techniques!", ephemeral=True)
 
 
 def generate_battle_embed(challenger_info: dict, defender_info: dict, turn: int) -> disnake.Embed:
-    
+    challenger_stats = challenger_info['stats']; defender_stats = defender_info['stats']
     embed = disnake.Embed(
         title=f"⚔️ PvP Battle: Turn {turn}",
         color=disnake.Color.blue()
     )
     embed.add_field(
         name=f"{challenger_info['Member'].display_name}",
-        value=f"""HP: `{challenger_info['HP']}`/`{challenger_info['Max HP']}`
-        Qi: `{challenger_info['Qi']}`/`{challenger_info['Max Qi']}`""",
+        value=f"""HP: `{challenger_stats['HP']}`/`{challenger_stats['Max HP']}`
+        Qi: `{challenger_stats['Qi']}`/`{challenger_stats['Max Qi']}`""",
         inline=True
     )
     embed.add_field(
         name=f"{defender_info['Member'].display_name}",
-        value=f"""HP: `{defender_info['HP']}`/`{defender_info['Max HP']}`
-        Qi: `{defender_info['Qi']}`/`{defender_info['Max Qi']}`""",
+        value=f"""HP: `{defender_stats['HP']}`/`{defender_stats['Max HP']}`
+        Qi: `{defender_stats['Qi']}`/`{defender_stats['Max Qi']}`""",
         inline=True
     )
     return embed
@@ -292,50 +344,79 @@ class InitialChallengeView(View):
         self.challengerPlayer: Player = PlayerRoster().get(challenger.id)
         self.defenderPlayer: Player = PlayerRoster().get(defender.id)
 
+    def toggle_buttons(self, enabled: bool):
+        """Enable or disable all buttons dynamically."""
+        for child in self.children:
+            if isinstance(child, disnake.ui.Button):
+                child.disabled = (not enabled)
+
     @disnake.ui.button(label="Accept", style=disnake.ButtonStyle.success, custom_id="accept_challenge")
     async def accept_challenge(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         
         await inter.response.defer()
+        self.toggle_buttons(enabled=False) # Disable the buttons
+        await inter.message.edit(view=self)
         
         try:
             # Get initial stats
-            challengerCP = await self.challengerPlayer.compute_total_cp()
-            challengerMaxHP = 10 + challengerCP
-            challengerMaxQi = 100
+            challenger_stats = {
+                'pATK': 225, # Physical Attack
+                'mATK': 225, # Magical Attack
+                'pDEF': 225, # Physical Defense
+                'mDEF': 225, # Magical Defense
+                'pPEN': 45, # Physical Penetration
+                'mPEN': 45, # Magical Penetration
+                'SPD': 100, # Speed
+                'ACC': 0.95, # Accuracy
+                'EVA': 0.05, # Evasion (dodge)
+                'CRIT': 0.05, # Critical rate
+                'CRIT DMG': 1.50, # Critical damage multiplier
+                'HP': 2250, 
+                'Max HP': 2250, 
+                'Qi': 100, 
+                'Max Qi': 100
+            }
 
-            defenderCP = await self.defenderPlayer.compute_total_cp()
-            defenderMaxHP = 10 + defenderCP
-            defenderMaxQi = 100
-            
+            defender_stats = {
+                'pATK': 225, # Physical Attack
+                'mATK': 225, # Magical Attack
+                'pDEF': 225, # Physical Defense
+                'mDEF': 225, # Magical Defense
+                'pPEN': 45, # Physical Penetration
+                'mPEN': 45, # Magical Penetration
+                'SPD': 100, # Speed
+                'ACC': 0.95, # Accuracy
+                'EVA': 0.05, # Evasion (dodge)
+                'CRIT': 0.05, # Critical rate
+                'CRIT DMG': 1.50, # Critical damage multiplier
+                'HP': 2250, 
+                'Max HP': 2250, 
+                'Qi': 100, 
+                'Max Qi': 100
+            }
+
+            # Current player info
             challenger_info = {
-                'id': self.challenger.id,
-                'Member': self.challenger,
-                'Player': self.challengerPlayer,
-                'HP': challengerMaxHP,
-                'Max HP': challengerMaxHP,
-                'Qi': challengerMaxQi,
-                'Max Qi': challengerMaxQi,
-                'action': 'None'
+                'id': self.challengerPlayer.id,
+                'Member': self.guild.get_member(self.challengerPlayer.id),
+                'Player': PlayerRoster().get(self.challengerPlayer.id),
+                'action': '',
+                'stats': challenger_stats
             }
 
             defender_info = {
-                'id': self.defender.id,
-                'Member': self.defender,
-                'Player': self.defenderPlayer,
-                'HP': defenderMaxHP,
-                'Max HP': defenderMaxHP,
-                'Qi': defenderMaxQi,
-                'Max Qi': defenderMaxQi,
-                'action': 'None'
+                'id': self.defenderPlayer.id,
+                'Member': self.guild.get_member(self.defenderPlayer.id),
+                'Player': PlayerRoster().get(self.defenderPlayer.id),
+                'action': '',
+                'stats': defender_stats
             }
 
             turn = 1
-
+            
             # Create a new PvP match and add to database
             pvpmatch = await PvpMatches.create(challenger_id=self.challengerPlayer.id, defender_id=self.defenderPlayer.id, 
-                challenger_HP=challengerMaxHP, defender_HP=defenderMaxHP,
-                challenger_Qi=challengerMaxQi, defender_Qi=defenderMaxQi,
-                created_at=disnake.utils.utcnow(), updated_at=disnake.utils.utcnow(), turn=turn)
+                challenger_stats=challenger_stats, defender_stats=defender_stats, created_at=disnake.utils.utcnow(), updated_at=disnake.utils.utcnow(), turn=turn)
             
             self._id = pvpmatch.id # Match ID
             
@@ -348,7 +429,6 @@ class InitialChallengeView(View):
                 # Send messages to the public channel
                 accept_embed = simple_embed("Challenge Accepted!", f"{inter.author.mention} has accepted {self.challenger.mention}'s challenge!", disnake.Color.green())
                 initial_action_embed = simple_embed('', 'The battle has begun!', disnake.Color.red())
-                await self.channel.send(embed=accept_embed)
                 public_message = await self.channel.send(embeds=[accept_embed, battle_embed])
 
                 # Send messages with MainBattleViews to both players
@@ -378,6 +458,10 @@ class InitialChallengeView(View):
 
     @disnake.ui.button(label="Decline", style=disnake.ButtonStyle.danger, custom_id="decline_challenge")
     async def decline_challenge(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        
+        self.toggle_buttons(enabled=False) # Disable the buttons
+        await inter.message.edit(view=self)
+
         try:
             # Send a DM to the challenger
             challenger_embed = disnake.Embed(
@@ -423,6 +507,26 @@ class PvPCog(commands.Cog):
             
         if challenger._id == challenged._id:
             await inter.send("You can't challenge yourself!")
+            return
+        
+        challenger_latest_match = await PvpMatches.filter(
+            (Q(challenger_id=challenger._id) | Q(defender_id=challenger._id))
+        ).order_by("-created_at").first()
+        challenged_latest_match = await PvpMatches.filter(
+            (Q(challenger_id=challenged._id) | Q(defender_id=challenged._id))
+        ).order_by("-created_at").first()
+        
+        challenger_in_match = (challenger_latest_match and challenger_latest_match.status != "completed")
+        challenged_in_match = (challenged_latest_match and challenged_latest_match.status != "completed")
+
+        if challenger_in_match and challenged_in_match:
+            await inter.send("Both players are currently unable to participate in a new match.")
+            return
+        elif challenger_in_match:
+            await inter.send(f"<@{challenger._id}> is unable to participate in a new match.")
+            return
+        elif challenged_in_match:
+            await inter.send(f"<@{challenged._id}> is unable to participate in a new match.")
             return
             
         # Start battle
