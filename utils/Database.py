@@ -300,12 +300,11 @@ class PvpMatches(Model):
     id = fields.BigIntField(pk=True, generated=True)
     challenger = fields.ForeignKeyField("models.Users", related_name="pvp_challenger", null=True)
     defender = fields.ForeignKeyField("models.Users", related_name="pvp_defender", null=True)
-    status = fields.CharField(max_length=255, default="pending")
-    turn = fields.SmallIntField(default=0)
-    challenger_stats = fields.JSONField(default={})
-    defender_stats = fields.JSONField(default={})
-    challenger_action = fields.JSONField(default={})
-    defender_action = fields.JSONField(default={})
+    status = fields.CharField(max_length=255, default="pending") # Match status
+    turn = fields.SmallIntField(default=0) # Turn number
+    player_stats = fields.JSONField(default={}) # Dictionary: user ID -> stats dict
+    player_action = fields.JSONField(default={}) # Dictionary: user ID -> action dict
+    player_status = fields.JSONField(default={}) # Dictionary: user ID -> status dict
     created_at = fields.DatetimeField(null=True)
     updated_at = fields.DatetimeField(null=True)
 

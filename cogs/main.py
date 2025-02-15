@@ -4,7 +4,7 @@ from aerich import Command
 from disnake.ext import commands
 
 from character.player import Player, PlayerRoster
-from utils.Database import AllItems, AllBeasts, DB_CONFIG, AllPets, Temp
+from utils.Database import AllItems, AllBeasts, DB_CONFIG, AllPets, Temp, PvpMatches
 from utils.LoggingUtils import log_event
 
 command = Command(tortoise_config=DB_CONFIG, app='models')
@@ -690,6 +690,12 @@ class Main(commands.Cog):
         await AllPets.all().delete()
         await insert_items()
         await ctx.send("Database reset!")
+    
+    @commands.command()
+    @commands.default_member_permissions(manage_guild=True)
+    async def clear_matches(self, ctx):
+        await PvpMatches.all().delete()
+        await ctx.send("PvpMatches cleared!")
 
 
     @commands.command()

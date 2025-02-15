@@ -6,7 +6,7 @@ from character.player import Player, PlayerRoster
 from adventure.pvp import start_pvp_battle
 from tortoise.expressions import Q
 # from utils.Embeds import create_embed
-from utils.Database import Users, PvpMatches
+from utils.Database import Users, PvpMatches, AllItems
 from utils.Styles import EXCLAMATION
 from utils.base import CogNotLoadedError
 from utils.ParamsUtils import format_num_abbr1
@@ -14,6 +14,15 @@ import random, asyncio, json, math
 # from character.pvp_stats import PvPStats
 
 # TODO: remove bruv from shop
+# Action descriptions
+# - dealing x magical damage, dealing x physical damage, dealing x mixed damage, dealing x true damage
+# Mention status effects applied
+# Speed
+# Elements
+# Put technique code in a separate file
+# Cooldowns
+# Status effects
+# A player who is dead cannot attack
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -25,16 +34,116 @@ def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake
 def to_nonneg(number):
     return max(0, number)
 
-class BattleAction():
-    def __init__(self, name: str, player_id: int, target_id: int, damage: int):
-        self.name = name
-        self.player_id = player_id
-        self.target_id = target_id
-        self.damage = damage
-        self.description = self.__str__()
+def construct_player_info(player_stats, player_action, player_status, guild, user_id):
+    player_info = {
+        'id': user_id,
+        'Member': guild.get_member(user_id),
+        'Player': PlayerRoster().get(user_id),
+        'action': player_action[str(user_id)],
+        'stats': player_stats[str(user_id)],
+        'status': player_status[str(user_id)]           
+    }
+    return player_info
+
+class AttackComponent():
+    def __init__(self, player_stats: dict, target_stats: dict,
+        scaling_stat: str,
+        scaling_stat_source: str,
+        damage_type: str,
+        multiplier: float = 1,
+        true_damage: bool = False
+    ):
+        self.player_stats = player_stats
+        self.target_stats = target_stats
+        self.scaling_stat = scaling_stat # Stat to scale off of (pATK, mATK, HP, ...)
+        self.scaling_stat_source = scaling_stat_source # Whose stat to use (player or target)
+        self.damage_type = damage_type # Damage type (physical, magical, or true)
+        self.multiplier = multiplier # Multiplier for the scaling value
+        self.true_damage = true_damage # True / False
     
+    def randomize_damage(self, damage: int): # Introduces random variability
+        return math.ceil(damage*(random.randint(80,100)/100.0))
+    
+    def damage_dealt(self):
+        # Damage = multiplier * scaling stat
+        # Defense-adjusted damage = DMG * (DMG / (DMG + (DEF * (1-PEN))))
+        # Final damage (not account for crit) = randomization of defense-adjusted damage
+
+        source_stats = self.player_stats if self.scaling_stat_source == 'player' else self.target_stats
+        original_DMG = source_stats[self.scaling_stat] * self.multiplier
+
+        print(self.scaling_stat, "multiplier", self.multiplier, 'original DMG', original_DMG)
+        
+        DMG = 1
+        if self.damage_type == "physical":
+            defense_adjusted_DMG = original_DMG * (original_DMG / (original_DMG + (self.target_stats['pDEF'] * (1 - self.player_stats['pPEN']))))
+            DMG = max(0, self.randomize_damage(defense_adjusted_DMG))
+            print("Opponent pDEF", self.target_stats['pDEF'], "player pPEN", self.player_stats['pPEN'], 'defense adjusted DMG', defense_adjusted_DMG, 'randomized DMG', DMG)
+        elif self.damage_type == "magical":
+            defense_adjusted_DMG = original_DMG * (original_DMG / (original_DMG + (self.target_stats['mDEF'] * (1 - self.player_stats['mPEN']))))
+            DMG = max(0, self.randomize_damage(defense_adjusted_DMG))
+        elif self.damage_type == "true":
+            DMG = original_DMG
+        
+        return DMG
+
+class BattleAction():
+    def __init__(self, name: str, player_info: dict, target_info: dict,
+        attack_components: list[AttackComponent],
+        base_accuracy: float = 0,
+        player_status_effects: dict = {},
+        target_status_effects: dict = {},
+        no_crit: bool = False,
+        qi_cost: int = 0,
+    ):
+        self.name = name
+        self.player_info = player_info
+        self.target_info = target_info
+
+        self.attack_components = attack_components
+        self.base_accuracy = base_accuracy
+        self.player_status_effects = player_status_effects
+        self.target_status_effects = target_status_effects
+        self.no_crit = no_crit
+        
+        self.damage = self.compute_damage()
+        self.description = self.__str__()
+        self.qi_cost = qi_cost
+
     def __str__(self):
-        return f'<@{self.player_id}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_id}>'
+        return f'<@{self.player_info['id']}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_info['id']}>'
+    
+    def compute_hit_chance(self):
+        # Hit Chance = Move Accuracy * ((Attacker's ACC) / (Defender's EVA))
+        return min(1, self.base_accuracy * (self.player_info['stats']['ACC'] / self.target_info['stats']['EVA']))
+    
+    def compute_damage(self):
+        player_stats = self.player_info['stats']; target_stats = self.target_info['stats']
+        
+        hit_chance = self.compute_hit_chance()
+        
+        if random.random() < hit_chance: # Attack successfully hit
+
+            total_DMG = 0
+            for attack_component in self.attack_components:
+                total_DMG += attack_component.damage_dealt()
+            
+            total_DMG = max(1, total_DMG)
+
+            print(self.player_info['Member'].display_name, "successful hit, chance", hit_chance, ", ", "orig DMG", total_DMG)
+
+            if self.no_crit:
+                return total_DMG
+            else:
+                if random.random() < player_stats['CRIT']: # Critical hit
+                    return math.ceil(total_DMG * player_stats['CRIT DMG'])
+                    print("Critical hit!", player_stats['CRIT DMG'], math.ceil(total_DMG * player_stats['CRIT DMG']))
+                else:
+                    return total_DMG
+        
+        else: # Opponent dodged the attack
+            return 0 # No damage done
+
 
 class TechniqueDropdown(disnake.ui.Select):
     """Dropdown for selecting a technique."""
@@ -58,22 +167,56 @@ class TechniqueDropdown(disnake.ui.Select):
 
         # Get selected technique
         selected_technique = self.values[0]
-
-        # Store the action (modify this according to your action logic)
-        action = {
-            "name": selected_technique,
-            "description": f"<@{inter.user.id}> used `{selected_technique}`!",
-            "damage": 0
-        }
+        tech_name, tech_properties = await AllItems.get_or_none(id=selected_technique).values_list("name", "properties")
 
         # Identify if the user is the challenger or defender
         challenger_info, defender_info, turn, am_challenger = await self.battle_view.get_match_data()
-        if am_challenger:
-            challenger_info['action'] = action
-            await PvpMatches.filter(id=self.battle_view._id).update(challenger_action=action)
-        else:
-            defender_info['action'] = action
-            await PvpMatches.filter(id=self.battle_view._id).update(defender_action=action)
+        player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
+        player_stats, target_stats = player_info['stats'], target_info['stats']
+        
+        # Execute technique (custom code for each technique)
+        if selected_technique == "flametsunami":
+            
+            qi_cost = 15
+
+            attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1.3, true_damage=False), AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=1.3, true_damage=False)]
+            
+            action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {
+                'mDEF_shred': (0.2, 2),
+                'pDEF_shred': (0.2, 2)
+            }, qi_cost = qi_cost)
+
+            action_damage = action.damage
+            
+            target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+            player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
+            player_info['action'] = { 'name': action.name, 'description': str(action) }
+        
+        elif selected_technique == "starshatter":
+            
+            qi_cost = 20
+
+            # Temporarily halve the enemy's mDEF
+            orig_mDEF = target_stats['mDEF']
+            target_stats['mDEF'] = orig_mDEF / 2
+
+            attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=3.4, true_damage=False)]
+            
+            action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = qi_cost)
+
+            action_damage = action.damage
+            
+            target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+            player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
+            player_info['action'] = { 'name': action.name, 'description': str(action) }
+            
+            # Restore enemy's mDEF
+            target_stats['mDEF'] = orig_mDEF
+
+        await PvpMatches.filter(id=self.battle_view._id).update(
+            player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
+            player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] }
+        )
 
         # Check if both players have chosen their actions
         if challenger_info["action"] and defender_info["action"]:
@@ -81,11 +224,11 @@ class TechniqueDropdown(disnake.ui.Select):
                 await self.battle_view.display_final_turn(challenger_info, defender_info, turn)
             else:
                 turn += 1
-                await PvpMatches.filter(id=self.battle_view._id).update(turn=turn, challenger_action={}, defender_action={})
+                await PvpMatches.filter(id=self.battle_view._id).update(turn=turn, player_action={ player_info['id']: None, target_info['id']: None })
                 await self.battle_view.display_next_turn(challenger_info, defender_info, turn)
         else:
             waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
-            await self.battle_view.message.edit_message(embeds=[*self.message.embeds[:-1], waiting_embed])
+            await self.battle_view.message.edit(embeds=[*self.battle_view.message.embeds[:-1], waiting_embed])
 
 
 class MainBattleView(View):
@@ -120,30 +263,12 @@ class MainBattleView(View):
         self.countdown_task = asyncio.create_task(self.update_countdown())
 
     async def get_match_data(self) -> Tuple[dict, dict, int, bool]:
+        match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "turn", "player_stats", "player_action", "player_status")
+        challenger_id, defender_id, turn, player_stats, player_action, player_status = match_data
         
-        match_data = await PvpMatches.get_or_none(id=self._id).values_list("challenger_id", "defender_id", "turn", "challenger_stats", "defender_stats", "challenger_action", "defender_action")
-        challenger_id, defender_id, turn, challenger_stats, defender_stats, challenger_action, defender_action = match_data
-        
-        # Current player info
-        challenger_info = {
-            'id': challenger_id,
-            'Member': self.guild.get_member(challenger_id),
-            'Player': PlayerRoster().get(challenger_id),
-            'action': challenger_action,
-            'stats': challenger_stats
-        }
-
-        defender_info = {
-            'id': defender_id,
-            'Member': self.guild.get_member(defender_id),
-            'Player': PlayerRoster().get(defender_id),
-            'action': defender_action,
-            'stats': defender_stats
-        }
-
-        # Determine whether interacting user is challenger or defender
-        am_challenger = (self.user_id == challenger_id)
-
+        challenger_info = construct_player_info(player_stats, player_action, player_status, self.guild, challenger_id)
+        defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, defender_id)
+        am_challenger = (self.user_id == challenger_id) # Determine whether interacting user is challenger or defender
         return challenger_info, defender_info, turn, am_challenger
     
     async def display_final_turn(self, challenger_info: dict, defender_info: dict, turn: int):
@@ -158,10 +283,10 @@ class MainBattleView(View):
             color=disnake.Color.red()
         )
 
-        victory_title_options = ["Fate Sealed!", "A Decisive Blow!", "The Final Strike!", "Victory!", f"The End of <@{loser_info['Member'].display_name}>!", f"<@{winner_info['Member'].display_name}>'s Triumph!", "The Battle's Turning Point!", f"<@{loser_info['Member'].display_name}> Falls!", "The Ultimate Move!", "Destiny Fulfilled!", f"<@{winner_info['Member'].display_name}> Reigns Supreme!", "The Last Stand!"]
+        victory_title_options = ["Fate Sealed!", "A Decisive Blow!", "The Final Strike!", "Victory!", f"The End of {loser_info['Member'].display_name}!", f"{winner_info['Member'].display_name}'s Triumph!", "The Battle's Turning Point!", f"{loser_info['Member'].display_name} Falls!", "The Ultimate Move!", "Destiny Fulfilled!", f"{winner_info['Member'].display_name} Reigns Supreme!", "The Last Stand!"]
         victory_title = random.choice(victory_title_options)
         victory_description = f"<@{winner_info['id']}>'s `{winner_info['action']['name']}` sealed the fate of <@{loser_info['id']}>!"
-
+        
         result_embed = simple_embed(victory_title, victory_description)
 
         # Updates embeds in public channel and for both players
@@ -210,18 +335,29 @@ class MainBattleView(View):
         self.toggle_buttons(enabled=False) # Disable the buttons
         await self.message.edit(embeds=[*self.message.embeds[:-1], timeout_embed], view=self)
 
-        # For now, do nothing and move on to next turn
+        # For now, do basic attack and move on to next turn
         challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
+        player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
+        player_stats, target_stats = player_info['stats'], target_info['stats']
 
-        if am_challenger:
-            challenger_info['action'] = BattleAction(name="nothing", player_id=challenger_info['id'], target_id=defender_info['id'], damage=0).__dict__
-        else:
-            defender_info['action'] = BattleAction(name="nothing", player_id=defender_info['id'], target_id=challenger_info['id'], damage=0).__dict__
+        # Basic attack
+        attack_components = [AttackComponent(player_stats, target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)]
+        action = BattleAction('basic_attack', player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0)
+        
+        action_damage = action.damage
+        target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+        player_stats['Qi'] = to_nonneg(player_stats['Qi'] - 0)
+        player_info['action'] = { 'name': action.name, 'description': str(action) }
+
+        await PvpMatches.filter(id=self._id).update(
+            player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
+            player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] }
+        )
 
         # Challenger side sends message if both players timed out, otherwise defender side sends message
         if (challenger_info['action']) or am_challenger:
             turn += 1
-            await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
+            await PvpMatches.filter(id=self._id).update(turn=turn, player_action={ player_info['id']: None, target_info['id']: None })
             await self.display_next_turn(challenger_info, defender_info, turn)
 
     async def update_countdown(self):
@@ -245,6 +381,7 @@ class MainBattleView(View):
 
     @disnake.ui.button(label="Basic Attack", style=disnake.ButtonStyle.primary, custom_id="basic_attack")
     async def basic_attack(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
+        
         await inter.response.defer()
         self.countdown_task.cancel() # Stop the countdown
         self.toggle_buttons(enabled=False) # Disable the buttons
@@ -252,35 +389,30 @@ class MainBattleView(View):
         
         try:
             challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
-            challenger_stats = challenger_info['stats']; defender_stats = defender_info['stats']
+            player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
+            player_stats, target_stats = player_info['stats'], target_info['stats']
 
-            if am_challenger: # Challenger submitted attack
-                # Perform basic attack
-                attack_damage = math.ceil(challenger_stats['pATK']*(random.randint(80,100)/100.0))
-                action = BattleAction(name="basic_attack", player_id=challenger_info['id'], target_id=defender_info['id'], damage=attack_damage).__dict__
-                
-                defender_stats['HP'] = to_nonneg(defender_stats['HP'] - attack_damage)
-                challenger_info['action'] = action
+            # Basic attack
+            attack_components = [AttackComponent(player_stats, target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)]
+            action = BattleAction('basic_attack', player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0)
+            action_damage = action.damage
 
-                await PvpMatches.filter(id=self._id).update(defender_stats=(defender_stats), challenger_action=action)
+            target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+            player_stats['Qi'] = to_nonneg(player_stats['Qi'] - 0)
+            player_info['action'] = { 'name': action.name, 'description': str(action) }
 
-            else: # Defender submitted attack
-                # Perform basic attack
-                attack_damage = math.ceil(defender_stats['pATK']*(random.randint(80,100)/100.0))
-                action = BattleAction(name="basic_attack", player_id=defender_info['id'], target_id=challenger_info['id'], damage=attack_damage).__dict__
-                
-                challenger_stats['HP'] = to_nonneg(challenger_stats['HP'] - attack_damage)
-                defender_info['action'] = action
-
-                await PvpMatches.filter(id=self._id).update(challenger_stats=(challenger_stats), defender_action=action)
+            await PvpMatches.filter(id=self._id).update(
+                player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
+                player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] }
+            )
             
             if challenger_info['action'] and defender_info['action']: # Both players have submitted moves, move on to next turn
                 
-                if challenger_stats['HP'] <= 0 or defender_stats['HP'] <= 0: # Handle end of match
+                if player_stats['HP'] <= 0 or target_stats['HP'] <= 0: # Handle end of match
                     await self.display_final_turn(challenger_info, defender_info, turn)
                 else:
                     turn += 1
-                    await PvpMatches.filter(id=self._id).update(turn=turn, challenger_action={}, defender_action={})
+                    await PvpMatches.filter(id=self._id).update(turn=turn, player_action={ challenger_info['id']: None, defender_info['id']: None })
                     await self.display_next_turn(challenger_info, defender_info, turn)
             
             else: # Waiting for opponent to submit move
@@ -358,65 +490,61 @@ class InitialChallengeView(View):
         await inter.message.edit(view=self)
         
         try:
-            # Get initial stats
-            challenger_stats = {
-                'pATK': 225, # Physical Attack
-                'mATK': 225, # Magical Attack
-                'pDEF': 225, # Physical Defense
-                'mDEF': 225, # Magical Defense
-                'pPEN': 45, # Physical Penetration
-                'mPEN': 45, # Magical Penetration
-                'SPD': 100, # Speed
-                'ACC': 0.95, # Accuracy
-                'EVA': 0.05, # Evasion (dodge)
-                'CRIT': 0.05, # Critical rate
-                'CRIT DMG': 1.50, # Critical damage multiplier
-                'HP': 2250, 
-                'Max HP': 2250, 
-                'Qi': 100, 
-                'Max Qi': 100
+            player_stats = {
+                str(self.challengerPlayer.id): {
+                    'pATK': 600, # Physical Attack
+                    'mATK': 600, # Magical Attack
+                    'pDEF': 300, # Physical Defense
+                    'mDEF': 300, # Magical Defense
+                    'pPEN': 0.1, # Physical Penetration
+                    'mPEN': 0.1, # Magical Penetration
+                    'SPD': 100, # Speed
+                    'ACC': 0.95, # Accuracy
+                    'EVA': 0.05, # Evasion (dodge)
+                    'CRIT': 0.05, # Critical rate
+                    'CRIT DMG': 1.50, # Critical damage multiplier
+                    'HP': 2000, 
+                    'Max HP': 2000, 
+                    'Qi': 100,
+                    'Max Qi': 100
+                },
+                str(self.defenderPlayer.id): {
+                    'pATK': 200, # Physical Attack
+                    'mATK': 200, # Magical Attack
+                    'pDEF': 100, # Physical Defense
+                    'mDEF': 100, # Magical Defense
+                    'pPEN': 0.1, # Physical Penetration
+                    'mPEN': 0.1, # Magical Penetration
+                    'SPD': 100, # Speed
+                    'ACC': 0.95, # Accuracy
+                    'EVA': 0.05, # Evasion (dodge)
+                    'CRIT': 0.05, # Critical rate
+                    'CRIT DMG': 1.50, # Critical damage multiplier
+                    'HP': 2000, 
+                    'Max HP': 2000, 
+                    'Qi': 100,
+                    'Max Qi': 100
+                }
             }
 
-            defender_stats = {
-                'pATK': 225, # Physical Attack
-                'mATK': 225, # Magical Attack
-                'pDEF': 225, # Physical Defense
-                'mDEF': 225, # Magical Defense
-                'pPEN': 45, # Physical Penetration
-                'mPEN': 45, # Magical Penetration
-                'SPD': 100, # Speed
-                'ACC': 0.95, # Accuracy
-                'EVA': 0.05, # Evasion (dodge)
-                'CRIT': 0.05, # Critical rate
-                'CRIT DMG': 1.50, # Critical damage multiplier
-                'HP': 2250, 
-                'Max HP': 2250, 
-                'Qi': 100, 
-                'Max Qi': 100
+            player_action = {
+                str(self.challengerPlayer.id): None,
+                str(self.defenderPlayer.id): None
             }
 
-            # Current player info
-            challenger_info = {
-                'id': self.challengerPlayer.id,
-                'Member': self.guild.get_member(self.challengerPlayer.id),
-                'Player': PlayerRoster().get(self.challengerPlayer.id),
-                'action': '',
-                'stats': challenger_stats
+            player_status = {
+                str(self.challengerPlayer.id): {},
+                str(self.defenderPlayer.id): {}
             }
 
-            defender_info = {
-                'id': self.defenderPlayer.id,
-                'Member': self.guild.get_member(self.defenderPlayer.id),
-                'Player': PlayerRoster().get(self.defenderPlayer.id),
-                'action': '',
-                'stats': defender_stats
-            }
-
+            # Current player info, start at turn 1
+            challenger_info = construct_player_info(player_stats, player_action, player_status, self.guild, self.challengerPlayer.id)
+            defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, self.defenderPlayer.id)
             turn = 1
             
             # Create a new PvP match and add to database
             pvpmatch = await PvpMatches.create(challenger_id=self.challengerPlayer.id, defender_id=self.defenderPlayer.id, 
-                challenger_stats=challenger_stats, defender_stats=defender_stats, created_at=disnake.utils.utcnow(), updated_at=disnake.utils.utcnow(), turn=turn)
+                player_stats=player_stats, player_action=player_action, player_status=player_status, created_at=disnake.utils.utcnow(), updated_at=disnake.utils.utcnow(), turn=turn)
             
             self._id = pvpmatch.id # Match ID
             
