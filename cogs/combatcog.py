@@ -23,6 +23,7 @@ import random, asyncio, json, math
 # Cooldowns
 # Status effects
 # A player who is dead cannot attack
+# Lock in techniques for the duration of a match (cannot learn/unlearn)
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -148,11 +149,15 @@ class BattleAction():
 class TechniqueDropdown(disnake.ui.Select):
     """Dropdown for selecting a technique."""
 
-    def __init__(self, techniques: list, battle_view):
-        options = [
-            disnake.SelectOption(label=tech, description='Cooldown: x | Qi Cost: x', value=tech)
-            for index, tech in enumerate(techniques)
-        ]
+    def __init__(self, techniques: list, technique_cooldown_dict: dict, battle_view):
+        options = []
+        for index, technique in enumerate(techniques):
+            if technique in technique_cooldown_dict:
+                description = f'Qi Cost: x | Cooldown: {technique_cooldown_dict[technique]}'
+            else:
+                description = f'Qi Cost: x'
+            options.append(disnake.SelectOption(label=technique, description=description, value=technique))
+        
         super().__init__(placeholder="Choose a technique...", min_values=1, max_values=1, options=options)
         self.battle_view = battle_view
         self.techniques = techniques
@@ -160,76 +165,91 @@ class TechniqueDropdown(disnake.ui.Select):
     async def callback(self, inter: disnake.MessageInteraction):
         """Handles when a technique is selected."""
         await inter.response.defer()
-        self.battle_view.countdown_task.cancel() # Stop the countdown
-        self.battle_view.toggle_buttons(enabled=False) # Disable the buttons
-        self.battle_view.clear_items()  # Remove dropdown
-        await self.battle_view.message.edit(view=self.battle_view)
 
         # Get selected technique
         selected_technique = self.values[0]
-        tech_name, tech_properties = await AllItems.get_or_none(id=selected_technique).values_list("name", "properties")
 
         # Identify if the user is the challenger or defender
         challenger_info, defender_info, turn, am_challenger = await self.battle_view.get_match_data()
         player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
         player_stats, target_stats = player_info['stats'], target_info['stats']
         
-        # Execute technique (custom code for each technique)
-        if selected_technique == "flametsunami":
-            
-            qi_cost = 15
-
-            attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1.3, true_damage=False), AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=1.3, true_damage=False)]
-            
-            action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {
-                'mDEF_shred': (0.2, 2),
-                'pDEF_shred': (0.2, 2)
-            }, qi_cost = qi_cost)
-
-            action_damage = action.damage
-            
-            target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
-            player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
-            player_info['action'] = { 'name': action.name, 'description': str(action) }
-        
-        elif selected_technique == "starshatter":
-            
-            qi_cost = 20
-
-            # Temporarily halve the enemy's mDEF
-            orig_mDEF = target_stats['mDEF']
-            target_stats['mDEF'] = orig_mDEF / 2
-
-            attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=3.4, true_damage=False)]
-            
-            action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = qi_cost)
-
-            action_damage = action.damage
-            
-            target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
-            player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
-            player_info['action'] = { 'name': action.name, 'description': str(action) }
-            
-            # Restore enemy's mDEF
-            target_stats['mDEF'] = orig_mDEF
-
-        await PvpMatches.filter(id=self.battle_view._id).update(
-            player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
-            player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] }
-        )
-
-        # Check if both players have chosen their actions
-        if challenger_info["action"] and defender_info["action"]:
-            if challenger_info['stats']['HP'] <= 0 or defender_info['stats']['HP'] <= 0:
-                await self.battle_view.display_final_turn(challenger_info, defender_info, turn)
-            else:
-                turn += 1
-                await PvpMatches.filter(id=self.battle_view._id).update(turn=turn, player_action={ player_info['id']: None, target_info['id']: None })
-                await self.battle_view.display_next_turn(challenger_info, defender_info, turn)
+        # Check if technique is on cooldown
+        if selected_technique in player_info['status']['cooldowns'] and player_info['status']['cooldowns'][selected_technique] > 0: # At least 1 turn cooldown left
+            await inter.followup.send(f"This technique is still on cooldown.", ephemeral=True)
         else:
-            waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
-            await self.battle_view.message.edit(embeds=[*self.battle_view.message.embeds[:-1], waiting_embed])
+            self.battle_view.countdown_task.cancel() # Stop the countdown
+            self.battle_view.toggle_buttons(enabled=False) # Disable the buttons
+            self.battle_view.clear_items()  # Remove dropdown
+            await self.battle_view.message.edit(view=self.battle_view)
+            
+            # TODO: should technique effects be stored in the database or hardcoded?
+            tech_name, tech_properties = await AllItems.get_or_none(id=selected_technique).values_list("name", "properties")
+            
+            # Execute technique (custom code for each technique)
+            if selected_technique == "flametsunami":
+                
+                qi_cost = 15
+                cooldown = 2
+                attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1.3, true_damage=False), AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=1.3, true_damage=False)]
+                
+                action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {
+                    'mDEF_shred': (0.2, 2),
+                    'pDEF_shred': (0.2, 2)
+                }, qi_cost = qi_cost)
 
+                action_damage = action.damage
+                
+                target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+                player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
+                player_info['action'] = { 'name': action.name, 'description': str(action) }
+                player_info['status']['cooldowns'][selected_technique] = cooldown + 1
+            
+            elif selected_technique == "starshatter":
+                
+                qi_cost = 20
+                cooldown = 5
+
+                # Temporarily halve the enemy's mDEF
+                orig_mDEF = target_stats['mDEF']
+                target_stats['mDEF'] = orig_mDEF / 2
+
+                attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=3.4, true_damage=False)]
+                
+                action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = qi_cost)
+
+                action_damage = action.damage
+                
+                target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+                player_stats['Qi'] = to_nonneg(player_stats['Qi'] - qi_cost)
+                player_info['action'] = { 'name': action.name, 'description': str(action) }
+                player_info['status']['cooldowns'][selected_technique] = cooldown + 1
+                
+                # Restore enemy's mDEF
+                target_stats['mDEF'] = orig_mDEF
+
+            await PvpMatches.filter(id=self.battle_view._id).update(
+                player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
+                player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] },
+                player_status={ player_info['id']: player_info['status'], target_info['id']: target_info['status'] }
+            )
+
+            # Check if both players have chosen their actions
+            if challenger_info["action"] and defender_info["action"]:
+                if challenger_info['stats']['HP'] <= 0 or defender_info['stats']['HP'] <= 0:
+                    await self.battle_view.display_final_turn(challenger_info, defender_info, turn)
+                else:
+                    turn += 1
+                    await PvpMatches.filter(id=self.battle_view._id).update(turn=turn, player_action={ player_info['id']: None, target_info['id']: None })
+                    await self.battle_view.display_next_turn(challenger_info, defender_info, turn)
+            else:
+                waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
+                await self.battle_view.message.edit(embeds=[*self.battle_view.message.embeds[:-1], waiting_embed])
+
+
+def update_cooldowns(player_info):
+    for technique in player_info['status']['cooldowns']:
+        player_info['status']['cooldowns'][technique] = max(0, player_info['status']['cooldowns'][technique] - 1)
 
 class MainBattleView(View):
 
@@ -299,6 +319,10 @@ class MainBattleView(View):
 
     async def display_next_turn(self, challenger_info: dict, defender_info: dict, turn: int):
         
+        # Update cooldowns
+        update_cooldowns(challenger_info); update_cooldowns(defender_info)
+        await PvpMatches.filter(id=self._id).update(player_status={ challenger_info['id']: challenger_info['status'], defender_info['id']: defender_info['status'] })
+
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
@@ -429,13 +453,21 @@ class MainBattleView(View):
 
         # Fetch techniques for this player
         challenger_info, defender_info, turn, am_challenger = await self.get_match_data()
-        player = challenger_info['Player'] if am_challenger else defender_info['Player']
-        equipped_items = await player.get_equipped_items()
+        player_info = challenger_info if am_challenger else defender_info
+        equipped_items = await player_info['Player'].get_equipped_items()
         techniques = equipped_items['techniques']
-
+        
+        # Create a dropdown for technique selection
         if len(techniques) > 0:
-            # Create a dropdown for technique selection
-            technique_dropdown = TechniqueDropdown(techniques, self)
+            
+            # Get technique Qi costs and cooldowns
+            technique_cooldown_dict = {}
+            for technique in player_info['status']['cooldowns']:
+                cooldown = player_info['status']['cooldowns'][technique]
+                if cooldown > 0:
+                    technique_cooldown_dict[technique] = cooldown
+            
+            technique_dropdown = TechniqueDropdown(techniques, technique_cooldown_dict, self)
             self.add_item(technique_dropdown)
 
             # Update message with dropdown
@@ -492,10 +524,10 @@ class InitialChallengeView(View):
         try:
             player_stats = {
                 str(self.challengerPlayer.id): {
-                    'pATK': 600, # Physical Attack
-                    'mATK': 600, # Magical Attack
-                    'pDEF': 300, # Physical Defense
-                    'mDEF': 300, # Magical Defense
+                    'pATK': 200, # Physical Attack
+                    'mATK': 200, # Magical Attack
+                    'pDEF': 200, # Physical Defense
+                    'mDEF': 200, # Magical Defense
                     'pPEN': 0.1, # Physical Penetration
                     'mPEN': 0.1, # Magical Penetration
                     'SPD': 100, # Speed
@@ -511,8 +543,8 @@ class InitialChallengeView(View):
                 str(self.defenderPlayer.id): {
                     'pATK': 200, # Physical Attack
                     'mATK': 200, # Magical Attack
-                    'pDEF': 100, # Physical Defense
-                    'mDEF': 100, # Magical Defense
+                    'pDEF': 200, # Physical Defense
+                    'mDEF': 200, # Magical Defense
                     'pPEN': 0.1, # Physical Penetration
                     'mPEN': 0.1, # Magical Penetration
                     'SPD': 100, # Speed
@@ -533,8 +565,16 @@ class InitialChallengeView(View):
             }
 
             player_status = {
-                str(self.challengerPlayer.id): {},
-                str(self.defenderPlayer.id): {}
+                str(self.challengerPlayer.id): {
+                    'cooldowns': {}, # technique ID -> remaining cooldown
+                    'debuffs': {}, # debuff type -> (value (if applicable), remaining cooldown)
+                    'buffs': {} # buff type -> (value, remaining cooldown)
+                },
+                str(self.defenderPlayer.id): {
+                    'cooldowns': {}, # technique ID -> remaining cooldown
+                    'debuffs': {},
+                    'buffs': {}
+                },
             }
 
             # Current player info, start at turn 1
