@@ -25,6 +25,7 @@ import random, asyncio, json, math, copy
 # A player who is dead cannot attack
 # Lock in techniques for the duration of a match (cannot learn/unlearn)
 # Process turns at once rather than by the person who last clicked
+# Speed -> order of actions correspond
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -44,11 +45,154 @@ def construct_player_info(player_stats, player_action, player_status, guild, use
         'id': user_id,
         'Member': guild.get_member(user_id),
         'Player': PlayerRoster().get(user_id),
-        'action': player_action[str(user_id)],
-        'stats': player_stats[str(user_id)],
-        'status': player_status[str(user_id)]           
+        'action': player_action[user_id],
+        'stats': player_stats[user_id],
+        'status': player_status[user_id]           
     }
     return player_info
+'''
+Examples of player_stats_dict, player_action_dict, player_status_dict
+
+example_player_stats_dict = {
+    player1_user_ID: {
+        'pATK': 200, # Physical Attack
+        'mATK': 200, # Magical Attack
+        'pDEF': 200, # Physical Defense
+        'mDEF': 200, # Magical Defense
+        'pPEN': 0.1, # Physical Penetration
+        'mPEN': 0.1, # Magical Penetration
+        'SPD': 100, # Speed
+        'ACC': 0.95, # Accuracy
+        'EVA': 0.05, # Evasion (dodge)
+        'CRIT': 0.05, # Critical rate
+        'CRIT DMG': 1.50, # Critical damage multiplier
+        'HP': 2000, 
+        'Max HP': 2000, 
+        'Qi': 100,
+        'Max Qi': 100
+    },
+    player2_user_ID: { ... }
+}
+
+example_player_action_dict = { 
+    player1_user_ID: { 
+        'name': 'wopwop', 
+        'description': 'Player1 used `wopwop`, dealing 3,455 damage to Player2'
+    },
+    player2_user_ID: None # Indicates player has not submitted an action yet
+}
+
+example_player_status_dict = {
+    player1_user_ID: {
+        'cooldowns': {}, # technique ID -> remaining cooldown
+        'debuffs': {}, # debuff type -> {value, remaining cooldown}
+        'buffs': {} # buff type -> {value, remaining cooldown}
+        'status': { # status type -> {source, duration}
+            'Confusion': {
+                'source': player2_user_ID,
+                'duration': 1,
+            }
+        }
+    }
+}
+'''
+
+class PvPMatch(): # In-memory representation of a match
+
+    def __init__(self, match_id: int, challenger_id: int, defender_id: int,
+        player_stats_dict: dict, player_action_dict: dict, player_status_dict: dict, player_techniques_dict: dict
+    ):
+        # Initialize match
+        self._id = match_id  # Store the match ID (create database record first)
+        self.challenger_id = challenger_id
+        self.defender_id = defender_id
+        self.status = "pending" # Match status
+        self.turn = 1 # Turn number
+        self.player_stats_dict = player_stats_dict # Dictionary: user ID -> stats dict
+        self.player_action_dict = player_action_dict # Dictionary: user ID -> action dict
+        self.player_status_dict = player_status_dict # Dictionary: user ID -> status dict
+        self.player_techniques_dict = player_techniques_dict # Dictionary: user ID -> (tech_id, cooldown) list
+
+    # Access match data
+    def get_match_data(self):
+        return self.challenger_id, self.defender_id, self.turn, self.player_stats_dict, self.player_action_dict, self.player_status_dict
+
+    # Update match information in database
+    async def update_database_record(self):
+        await PvpMatches.filter(id=self._id).update(status=self.status, turn=self.turn, player_stats=self.player_stats_dict)
+    
+    # Store one player's action
+    def store_action(self, player_id: int, battle_action):
+        self.player_action_dict[player_id] = battle_action
+
+    # Clear player actions
+    def clear_player_actions(self):
+        for player_id in self.player_action_dict:
+            self.player_action_dict[player_id] = None
+
+    # Get player in list with highest current SPD
+    def get_next_player(self, player_id_list: list[int]):
+        player_SPD_dict = { player_id: self.player_stats_dict[player_id]['SPD'] for player_id in player_id_list }
+        ordered_player_SPD_tups = sorted(player_SPD_dict.items(), key=lambda x: x[1], reverse=True)
+        return ordered_player_SPD_tups[0][0]
+
+    # Check if all players have submitted actions
+    def all_players_ready(self):
+        return all([(self.player_action_dict[player_id] != None) for player_id in self.player_action_dict])
+
+    # Check if a player has won (currently only works for 1v1)
+    def check_winner(self):
+        end_of_match = False
+        for player_id in self.player_stats_dict:
+            if self.player_stats_dict[player_id]['HP'] <= 0:
+                loser = player_id
+                end_of_match = True
+            else:
+                alive_player = player_id
+        if end_of_match:
+            return alive_player
+        else:
+            return False # Nobody has died, match is not yet over
+
+    # Update cooldowns
+    def update_cooldowns(self):
+        for player_id in self.player_status_dict:
+            status_dict = self.player_status_dict[player_id]
+            for technique in status_dict['cooldowns']:
+                status_dict['cooldowns'][technique] = max(0, status_dict['cooldowns'][technique] - 1)
+
+    # Execute current turn actions for all players
+    async def execute_turn(self):
+        pending_players = copy.copy(list(self.player_action_dict.keys())) # List of players whose actions have not been executed yet
+
+        while len(pending_players) > 0:
+            current_player = self.get_next_player(pending_players) # Get next player
+            await self.execute_action(current_player) # Execute this player's action
+            pending_players.remove(current_player) # Remove player from pending list
+
+            winner = self.check_winner() # Check for terminating condition
+            if winner: # If there is a winner, do not execute remaining player actions
+                self.status = "completed"
+                for player_id in pending_players:
+                    self.player_action_dict[player_id].description = ''
+                break
+        
+        # Update database
+        await self.update_database_record()
+
+    # Update cooldowns and increment turn
+    def next_turn(self):
+        self.update_cooldowns()
+        self.turn += 1
+    
+    # Clear player actions (run after displaying turn)
+    def clear_actions(self):
+        self.clear_player_actions()
+
+    # Execute one player's action
+    async def execute_action(self, player_id: int):
+        action = self.player_action_dict[player_id]
+        await action.execute()
 
 class AttackComponent():
     def __init__(self, player_stats: dict, target_stats: dict,
@@ -94,13 +238,13 @@ class AttackComponent():
 
 class BattleAction():
     def __init__(self, name: str, player: int, target: int, match: PvPMatch,
+        action_type: str, # 'basic attack' or 'technique' for now
         attack_components: list[AttackComponent],
         base_accuracy: float = 0,
         player_status_effects: dict = {},
         target_status_effects: dict = {},
         no_crit: bool = False,
         qi_cost: int = 0,
-        action_type: str, # 'basic attack' or 'technique' for now
         cooldown: int = 0,
     ):
         self.name = name; self.player = player; self.target = target; self.match = match
@@ -123,7 +267,7 @@ class BattleAction():
         
         # Hit Chance = Move Accuracy * ((Attacker's ACC) / (Defender's EVA))
         hit_chance = min(1, self.base_accuracy * (player_stats['ACC'] / target_stats['EVA']))
-        return (random.random() < hit_chance)
+        return (random.random() < (1-hit_chance))
     
     def compute_damage(self): # Determines damage (assuming successful hit)
         player_stats, target_stats, _, _ = self.get_player_target_info()
@@ -137,7 +281,7 @@ class BattleAction():
             else:
                 return total_DMG
     
-    async def execute(self): # Executes the attack, taking into passives and status effects
+    async def execute(self): # Executes the attack, taking into account passives and status effects
         player_stats, target_stats, player_status, target_status = self.get_player_target_info()
 
         action_damage = self.compute_damage()
@@ -147,13 +291,16 @@ class BattleAction():
         # Apply passive technique effects...
         # Trigger opponent response if they dodged and have related status effect...
 
+        if self.name == 'shatterclaw':
+            target_stats['Qi'] = math.ceil(0.6*target_stats['Qi'])
+
         # Update player and target info
         player_stats['Qi'] = to_nonneg(player_stats['Qi'] - self.qi_cost)
         if opponent_dodged:
-            self.descripton = f'<@{self.player}> used `{self.name}`, but <@{self.target}> dodged!'
+            self.description = f'<@{self.player}> used `{self.name}`, but <@{self.target}> dodged!'
         else:
             target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
-            self.descripton = f'<@{self.player}> used `{self.name}`, dealing {format_num_abbr1(action_damage)} damage to <@{self.target}>'
+            self.description = f'<@{self.player}> used `{self.name}`, dealing {format_num_abbr1(action_damage)} damage to <@{self.target}>'
 
         # If action type is technique, update cooldown
         self.match.player_status_dict[self.player]['cooldowns'][self.name] = self.cooldown + 1
@@ -202,22 +349,36 @@ class TechniqueDropdown(disnake.ui.Select):
             # Execute technique (custom code for each technique)
             if selected_technique == "flametsunami":
                 attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1.3, true_damage=False), AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=1.3, true_damage=False)]
-                action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {
+                action = BattleAction(selected_technique, player_info['id'], target_info['id'], self.battle_view.match, 'technique', attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {
                     'mDEF_shred': (0.2, 2),
                     'pDEF_shred': (0.2, 2)
                 }, qi_cost = 15, cooldown=2)
             elif selected_technique == "starshatter":
                 attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=3.4, true_damage=False)]
-                action = BattleAction(selected_technique, player_info, target_info, attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 20, cooldown=5)
-            
+                action = BattleAction(selected_technique, player_info['id'], target_info['id'], self.battle_view.match, 'technique', attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 20, cooldown=5)
+            elif selected_technique == 'windkillfinger':
+                attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, 
+                                                    scaling_stat='pATK', scaling_stat_source='player', 
+                                                    damage_type='physical', multiplier=2.8, true_damage=False)]
+                action = BattleAction(selected_technique, player_info['id'], target_info['id'], self.battle_view.match, 'technique', attack_components, 
+                                    base_accuracy=0.9, player_status_effects={}, 
+                                    target_status_effects={'pDEF_shred': (0.1, 99)},  # Lasts 99 turns
+                                    qi_cost=20, cooldown=4)
+            elif selected_technique == 'shatterclaw':
+                attack_components = [AttackComponent(player_stats=player_stats, target_stats=target_stats, 
+                                                    scaling_stat='pATK', scaling_stat_source='player', 
+                                                    damage_type='physical', multiplier=2.9, true_damage=False)]
+                action = BattleAction(selected_technique, player_info['id'], target_info['id'], self.battle_view.match, 'technique', attack_components, 
+                                    base_accuracy=0.85, player_status_effects={}, 
+                                    target_status_effects={}, qi_cost=25, cooldown=5)
+
             self.battle_view.match.store_action(player_info['id'], action)
             
             if self.battle_view.match.all_players_ready():
-                self.battle_view.match.execute_turn()
+                await self.battle_view.match.execute_turn()
                 if self.battle_view.match.status == 'completed': # Handle end of match
                     await self.battle_view.display_final_turn()
                 else:
-                    self.battle_view.match.next_turn()
                     await self.battle_view.display_next_turn()
             else:
                 waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
@@ -255,7 +416,7 @@ class MainBattleView(View):
         self.countdown_task = asyncio.create_task(self.update_countdown())
 
     def get_match_data(self) -> Tuple[dict, dict, int, bool]:
-        challenger_id, defender_id, player_stats, player_action, player_status = self.match.get_match_data()
+        challenger_id, defender_id, turn, player_stats, player_action, player_status = self.match.get_match_data()
         challenger_info = construct_player_info(player_stats, player_action, player_status, self.guild, challenger_id)
         defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, defender_id)
         am_challenger = (self.user_id == challenger_id) # Determine whether interacting user is challenger or defender
@@ -270,13 +431,13 @@ class MainBattleView(View):
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
-            description=f"{challenger_info['action']['description']}\n{defender_info['action']['description']}",
+            description=f"{challenger_info['action'].description}\n{defender_info['action'].description}",
             color=disnake.Color.red()
         )
 
         victory_title_options = ["Fate Sealed!", "A Decisive Blow!", "The Final Strike!", "Victory!", f"The End of {loser_info['Member'].display_name}!", f"{winner_info['Member'].display_name}'s Triumph!", "The Battle's Turning Point!", f"{loser_info['Member'].display_name} Falls!", "The Ultimate Move!", "Destiny Fulfilled!", f"{winner_info['Member'].display_name} Reigns Supreme!", "The Last Stand!"]
         victory_title = random.choice(victory_title_options)
-        victory_description = f"<@{winner_info['id']}>'s `{winner_info['action']['name']}` sealed the fate of <@{loser_info['id']}>!"
+        victory_description = f"<@{winner_info['id']}>'s `{winner_info['action'].name}` sealed the fate of <@{loser_info['id']}>!"
         
         result_embed = simple_embed(victory_title, victory_description)
 
@@ -286,12 +447,14 @@ class MainBattleView(View):
         await self.opponent_message.edit(embeds=[action_embed, battle_embed, result_embed])
 
     async def display_next_turn(self):
+        self.match.next_turn()
         challenger_info, defender_info, turn, am_challenger = self.get_match_data()
-        
+        print(challenger_info, defender_info)
+        print(challenger_info['action'].__dict__, defender_info['action'].__dict__)
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
-            description=f"{challenger_info['action']['description']}\n{defender_info['action']['description']}",
+            description=f"{challenger_info['action'].description}\n{defender_info['action'].description}",
             color=disnake.Color.red()
         )
         initial_countdown_embed = simple_embed('', "Starting turn...", color=disnake.Color.blue())
@@ -300,12 +463,12 @@ class MainBattleView(View):
         await self.public_message.edit(embeds=[action_embed, battle_embed])
         
         # Send updated embeds to the challenger and store the message object
-        challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=challenger_info['id'], opponent_user_id=defender_info['id'], public_message=self.public_message)
+        challengerBattleView = MainBattleView(guild=self.guild, channel=self.channel, match=self.match, user_id=challenger_info['id'], opponent_user_id=defender_info['id'], public_message=self.public_message)
         challenger_message = await challenger_info['Member'].send(embeds=[action_embed, battle_embed, initial_countdown_embed], view=challengerBattleView)
         challengerBattleView.message = challenger_message  # Store the message for dynamic updates
 
         # Send updated embeds to the defender and store the message object
-        defenderBattleView = MainBattleView(guild=self.guild, channel=self.channel, match_id=self._id, user_id=defender_info['id'], opponent_user_id=challenger_info['id'], public_message=self.public_message)
+        defenderBattleView = MainBattleView(guild=self.guild, channel=self.channel, match=self.match, user_id=defender_info['id'], opponent_user_id=challenger_info['id'], public_message=self.public_message)
         defender_message = await defender_info['Member'].send(embeds=[action_embed, battle_embed, initial_countdown_embed], view=defenderBattleView)
         defenderBattleView.message = defender_message  # Store the message for dynamic updates
 
@@ -316,6 +479,9 @@ class MainBattleView(View):
         # Delete original messages for both players
         await self.message.delete()
         await self.opponent_message.delete()
+
+        # Clear actions
+        self.match.clear_actions()
     
     # Handle timeout (when the user doesn't click a button in time)
     async def on_timeout(self):
@@ -328,16 +494,15 @@ class MainBattleView(View):
         player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
             
         # Basic attack
-        action = BattleAction( name='basic_attack', player=player_info['id'], target=target_info['id'], match=self.match, attack_components=[ AttackComponent(player_stats, target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)], base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0,action_type='basic attack')
+        action = BattleAction( name='basic_attack', player=player_info['id'], target=target_info['id'], match=self.match, attack_components=[ AttackComponent(player_info['stats'], target_info['stats'], scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)], base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0,action_type='basic attack')
 
         self.match.store_action(player_info['id'], action)
         
         if self.match.all_players_ready():
-            self.match.execute_turn()
+            await self.match.execute_turn()
             if self.match.status == 'completed': # Handle end of match
                 await self.display_final_turn()
             else:
-                self.match.next_turn()
                 await self.display_next_turn()
 
     async def update_countdown(self):
@@ -366,50 +531,44 @@ class MainBattleView(View):
         self.countdown_task.cancel() # Stop the countdown
         self.toggle_buttons(enabled=False) # Disable the buttons
         await self.message.edit(view=self)
-        
-        try:
-            challenger_info, defender_info, turn, am_challenger = self.get_match_data()
-            player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
-            
-            # Basic attack
-            action = BattleAction(
-                name='basic_attack', 
-                player=player_info['id'], 
-                target=target_info['id'], 
-                match=self.match,
-                attack_components=[
-                    AttackComponent(player_stats, target_stats, 
-                        scaling_stat='pATK', 
-                        scaling_stat_source='player', 
-                        damage_type='physical', 
-                        multiplier=1, 
-                        true_damage=False
-                    )
-                ], 
-                base_accuracy = 0.9, 
-                player_status_effects = {}, 
-                target_status_effects = {}, 
-                qi_cost = 0,
-                action_type='basic attack'
-            )
 
-            self.match.store_action(player_info['id'], action)
-            
-            if self.match.all_players_ready():
-                self.match.execute_turn()
-                if self.match.status == 'completed': # Handle end of match
-                    await self.display_final_turn()
-                else:
-                    self.match.next_turn()
-                    await self.display_next_turn(c)
-            
-            else: # Waiting for opponent to submit move
-                waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
-                await inter.edit_original_message(embeds=[*self.message.embeds[:-1], waiting_embed])
+        challenger_info, defender_info, turn, am_challenger = self.get_match_data()
+        player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
         
-        except Exception as e:
-            print(f"Error in basic_attack: {e}")
-            await inter.send("An error occurred while processing your request.", ephemeral=True)
+        # Basic attack
+        action = BattleAction(
+            name='basic_attack', 
+            player=player_info['id'], 
+            target=target_info['id'], 
+            match=self.match,
+            attack_components=[
+                AttackComponent(player_info['stats'], target_info['stats'], 
+                    scaling_stat='pATK', 
+                    scaling_stat_source='player', 
+                    damage_type='physical', 
+                    multiplier=1, 
+                    true_damage=False
+                )
+            ], 
+            base_accuracy = 0.9, 
+            player_status_effects = {}, 
+            target_status_effects = {}, 
+            qi_cost = 0,
+            action_type='basic attack'
+        )
+
+        self.match.store_action(player_info['id'], action)
+        
+        if self.match.all_players_ready():
+            await self.match.execute_turn()
+            if self.match.status == 'completed': # Handle end of match
+                await self.display_final_turn()
+            else:
+                await self.display_next_turn()
+        
+        else: # Waiting for opponent to submit move
+            waiting_embed = disnake.Embed(description=f'Waiting for opponent...')
+            await inter.edit_original_message(embeds=[*self.message.embeds[:-1], waiting_embed])
     
     @disnake.ui.button(label="Use Technique", style=disnake.ButtonStyle.primary, custom_id="use_technique")
     async def use_technique(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
@@ -542,6 +701,8 @@ class InitialChallengeView(View):
                 },
             }
 
+            turn = 1
+
             player_techniques_dict = {}
             for player in [self.challengerPlayer, self.defenderPlayer]:
                 equipped_items = await player.get_equipped_items()
@@ -561,7 +722,6 @@ class InitialChallengeView(View):
             defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, self.defenderPlayer.id)
             
             if self.channel:
-                
                 # Generate battle and countdown embeds
                 battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
                 initial_countdown_embed = simple_embed('', "Starting turn...", color=disnake.Color.blue())
@@ -616,145 +776,6 @@ class InitialChallengeView(View):
         except Exception as e:
             print(f"Error in decline_challenge: {e}")
             await inter.response.send_message("Something went wrong. Please try again.", ephemeral=True)
-
-'''
-Examples of player_stats_dict, player_action_dict, player_status_dict
-
-example_player_stats_dict = {
-    player1_user_ID: {
-        'pATK': 200, # Physical Attack
-        'mATK': 200, # Magical Attack
-        'pDEF': 200, # Physical Defense
-        'mDEF': 200, # Magical Defense
-        'pPEN': 0.1, # Physical Penetration
-        'mPEN': 0.1, # Magical Penetration
-        'SPD': 100, # Speed
-        'ACC': 0.95, # Accuracy
-        'EVA': 0.05, # Evasion (dodge)
-        'CRIT': 0.05, # Critical rate
-        'CRIT DMG': 1.50, # Critical damage multiplier
-        'HP': 2000, 
-        'Max HP': 2000, 
-        'Qi': 100,
-        'Max Qi': 100
-    },
-    player2_user_ID: { ... }
-}
-
-example_player_action_dict = { 
-    player1_user_ID: { 
-        'name': 'wopwop', 
-        'description': 'Player1 used `wopwop`, dealing 3,455 damage to Player2'
-    },
-    player2_user_ID: None # Indicates player has not submitted an action yet
-}
-
-example_player_status_dict = {
-    player1_user_ID: {
-        'cooldowns': {}, # technique ID -> remaining cooldown
-        'debuffs': {}, # debuff type -> {value, remaining cooldown}
-        'buffs': {} # buff type -> {value, remaining cooldown}
-        'status': { # status type -> {source, duration}
-            'Confusion': {
-                'source': player2_user_ID,
-                'duration': 1,
-            }
-        }
-    }
-}
-'''
-class PvPMatch(): # In-memory representation of a match
-
-    def __init__(self, match_id: int, challenger_id: int, defender_id: int,
-        player_stats_dict: dict, player_action_dict: dict, player_status_dict: dict, player_techniques_dict: dict
-    ):
-        # Initialize match
-        self._id = match_id  # Store the match ID (create database record first)
-        self.challenger_id = challenger_id
-        self.defender_id = defender_id
-        self.status = "pending" # Match status
-        self.turn = 1 # Turn number
-        self.player_stats_dict = player_stats_dict # Dictionary: user ID -> stats dict
-        self.player_action_dict = player_action_dict # Dictionary: user ID -> action dict
-        self.player_status_dict = player_status_dict # Dictionary: user ID -> status dict
-        self.player_techniques_dict = player_techniques_dict # Dictionary: user ID -> (tech_id, cooldown) list
-
-    # Access match data
-    def get_match_data(self):
-        return self.challenger_id, self.defender_id, self.player_stats_dict, self.player_action_dict, self.player_status_dict
-
-    # Update match information in database
-    async def update_database_record(self):
-        await PvpMatches.filter(id=self._id).update(status=self.status, turn=self.turn, player_stats=self.player_stats, player_action=self.player_action, player_status=self.player_status)
-    
-    # Store one player's action
-    def store_action(self, player_id: int, battle_action: BattleAction):
-        self.player_action_dict[player_id] = battle_action
-
-    # Clear player actions
-    def clear_player_actions(self):
-        for player_id in self.player_action_dict:
-            self.player_action_dict[player_id] = None
-
-    # Get player in list with highest current SPD
-    def get_next_player(self, player_id_list: list[int]):
-        player_SPD_dict = { player_id: self.player_stats_dict[player_id]['SPD'] for player_id in player_id_list }
-        ordered_player_SPD_tups = sorted(player_SPD_dict.items(), key=lambda x: x[1], reverse=True)
-        return ordered_player_SPD_tups[0][0]
-
-    # Check if all players have submitted actions
-    def all_players_ready(self):
-        return all([(self.player_action_dict[player_id] != None) for player_id in self.player_action_dict])
-
-    # Check if a player has won (currently only works for 1v1)
-    def check_winner(self):
-        end_of_match = False
-        for player_id in self.player_stats_dict:
-            if self.player_stats_dict[player_id]['HP'] <= 0:
-                loser = player_id
-                end_of_match = True
-            else:
-                alive_player = player_id
-        if end_of_match:
-            return alive_player
-        else:
-            return False # Nobody has died, match is not yet over
-
-    # Update cooldowns
-    def update_cooldowns(self):
-        for player_id in self.player_status_dict:
-            status_dict = self.player_status_dict[player_id]
-            for technique in status_dict['cooldowns']:
-                status_dict['cooldowns'][technique] = max(0, status_dict['cooldowns'][technique] - 1)
-
-    # Execute current turn actions for all players
-    async def execute_turn(self):
-        pending_players = copy.copy(list(self.player_action_dict.keys())) # List of players whose actions have not been executed yet
-
-        while len(pending_players) > 0:
-            current_player = self.get_next_player(pending_players) # Get next player
-            await self.execute_action(current_player) # Execute this player's action
-            pending_players.remove(current_player) # Remove player from pending list
-
-            winner = self.check_winner() # Check for terminating condition
-            if winner: # If there is a winner, do not execute remaining player actions
-                self.status = "completed"
-                break
-
-        # Update database
-        self.update_database_record()
-
-    # Increment turn and clear actions
-    def next_turn(self):
-        self.update_cooldowns()
-        self.turn += 1
-        self.clear_player_actions()
-
-    # Execute one player's action
-    async def execute_action(self, player_id: int):
-        action = self.player_action_dict[player_id]
-        await action.execute()
-
 
 
 class PvPCog(commands.Cog):
