@@ -24,6 +24,7 @@ import random, asyncio, json, math
 # Status effects
 # A player who is dead cannot attack
 # Lock in techniques for the duration of a match (cannot learn/unlearn)
+# Process turns at once rather than by the person who last clicked
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -34,6 +35,9 @@ def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake
 
 def to_nonneg(number):
     return max(0, number)
+
+def random_success(chance):
+    return (random.random() < chance)
 
 def construct_player_info(player_stats, player_action, player_status, guild, user_id):
     player_info = {
@@ -100,51 +104,89 @@ class BattleAction():
         self.name = name
         self.player_info = player_info
         self.target_info = target_info
-
         self.attack_components = attack_components
         self.base_accuracy = base_accuracy
         self.player_status_effects = player_status_effects
         self.target_status_effects = target_status_effects
         self.no_crit = no_crit
-        
-        self.damage = self.compute_damage()
-        self.description = self.__str__()
         self.qi_cost = qi_cost
-
-    def __str__(self):
-        return f'<@{self.player_info['id']}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_info['id']}>'
-    
-    def compute_hit_chance(self):
+        self.description = 'This action has not yet been taken.'
+        
+    def determine_dodge(self):
         # Hit Chance = Move Accuracy * ((Attacker's ACC) / (Defender's EVA))
-        return min(1, self.base_accuracy * (self.player_info['stats']['ACC'] / self.target_info['stats']['EVA']))
+        hit_chance = min(1, self.base_accuracy * (self.player_info['stats']['ACC'] / self.target_info['stats']['EVA']))
+        return (random.random() < hit_chance)
     
-    def compute_damage(self):
+    def compute_damage(self): # Determines damage (assuming successful hit)
         player_stats = self.player_info['stats']; target_stats = self.target_info['stats']
-        
-        hit_chance = self.compute_hit_chance()
-        
-        if random.random() < hit_chance: # Attack successfully hit
-
-            total_DMG = 0
-            for attack_component in self.attack_components:
-                total_DMG += attack_component.damage_dealt()
-            
-            total_DMG = max(1, total_DMG)
-
-            print(self.player_info['Member'].display_name, "successful hit, chance", hit_chance, ", ", "orig DMG", total_DMG)
-
-            if self.no_crit:
-                return total_DMG
+        total_DMG = max(1, sum([attack_component.damage_dealt() for attack_component in self.attack_components]))
+        print(self.player_info['Member'].display_name, "successful hit, chance", hit_chance, ", ", "orig DMG", total_DMG) # For debugging
+        if self.no_crit:
+            return total_DMG
+        else:
+            if random.random() < player_stats['CRIT']: # Critical hit
+                return math.ceil(total_DMG * player_stats['CRIT DMG'])
+                print("Critical hit!", player_stats['CRIT DMG'], math.ceil(total_DMG * player_stats['CRIT DMG'])) # For debugging
             else:
-                if random.random() < player_stats['CRIT']: # Critical hit
-                    return math.ceil(total_DMG * player_stats['CRIT DMG'])
-                    print("Critical hit!", player_stats['CRIT DMG'], math.ceil(total_DMG * player_stats['CRIT DMG']))
-                else:
-                    return total_DMG
-        
-        else: # Opponent dodged the attack
-            return 0 # No damage done
+                return total_DMG
+    
+    async def execute(self): # Executes the attack, taking into passives and status effects, and updates database
 
+        # Apply passive technique effects
+        equipped_items = await player_info['Player'].get_equipped_items()
+        techniques = equipped_items['techniques']
+
+        for technique in techniques:
+            # For now, hardcode different passive technique effects
+            if technique == 'windimages':
+                player_stats['SPD'] += 25
+                player_stats['EVA'] += 25
+                if random_success(0.3):
+                    self.target_status_effects = 
+        
+        # Potentially apply status to opponent based on 
+        for effect in self.player_status_effects['chance_to_apply']:
+            chance, remaining_duration = self.player_status_effects['chance_to_apply'][effect]
+            if not remaining_duration == 0:
+                if random_success(chance):
+                    self.target_status_effects['status'][effect] = {
+                        'source': self.player_info['id'],
+                        'duration': 1,
+                    } # For now, status is only applied for one turn
+            if remaining_duration == -1: # Permanent/passive
+                pass:
+            else:
+                remaining_duration -= 1
+        
+        if self.player_status_effects['Burn']:
+        elif self.player_status_effects['Shock']:
+        elif self.player_status_effects['Fear']:
+        elif self.player_status_effects['Bleed']:
+        elif self.player_status_effects['Confuse']:
+            confusion_probability = self.player_status_effects['Confuse']
+            if self.dodged:
+                if random.random() < confusion_probability:
+
+        elif self.player_status_effects['Silence']:
+        elif self.player_status_effects['Poison']:
+        elif self.player_status_effects['Chill']:
+        elif self.player_status_effects['Freeze']:
+        elif self.player_status_effects['Frostbite']:
+        
+        
+
+        action_damage = action.damage
+        target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
+        player_stats['Qi'] = to_nonneg(player_stats['Qi'] - 0)
+        player_info['action'] = { 'name': action.name, 'description': str(action) }
+
+        await PvpMatches.filter(id=self._id).update(
+            player_stats={ player_info['id']: player_stats, target_info['id']: target_stats }, 
+            player_action={ player_info['id']: player_info['action'], target_info['id']: target_info['action'] }
+        )
+
+        self.descripton = f'<@{self.player_info['id']}> used `{self.name}`, dealing {format_num_abbr1(self.damage)} damage to <@{self.target_info['id']}>'
+    
 
 class TechniqueDropdown(disnake.ui.Select):
     """Dropdown for selecting a technique."""
