@@ -11,13 +11,13 @@ from utils.Styles import EXCLAMATION
 from utils.base import CogNotLoadedError
 from utils.ParamsUtils import format_num_abbr1
 import random, asyncio, json, math, copy
+from rich import print
 # from character.pvp_stats import PvPStats
 
 # TODO: remove bruv from shop
 # Action descriptions
 # - dealing x magical damage, dealing x physical damage, dealing x mixed damage, dealing x true damage
 # Mention status effects applied
-# Speed
 # Elements
 # Put technique code in a separate file
 # Cooldowns
@@ -26,6 +26,7 @@ import random, asyncio, json, math, copy
 # Lock in techniques for the duration of a match (cannot learn/unlearn)
 # Process turns at once rather than by the person who last clicked
 # Speed -> order of actions correspond
+# Status effect levels
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -40,16 +41,6 @@ def to_nonneg(number):
 def random_success(chance):
     return (random.random() < chance)
 
-def construct_player_info(player_stats, player_action, player_status, guild, user_id):
-    player_info = {
-        'id': user_id,
-        'Member': guild.get_member(user_id),
-        'Player': PlayerRoster().get(user_id),
-        'action': player_action[user_id],
-        'stats': player_stats[user_id],
-        'status': player_status[user_id]           
-    }
-    return player_info
 '''
 Examples of player_stats_dict, player_action_dict, player_status_dict
 
@@ -108,10 +99,51 @@ class PvPMatch(): # In-memory representation of a match
         self.defender_id = defender_id
         self.status = "pending" # Match status
         self.turn = 1 # Turn number
+        
+        # Store player stats, actions, and status
         self.player_stats_dict = player_stats_dict # Dictionary: user ID -> stats dict
         self.player_action_dict = player_action_dict # Dictionary: user ID -> action dict
         self.player_status_dict = player_status_dict # Dictionary: user ID -> status dict
-        self.player_techniques_dict = player_techniques_dict # Dictionary: user ID -> (tech_id, cooldown) list
+        self.player_techniques_dict = player_techniques_dict # Dictionary: user ID -> tech_id -> original cooldown
+
+        # Apply permanent passive effects at the start of the match
+        self.apply_all_passive_effects()
+
+    # Apply technique permanent passive effect(s) to one player
+    def apply_passive_effect(self, player_id, technique_id):
+        # ================================================================================
+        # HARDCODED TECHNIQUE EFFECTS PORTION
+        # ================================================================================
+        if technique_id == 'windimages':
+            self.player_stats_dict[player_id]['SPD'] += 25
+            self.player_stats_dict[player_id]['EVA'] += 25
+        elif technique_id == 'ninewindsteps':
+            self.player_stats_dict[player_id]['EVA'] += 20
+        elif technique_id == 'skysteps':
+            self.player_stats_dict[player_id]['SPD'] += 20
+            self.player_stats_dict[player_id]['EVA'] += 20
+        elif technique_id == 'cottonhand':
+            self.player_stats_dict[player_id]['pATK'] += 15
+            self.player_stats_dict[player_id]['mATK'] += 15
+            self.player_stats_dict[player_id]['pDEF'] += 15
+            self.player_stats_dict[player_id]['mDEF'] += 15
+
+    # Apply all technique permanent passive effects to all players
+    def apply_all_passive_effects(self):
+        for player_id in self.player_techniques_dict:
+            for technique_id in self.player_techniques_dict[player_id]:
+                self.apply_passive_effect(player_id, technique_id)
+
+    # Get a list of current player status effects
+    def get_player_status_effects(self, player_id):
+        active_effects = []
+
+        for status_effect in self.player_status_dict[player_id]['status']:
+            duration = self.player_status_dict[player_id]['status'][status_effect]['duration']
+            if duration > 0:
+                active_effects.append(status_effect)
+        
+        return active_effects
 
     # Access match data
     def get_match_data(self):
@@ -158,8 +190,37 @@ class PvPMatch(): # In-memory representation of a match
     def update_cooldowns(self):
         for player_id in self.player_status_dict:
             status_dict = self.player_status_dict[player_id]
-            for technique in status_dict['cooldowns']:
+            for technique in status_dict['cooldowns']: # Technique usage cooldowns
                 status_dict['cooldowns'][technique] = max(0, status_dict['cooldowns'][technique] - 1)
+            for status_effect in status_dict['status']: # Status effect durations
+                status_dict['status'][status_effect]['duration'] = max(0, status_dict['status'][status_effect]['duration'] - 1)
+
+    # Execute target response to attacker action
+    async def execute_target_response(self, action):
+        responder_id = action.target
+        # ================================================================================
+        # HARDCODED TECHNIQUE EFFECTS PORTION
+        # ================================================================================
+        if 'windimages' in self.player_techniques_dict[responder_id]:
+            if action.dodged: # Target dodged this attack
+                # 30% chance of confusing the attacker
+                if random_success(0.3):
+                    self.player_status_dict[action.player]['status']['Confusion'] = {
+                        'source': responder_id,
+                        'duration': 1+1
+                    }
+                    action.description += f'\n<@{responder_id}> confused <@{action.player}> for one turn!'
+        elif 'skysteps' in self.player_techniques_dict[responder_id]:
+            if action.dodged: # Target dodged this attack
+                # Target counter-attacks the attacker with basic attack
+                attack_components = [AttackComponent(player_stats=self.player_stats_dict[responder_id], target_stats=self.player_stats_dict[action.player], scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)]
+                counter_action = BattleAction(name='basic_attack', player=responder_id, target=action.player, match=self, attack_components=attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0, action_type='basic attack')
+                
+                await counter_action.execute()
+
+                # Update the action description for the attacker
+                action.description += f'<@{responder_id}> counter-attacked <@{action.player}>, dealing {format_num_abbr1(action.damage)} damage!'
+
 
     # Execute current turn actions for all players
     async def execute_turn(self):
@@ -167,7 +228,8 @@ class PvPMatch(): # In-memory representation of a match
 
         while len(pending_players) > 0:
             current_player = self.get_next_player(pending_players) # Get next player
-            await self.execute_action(current_player) # Execute this player's action
+            action = await self.execute_action(current_player) # Execute this player's action
+            await self.execute_target_response(action) # Execute target response
             pending_players.remove(current_player) # Remove player from pending list
 
             winner = self.check_winner() # Check for terminating condition
@@ -193,8 +255,21 @@ class PvPMatch(): # In-memory representation of a match
     async def execute_action(self, player_id: int):
         action = self.player_action_dict[player_id]
         await action.execute()
+        return action
 
-class AttackComponent():
+def construct_player_info(match: PvPMatch, guild, user_id):
+    player_info = {
+        'id': user_id,
+        'Member': guild.get_member(user_id),
+        'Player': PlayerRoster().get(user_id),
+        'action': match.player_action_dict[user_id],
+        'stats': match.player_stats_dict[user_id],
+        'status': match.player_status_dict[user_id],
+        'active_effects': match.get_player_status_effects(user_id)
+    }
+    return player_info
+
+class AttackComponent(): # Representation of a damage dealing component of an attack
     def __init__(self, player_stats: dict, target_stats: dict,
         scaling_stat: str,
         scaling_stat_source: str,
@@ -220,8 +295,6 @@ class AttackComponent():
 
         source_stats = self.player_stats if self.scaling_stat_source == 'player' else self.target_stats
         original_DMG = source_stats[self.scaling_stat] * self.multiplier
-
-        print(self.scaling_stat, "multiplier", self.multiplier, 'original DMG', original_DMG)
         
         DMG = 1
         if self.damage_type == "physical":
@@ -236,7 +309,8 @@ class AttackComponent():
         
         return DMG
 
-class BattleAction():
+
+class BattleAction(): # Representation of a player's action at a turn in battle
     def __init__(self, name: str, player: int, target: int, match: PvPMatch,
         action_type: str, # 'basic attack' or 'technique' for now
         attack_components: list[AttackComponent],
@@ -248,13 +322,14 @@ class BattleAction():
         cooldown: int = 0,
     ):
         self.name = name; self.player = player; self.target = target; self.match = match
+        self.action_type = action_type
         self.attack_components = attack_components
         self.base_accuracy = base_accuracy
         self.player_status_effects = player_status_effects
         self.target_status_effects = target_status_effects
         self.no_crit = no_crit
         self.qi_cost = qi_cost
-        self.description = 'This action has not yet been taken.'
+        self.description = ''
         self.cooldown = cooldown
         
     def get_player_target_info(self):
@@ -287,23 +362,39 @@ class BattleAction():
         action_damage = self.compute_damage()
         opponent_dodged = self.determine_dodge()
 
-        # Check for player status effects...
-        # Apply passive technique effects...
-        # Trigger opponent response if they dodged and have related status effect...
+        # Check for player status effects
+        # ================================================================================
+        # HARDCODED TECHNIQUE EFFECTS PORTION
+        # ================================================================================
+        for status_effect in self.match.get_player_status_effects(self.player):
+            if status_effect == 'Confusion':
+                # Retargets attack to user or an ally for 50% damage
+                if random_success(0.3): # Confusion failed
+                    pass
+                else: # TODO: confusion cannot be critical hit
+                    opponent_dodged = False
+                    action_damage = math.ceil(action_damage * 0.5)
+                    self.description = f'<@{self.player}> tried to attack <@{self.target}>, but was confused and attacked themselves instead!\n'
+                    self.target = self.player; target_stats = player_stats; target_status = player_status
 
         if self.name == 'shatterclaw':
             target_stats['Qi'] = math.ceil(0.6*target_stats['Qi'])
 
-        # Update player and target info
+        # Update player Qi based on Qi cost and target HP based on damage dealt
         player_stats['Qi'] = to_nonneg(player_stats['Qi'] - self.qi_cost)
         if opponent_dodged:
             self.description = f'<@{self.player}> used `{self.name}`, but <@{self.target}> dodged!'
         else:
             target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
-            self.description = f'<@{self.player}> used `{self.name}`, dealing {format_num_abbr1(action_damage)} damage to <@{self.target}>'
+            self.description += f'<@{self.player}> used `{self.name}`, dealing {format_num_abbr1(action_damage)} damage to <@{self.target}>'
 
-        # If action type is technique, update cooldown
-        self.match.player_status_dict[self.player]['cooldowns'][self.name] = self.cooldown + 1
+        # If action type is technique, set cooldown
+        if self.action_type == 'technique':
+            self.match.player_status_dict[self.player]['cooldowns'][self.name] = self.cooldown + 1
+        
+        self.dodged = opponent_dodged
+        self.damage = action_damage
+        return self # Return information for opponent response
     
 
 class TechniqueDropdown(disnake.ui.Select):
@@ -417,8 +508,8 @@ class MainBattleView(View):
 
     def get_match_data(self) -> Tuple[dict, dict, int, bool]:
         challenger_id, defender_id, turn, player_stats, player_action, player_status = self.match.get_match_data()
-        challenger_info = construct_player_info(player_stats, player_action, player_status, self.guild, challenger_id)
-        defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, defender_id)
+        challenger_info = construct_player_info(self.match, self.guild, challenger_id)
+        defender_info = construct_player_info(self.match, self.guild, defender_id)
         am_challenger = (self.user_id == challenger_id) # Determine whether interacting user is challenger or defender
         return challenger_info, defender_info, turn, am_challenger
     
@@ -449,8 +540,13 @@ class MainBattleView(View):
     async def display_next_turn(self):
         self.match.next_turn()
         challenger_info, defender_info, turn, am_challenger = self.get_match_data()
-        print(challenger_info, defender_info)
-        print(challenger_info['action'].__dict__, defender_info['action'].__dict__)
+        print("================================\nData before embed for this turn:", turn)
+        print("-------------------\nChallenger info:")
+        print(challenger_info)
+        print(challenger_info['action'].__dict__)
+        print("-------------------\nDefender info:")
+        print(defender_info)
+        print(defender_info['action'].__dict__)
         # Generate updated embeds
         battle_embed = generate_battle_embed(challenger_info, defender_info, turn)
         action_embed = disnake.Embed(
@@ -581,6 +677,10 @@ class MainBattleView(View):
         techniques_dict = self.match.player_techniques_dict[player_info['id']]
         techniques = sorted(techniques_dict.keys())
         
+        # TODO: store elsewhere
+        passive_only_techniques = ['skysteps', 'windimages']
+        techniques = [technique for technique in techniques if technique not in passive_only_techniques]
+
         # Create a dropdown for technique selection
         if len(techniques) > 0:
             
@@ -602,7 +702,12 @@ class MainBattleView(View):
 
 # Generate battle embed
 def generate_battle_embed(challenger_info: dict, defender_info: dict, turn: int) -> disnake.Embed:
+
     challenger_stats = challenger_info['stats']; defender_stats = defender_info['stats']
+
+    challenger_effect_str = '*None*' if len(challenger_info['active_effects']) == 0 else ('\n'.join([f'- {effect}' for effect in challenger_info['active_effects']]))
+    defender_effect_str = '*None*' if len(defender_info['active_effects']) == 0 else ('\n'.join([f'- {effect}' for effect in defender_info['active_effects']]))
+    
     embed = disnake.Embed(
         title=f"⚔️ PvP Battle: Turn {turn}",
         color=disnake.Color.blue()
@@ -610,13 +715,15 @@ def generate_battle_embed(challenger_info: dict, defender_info: dict, turn: int)
     embed.add_field(
         name=f"{challenger_info['Member'].display_name}",
         value=f"""HP: `{challenger_stats['HP']}`/`{challenger_stats['Max HP']}`
-        Qi: `{challenger_stats['Qi']}`/`{challenger_stats['Max Qi']}`""",
+        Qi: `{challenger_stats['Qi']}`/`{challenger_stats['Max Qi']}`
+        Status Effects: {challenger_effect_str}""",
         inline=True
     )
     embed.add_field(
         name=f"{defender_info['Member'].display_name}",
         value=f"""HP: `{defender_stats['HP']}`/`{defender_stats['Max HP']}`
-        Qi: `{defender_stats['Qi']}`/`{defender_stats['Max Qi']}`""",
+        Qi: `{defender_stats['Qi']}`/`{defender_stats['Max Qi']}`
+        Status Effects: {defender_effect_str}""",
         inline=True
     )
     return embed
@@ -656,7 +763,7 @@ class InitialChallengeView(View):
                     'mPEN': 0.1, # Magical Penetration
                     'SPD': 120, # Speed
                     'ACC': 0.95, # Accuracy
-                    'EVA': 0.05, # Evasion (dodge)
+                    'EVA': 0.50, # Evasion (dodge)
                     'CRIT': 0.05, # Critical rate
                     'CRIT DMG': 1.50, # Critical damage multiplier
                     'HP': 2000, 
@@ -692,12 +799,14 @@ class InitialChallengeView(View):
                 self.challengerPlayer.id: {
                     'cooldowns': {}, # technique ID -> remaining cooldown
                     'debuffs': {}, # debuff type -> (value (if applicable), remaining cooldown)
-                    'buffs': {} # buff type -> (value, remaining cooldown)
+                    'buffs': {}, # buff type -> (value, remaining cooldown)
+                    'status': {},
                 },
                 self.defenderPlayer.id: {
                     'cooldowns': {}, # technique ID -> remaining cooldown
                     'debuffs': {},
-                    'buffs': {}
+                    'buffs': {},
+                    'status': {},
                 },
             }
 
@@ -718,8 +827,8 @@ class InitialChallengeView(View):
             # Create the in-memory match object
             match = PvPMatch(pvpmatch.id, self.challengerPlayer.id, self.defenderPlayer.id, player_stats, player_action, player_status, player_techniques_dict)
 
-            challenger_info = construct_player_info(player_stats, player_action, player_status, self.guild, self.challengerPlayer.id)
-            defender_info = construct_player_info(player_stats, player_action, player_status, self.guild, self.defenderPlayer.id)
+            challenger_info = construct_player_info(match, self.guild, self.challengerPlayer.id)
+            defender_info = construct_player_info(match, self.guild, self.defenderPlayer.id)
             
             if self.channel:
                 # Generate battle and countdown embeds
