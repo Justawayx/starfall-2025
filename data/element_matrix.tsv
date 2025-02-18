@@ -1,0 +1,15 @@
+	Fire	Water	Earth	Wood	Lightning	Wind	Rock	Dark	Blood	Dragon	Mysterious	Strength	Poison	Ice
+Fire	x1/2	x1/2	x2	x2	x1	x1	x1/2	x1	x2	x1/2	x1	x1	x1	x2
+Water	x2	x1/2	x1/2	x1	x1	x1	x2	x1	x1	x1/2	x1	x1	x1	x1
+Earth	x1/2	x2	x1/2	x1/2	x2	x1/2	x2	x1	x1	x1/2	x1	x1	x1/2	x1
+Wood	x1/2	x1	x2	x1	x1	x1/2	x1	x2	x1	x1/2	x2	x1/2	x1/2	x1
+Lightning	x1	x2	x0	x1	x1/2	x2	x1	x1	x1	x1/2	x1	x1	x1	x1
+Wind	x1	x1	x2	x2	x1/2	x1	x1/2	x1	x1	x1	x1	x2	x1	x1
+Rock	x2	x1	x1	x2	x1	x2	x1	x1	x1	x1	x1	x1/2	x1	x2
+Dark	x1	x1	x1	x1	x1	x1	x1	x1/2	x2	x1	x2	x1/2	x1	x1
+Blood	x1/2	x1	x1	x1	x1	x1	x1	x1/2	x2	x1	x2	x1	x1	x1
+Dragon	x1	x1	x1	x1	x1	x1	x1	x1	x1	x2	x1	x1	x1	x1
+Mysterious	x1	x1	x1	x1	x1	x1	x1	x0	x1	x2	x1	x2	x2	x1
+Strength	x1	x1	x1	x1	x1	x1/2	x2	x2	x0	x1	x1/2	x1	x1/2	x2
+Poison	x1	x1	x2	x2	x1	x1	x1/2	x1	x1/2	x1	x1	x1	x1/2	x1
+Ice	x1/2	x1/2	x2	x1	x1	x1	x1	x1	x2	x2	x1	x1	x1	x1/2
