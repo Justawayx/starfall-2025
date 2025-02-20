@@ -100,8 +100,8 @@ example_player_action_dict = {
 example_player_status_dict = {
     player1_user_ID: {
         'cooldowns': {}, # technique ID -> remaining cooldown
-        'debuffs': {}, # debuff type -> {value, remaining cooldown}
-        'buffs': {} # buff type -> {value, remaining cooldown}
+        'debuffs': [], # (debuff stat, value, remaining cooldown) list
+        'buffs': [] # (buff stat, value, remaining cooldown) list
         'status': { # status type -> {source, duration}
             'Confusion': {
                 'source': player2_user_ID,
@@ -214,7 +214,7 @@ class PvPMatch(): # In-memory representation of a match
             for summon in self.player_status_dict[player_id]['summons']:
                 if summon['active']:
                     player_summon_SPD_dict[(player_id, summon['name'])] = summon['SPD']
-        print(player_summon_SPD_dict, "player_or_summon_list", player_or_summon_list)
+        # print(player_summon_SPD_dict, "player_or_summon_list", player_or_summon_list)
         player_or_summon_SPD_dict = {}
         for player_or_summon in player_or_summon_list:
             if isinstance(player_or_summon, int):
@@ -271,6 +271,22 @@ class PvPMatch(): # In-memory representation of a match
                 status_dict['cooldowns'][technique] = max(0, status_dict['cooldowns'][technique] - 1)
             for status_effect in status_dict['status']: # Status effect durations
                 status_dict['status'][status_effect]['duration'] = max(0, status_dict['status'][status_effect]['duration'] - 1)
+            
+            updated_buffs = []
+            for buff_stat, buff_proportion, cooldown in status_dict['buffs']:
+                if cooldown == 1: # Buff will expire
+                    self.player_stats_dict[player_id][buff_stat] *= (1/(1 + buff_proportion)) # Revert
+                else:
+                    updated_buffs.append((buff_stat, buff_proportion, (cooldown if cooldown == 99 else (cooldown - 1))))
+            status_dict['buffs'] = updated_buffs
+
+            updated_debuffs = []
+            for debuff_stat, debuff_proportion, cooldown in status_dict['debuffs']:
+                if cooldown == 1: # Debuff will expire
+                    self.player_stats_dict[player_id][debuff_stat] *= (1/(1 - debuff_proportion)) # Revert
+                else:
+                    updated_debuffs.append((debuff_stat, debuff_proportion, (cooldown if cooldown == 99 else (cooldown - 1))))
+            status_dict['debuffs'] = updated_debuffs
 
     # Execute target response to attacker action
     async def execute_target_response(self, action):
@@ -291,7 +307,7 @@ class PvPMatch(): # In-memory representation of a match
             if action.dodged: # Target dodged this attack
                 # Target counter-attacks the attacker with basic attack
                 attack_components = [AttackComponent(player_stats=self.player_stats_dict[responder_id], target_stats=self.player_stats_dict[action.player], scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)]
-                counter_action = BattleAction(name='basic_attack', player=responder_id, target=action.player, match=self, attack_components=attack_components, base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0, action_type='basic attack')
+                counter_action = BattleAction(name='basic_attack', player=responder_id, target=action.player, match=self, attack_components=attack_components, base_accuracy = 0.9, player_buffs = {}, target_debuffs = {}, qi_cost = 0, action_type='basic attack')
                 
                 await counter_action.execute()
 
@@ -330,18 +346,19 @@ class PvPMatch(): # In-memory representation of a match
                 self.status = "completed"
                 break
         
-        # Finally, apply status effects that do not affect actions during the turn
-        for player_id in self.player_status_dict:
-            for status_effect in self.get_player_status_effects(player_id):
-                if status_effect == 'Wither':
-                    # Deals 5% max health true damage per turn to user
-                    true_damage_taken = math.ceil(self.player_stats_dict[player_id]['Max HP'] * 0.05)
-                    self.player_stats_dict[player_id]['HP'] -= true_damage_taken
-                    self.action_descriptions.append(f'<@{player_id}> took {true_damage_taken} true damage from **Wither**.')
-        
-        winner = self.check_winner() # Check for terminating condition
-        if winner:
-            self.status = "completed"
+        if self.status != "completed":
+            # Finally, apply status effects that do not affect actions during the turn
+            for player_id in self.player_status_dict:
+                for status_effect in self.get_player_status_effects(player_id):
+                    if status_effect == 'Wither':
+                        # Deals 5% max health true damage per turn to user
+                        true_damage_taken = math.ceil(self.player_stats_dict[player_id]['Max HP'] * 0.05)
+                        self.player_stats_dict[player_id]['HP'] -= true_damage_taken
+                        self.action_descriptions.append(f'<@{player_id}> took {true_damage_taken} true damage from **Wither**.')
+            
+            winner = self.check_winner() # Check for terminating condition again
+            if winner:
+                self.status = "completed"
         
         # Update database
         await self.update_database_record()
@@ -422,7 +439,7 @@ class AttackComponent(): # Representation of a damage dealing component of an at
             defense_adjusted_DMG = original_DMG * (original_DMG / (original_DMG + (self.target_stats['pDEF'] * (1 - self.player_stats['pPEN']))))
             element_adjusted_DMG = defense_adjusted_DMG * element_multiplier
             DMG = max(0, self.randomize_damage(element_adjusted_DMG))
-            print("Opponent pDEF", self.target_stats['pDEF'], "player pPEN", self.player_stats['pPEN'], 'defense adjusted DMG', defense_adjusted_DMG, 'randomized DMG', DMG)
+            # print("Opponent pDEF", self.target_stats['pDEF'], "player pPEN", self.player_stats['pPEN'], 'defense adjusted DMG', defense_adjusted_DMG, 'randomized DMG', DMG)
         elif self.damage_type == "magical":
             defense_adjusted_DMG = original_DMG * (original_DMG / (original_DMG + (self.target_stats['mDEF'] * (1 - self.player_stats['mPEN']))))
             element_adjusted_DMG = defense_adjusted_DMG * element_multiplier
@@ -438,8 +455,8 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         action_type: str, # 'basic attack', 'technique', or 'summon'
         attack_components: list[AttackComponent],
         base_accuracy: float = 0,
-        player_status_effects: dict = {},
-        target_status_effects: dict = {},
+        player_buffs: dict = {}, # { stat: (buff_proportion, duration) }
+        target_debuffs: dict = {}, # { stat: (debuff_proportion, duration) }
         no_crit: bool = False,
         qi_cost: int = 0,
         cooldown: int = 0,
@@ -448,8 +465,8 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         self.action_type = action_type
         self.attack_components = attack_components
         self.base_accuracy = base_accuracy
-        self.player_status_effects = player_status_effects
-        self.target_status_effects = target_status_effects
+        self.player_buffs = player_buffs
+        self.target_debuffs = target_debuffs
         self.no_crit = no_crit
         self.qi_cost = qi_cost
         self.description = []
@@ -481,6 +498,17 @@ class BattleAction(): # Representation of a player's action at a turn in battle
     
     async def execute(self): # Executes the attack, taking into account passives and status effects
         player_stats, target_stats, player_status, target_status = self.get_player_target_info()
+
+        # Set buffs and debuffs introduced by this action
+        for player_stat in self.player_buffs:
+            buff_proportion, buff_cooldown = self.player_buffs[player_stat]
+            self.match.player_stats_dict[self.player][player_stat] *= (1 + buff_proportion)
+            player_status['buffs'].append((player_stat, buff_proportion, buff_cooldown + 1))
+        
+        for player_stat in self.target_debuffs:
+            debuff_proportion, debuff_cooldown = self.target_debuffs[player_stat]
+            self.match.player_stats_dict[self.target][player_stat] *= (1 - debuff_proportion)
+            target_status['debuffs'].append((player_stat, debuff_proportion, debuff_cooldown + 1))
 
         action_damage = self.compute_damage()
         opponent_dodged = self.determine_dodge()
@@ -736,9 +764,11 @@ class MainBattleView(View):
         print("================================\nData before embed for this turn:", turn)
         print("-------------------\nChallenger info:")
         print(challenger_info)
+        print("Challenger's action")
         print(challenger_info['action'].__dict__)
         print("-------------------\nDefender info:")
         print(defender_info)
+        print("Defender's action")
         print(defender_info['action'].__dict__)
         
         # Generate updated embeds
@@ -785,7 +815,7 @@ class MainBattleView(View):
         player_info, target_info = (challenger_info, defender_info) if am_challenger else (defender_info, challenger_info)
             
         # Basic attack
-        action = BattleAction( name='basic_attack', player=player_info['id'], target=target_info['id'], match=self.match, attack_components=[ AttackComponent(player_info['stats'], target_info['stats'], scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)], base_accuracy = 0.9, player_status_effects = {}, target_status_effects = {}, qi_cost = 0,action_type='basic attack')
+        action = BattleAction( name='basic_attack', player=player_info['id'], target=target_info['id'], match=self.match, attack_components=[ AttackComponent(player_info['stats'], target_info['stats'], scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=1, true_damage=False)], base_accuracy = 0.9, player_buffs = {}, target_debuffs = {}, qi_cost = 0,action_type='basic attack')
 
         self.match.store_action(player_info['id'], action)
         
@@ -842,8 +872,8 @@ class MainBattleView(View):
                 )
             ], 
             base_accuracy = 0.9, 
-            player_status_effects = {}, 
-            target_status_effects = {}, 
+            player_buffs = {}, 
+            target_debuffs = {}, 
             qi_cost = 0,
             action_type='basic attack'
         )
@@ -976,9 +1006,9 @@ class InitialChallengeView(View):
                     'mDEF': 200, # Magical Defense
                     'pPEN': 0.1, # Physical Penetration
                     'mPEN': 0.1, # Magical Penetration
-                    'SPD': 120, # Speed
+                    'SPD': 100, # Speed
                     'ACC': 0.95, # Accuracy
-                    'EVA': 0.50, # Evasion (dodge)
+                    'EVA': 0.05, # Evasion (dodge)
                     'CRIT': 0.05, # Critical rate
                     'CRIT DMG': 1.50, # Critical damage multiplier
                     'HP': 2000, 
@@ -994,7 +1024,7 @@ class InitialChallengeView(View):
                     'mDEF': 200, # Magical Defense
                     'pPEN': 0.1, # Physical Penetration
                     'mPEN': 0.1, # Magical Penetration
-                    'SPD': 100, # Speed
+                    'SPD': 120, # Speed
                     'ACC': 0.95, # Accuracy
                     'EVA': 0.05, # Evasion (dodge)
                     'CRIT': 0.05, # Critical rate
@@ -1015,15 +1045,15 @@ class InitialChallengeView(View):
             player_status = {
                 self.challengerPlayer.id: {
                     'cooldowns': {}, # technique ID -> remaining cooldown
-                    'debuffs': {}, # debuff type -> (value (if applicable), remaining cooldown)
-                    'buffs': {}, # buff type -> (value, remaining cooldown)
+                    'debuffs': [], # debuff type -> (value (if applicable), remaining cooldown)
+                    'buffs': [], # buff type -> (value, remaining cooldown)
                     'status': {},
                     'summons': [],
                 },
                 self.defenderPlayer.id: {
                     'cooldowns': {}, # technique ID -> remaining cooldown
-                    'debuffs': {},
-                    'buffs': {},
+                    'debuffs': [],
+                    'buffs': [],
                     'status': {},
                     'summons': [],
                 },
@@ -1242,10 +1272,10 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
                 AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=1.3, true_damage=False)
             ],
             base_accuracy = 0.9,
-            player_status_effects = {},
-            target_status_effects = {
-                'mDEF_shred': (0.2, 2),
-                'pDEF_shred': (0.2, 2)
+            player_buffs = {},
+            target_debuffs = {
+                'mDEF': (0.2, 2),
+                'pDEF': (0.2, 2)
             },
             no_crit = False,
             qi_cost = 15,
@@ -1261,8 +1291,8 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
                 AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', multiplier=3.4, true_damage=False)
             ],
             base_accuracy = 0.9,
-            player_status_effects = {},
-            target_status_effects = {},
+            player_buffs = {},
+            target_debuffs = {},
             qi_cost = 20,
             cooldown = 5
         ),
@@ -1276,9 +1306,9 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
                 AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=2.8, true_damage=False)
             ],
             base_accuracy = 0.9,
-            player_status_effects = {},
-            target_status_effects = {
-                'pDEF_shred': (0.1, 99)
+            player_buffs = {},
+            target_debuffs = {
+                'pDEF': (0.1, 99)
             },
             qi_cost = 20,
             cooldown = 4
@@ -1293,8 +1323,8 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
                 AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', multiplier=2.9, true_damage=False)
             ],
             base_accuracy = 0.85,
-            player_status_effects = {},
-            target_status_effects = {},
+            player_buffs = {},
+            target_debuffs = {},
             qi_cost = 25,
             cooldown = 5
         ),
@@ -1306,8 +1336,8 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
             action_type = "technique",
             attack_components = [], # No attack component in and of itself
             base_accuracy = 1,
-            player_status_effects = {},
-            target_status_effects = {},
+            player_buffs = {},
+            target_debuffs = {},
             qi_cost = 20,
             cooldown = 0, # No cooldown, but can only be used once per match
         ),
@@ -1329,8 +1359,8 @@ def get_summon_action(player: int, target: int, match: PvPMatch, summon_name: st
                 AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', element='Dark', multiplier=1, true_damage=False),
             ],
             base_accuracy = 1,
-            player_status_effects = {},
-            target_status_effects = {},
+            player_buffs = {},
+            target_debuffs = {},
             no_crit = True,
             qi_cost = 0,
             cooldown = 0,
