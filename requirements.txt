@@ -8,3 +8,4 @@ python-dateutil
 topggpy
 Pillow~=10.0.1
 attrs~=23.1.0
+roman==5.0
