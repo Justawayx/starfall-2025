@@ -482,6 +482,12 @@ class Player(Character):
     async def get_equipped_items(self):
         equipped, bonuses = await Users.get_or_none(user_id=self.id).values_list("equipped", "bonuses")
         return equipped
+    
+    def get_stats_dict(self):
+        # Just base stats for now (later change to async)
+        stats_dict = self.cultivation.base_stats
+        stats_dict['Elemental Affinities'] = [] # TODO
+        return stats_dict
 
     async def compute_total_cp(self) -> int:
         major: int = self.cultivation.major

@@ -1,10 +1,49 @@
 from __future__ import annotations
-
-import math
+from collections import defaultdict
 from typing import Optional, TypeVar
+import math
 
-MAJOR_CULTIVATION_REALMS: list[str] = ["Fight Disciple", "Fight Practitioner", "Fight Master", "Fight Grandmaster", "Fight Spirit", "Fight King", "Fight Emperor", "Fight Ancestor", "Fight Venerate", "Peak Fight Venerate", "Half Saint",
-                                       "Fight Saint", "Fight God"]
+MAJOR_CULTIVATION_REALMS: list[str] = ["Fight Disciple", "Fight Practitioner", "Fight Master", "Fight Grandmaster", "Fight Spirit", 
+                                       "Fight King", "Fight Emperor", "Fight Ancestor", "Fight Venerate", "Peak Fight Venerate", 
+                                       "Half Saint", "Fight Saint", "Fight God", "Heavenly Sovereign", "Ruler"]
+
+PLAYER_STATS_TABLE = defaultdict(dict)
+PLAYER_STAT_NAMES = []
+
+with open('./data/base_stats.tsv') as f:
+    header_items = f.readline().strip('\n').split('\t')
+    
+    for stat_name in header_items[4:]:
+        if stat_name == 'ATK':
+            PLAYER_STAT_NAMES += ['pATK', 'mATK']
+        elif stat_name == 'DEF':
+            PLAYER_STAT_NAMES += ['pDEF', 'mDEF']
+        elif stat_name == 'HP':
+            PLAYER_STAT_NAMES += ['HP', 'Max HP']
+        elif stat_name == 'Qi':
+            PLAYER_STAT_NAMES += ['Qi', 'Max Qi']
+        else:
+            PLAYER_STAT_NAMES.append(stat_name)
+    
+    for line in f:
+        items = line.strip('\n').split('\t')
+        _, _, major, minor = items[:4]; major = int(major); minor = int(minor)
+        stats_list = []
+        for stat_name, stat_value in zip(header_items[4:], items[4:]):
+            if stat_name == 'ATK':
+                stats_list += [int(stat_value), int(stat_value)]
+            elif stat_name == 'DEF':
+                stats_list += [int(stat_value), int(stat_value)]
+            elif stat_name == 'HP':
+                stats_list += [int(stat_value), int(stat_value)]
+            elif stat_name == 'Qi':
+                stats_list += [int(stat_value), int(stat_value)]
+            else:
+                if stat_name in ['PEN', 'CRIT', 'CRIT DMG']:
+                    stats_list.append(float(stat_value))
+                else:
+                    stats_list.append(int(stat_value))
+        PLAYER_STATS_TABLE[major][minor] = stats_list
 
 BEAST_EXPERIENCE_RARITY_INCREASE: dict[str, float] = {
     "abundant": 1,
@@ -355,7 +394,7 @@ PLAYER_CULTIVATION_TABLE: list[list[tuple[str, int, int, float]]] = [
         ("Immortal Class Heavenly Sovereign Initial Phase", 1_746_000, 330, 3.75524620426741E+43),
         ("Immortal Class Heavenly Sovereign Middle Phase", 2_032_000, 330, 1.09697903251437E+44),
         ("Immortal Class Heavenly Sovereign Late Phase", 2_370_000, 330, 4.09549586269138E+44),
-        # Saint Class (minor = 3 to 5)
+        # Saint Class (minor = 6 to 8)
         ("Saint Class Heavenly Sovereign Initial Phase", 3_060_000, 330, 2.73180599113202E+45),
         ("Saint Class Heavenly Sovereign Middle Phase", 3_502_000, 330, 1.03843006779426E+46),
         ("Saint Class Heavenly Sovereign Late Phase", 5_000_000, 330, 4.88608807255933E+46)
@@ -418,6 +457,26 @@ def _get_beast_cultivation_entry(major: int, minor: int) -> tuple[str, int, int,
 
 def _get_player_cultivation_entry(major: int, minor: int) -> tuple[str, int, int, float]:
     return _get_cultivation_entry(PLAYER_CULTIVATION_TABLE, major, minor)
+
+
+def _get_stats_entry(major_minor_entry_dict, major: int, minor: int):
+    if major < 0:
+        raise ValueError(f"Major must be positive, found {major}")
+
+    if minor < 0:
+        raise ValueError(f"Minor must be positive, found {minor}")
+    
+    if major >= len(major_minor_entry_dict):
+        raise ValueError(f"Major can be at most {len(major_minor_entry_dict) - 1}, found {major}")
+
+    if minor >= len(major_minor_entry_dict[major]):
+        raise ValueError(f"Minor can be at most {len(major_minor_entry_dict[major]) - 1} for major {major}, found {minor}")
+
+    return major_minor_entry_dict[major][minor]
+
+
+def get_player_stats_dict(major: int, minor: int) -> list:
+    return {stat_name: stat_value for stat_name, stat_value in zip(PLAYER_STAT_NAMES, _get_stats_entry(PLAYER_STATS_TABLE, major, minor))}
 
 
 def get_beast_breakthrough_experience(major, minor, rarity) -> int:
@@ -613,6 +672,7 @@ class PlayerCultivationStage(CultivationStage):
     def __init__(self, major: int, minor: int):
         entry: tuple[str, int, int, float] = _get_player_cultivation_entry(major, minor)
         super().__init__(major, minor, entry)
+        self._base_stats = get_player_stats_dict(major, minor)
         self._previous_stage: Optional[PlayerCultivationStage] = None
         self._next_stage: Optional[PlayerCultivationStage] = None
         self._required_total_experience: Optional[int] = None
@@ -625,6 +685,10 @@ class PlayerCultivationStage(CultivationStage):
     @property
     def combat_power(self) -> float:
         return self._combat_power
+
+    @property
+    def base_stats(self) -> float:
+        return self._base_stats
 
     @property
     def displayed_combat_power(self) -> int:

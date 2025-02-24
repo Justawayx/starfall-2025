@@ -53,6 +53,9 @@ with open('./data/element_matrix.tsv', 'r') as f:
 # +xx stat on an attack should be treated as permanent passive with conditional triggering (WL claw ACC+40) [OK-just don't announce]
 # If it's 99 turns, say "for the rest of the battle" [OK]
 # Dodging should also dodge technique's status effects/buffs and debuffs [OK]
+# Someone with one star lower cultivation can only win through a lucky crit/dodge
+# otherwise most of the time the person with higher cultivation wins
+# basic attacks only
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -111,6 +114,13 @@ example_player_status_dict = {
                 'duration': 1,
                 'potency': 1
             }
+            'Nine Turning Wind': {
+                'source': player1_user_ID,
+                'duration': 99,
+                'potency': 1,
+                'dodge_bonus': True,
+            }
+            'Freeze': False,
         },
         'summons': [{ # List of summons (retains summon after it dies)
             'name': 'Skeleton King',
@@ -150,7 +160,7 @@ class PvPMatch(): # In-memory representation of a match
         # Apply permanent passive effects at the start of the match
         self.apply_all_passive_effects()
 
-    # Apply technique permanent passive effect(s) to one player
+    # Apply technique one-time permanent passive effect(s) to one player
     def apply_passive_effect(self, player_id, technique_id):
         # ================================================================================
         # HARDCODED TECHNIQUE EFFECTS PORTION
@@ -168,6 +178,20 @@ class PvPMatch(): # In-memory representation of a match
             self.player_stats_dict[player_id]['mATK'] = math.ceil(1.15 * self.player_stats_dict[player_id]['mATK'])
             self.player_stats_dict[player_id]['pDEF'] = math.ceil(1.15 * self.player_stats_dict[player_id]['pDEF'])
             self.player_stats_dict[player_id]['mDEF'] = math.ceil(1.15 * self.player_stats_dict[player_id]['mDEF'])
+        elif technique_id == 'ninewindsteps':
+            self.player_stats_dict[player_id]['EVA'] = math.ceil(1.20 * self.player_stats_dict[player_id]['EVA'])
+            self.player_status_dict[player_id]['status']['Nine Turning Wind'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+                'dodge_bonus': False,
+            }
+        elif technique_id == 'incinflame':
+            self.player_status_dict[player_id]['status']['Freeze Immunity'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
 
     # Apply all technique permanent passive effects to all players
     def apply_all_passive_effects(self):
@@ -279,7 +303,7 @@ class PvPMatch(): # In-memory representation of a match
             if status_effect == 'Chill' and duration == 1: # Special case
                 SPD_reduction = status_dict['status'][status_effect]['potency'] * 0.1
                 self.player_stats_dict[player_id]['SPD'] *= (1/(1 - SPD_reduction)) # Revert
-            status_dict['status'][status_effect]['duration'] = max(0, duration - 1)
+            status_dict['status'][status_effect]['duration'] = max(0, (duration if duration == 99 else (duration - 1)))
         
         updated_buffs = []
         for buff_stat, buff_value, cooldown, buff_type in status_dict['buffs']: # Buff durations
@@ -332,6 +356,10 @@ class PvPMatch(): # In-memory representation of a match
 
                 # Update the action description for the attacker
                 action.description.append(f'<@{responder_id}> counter-attacked <@{action.player}>, dealing {format_num_abbr1(counter_action.damage)} damage!')
+        if 'ninewindsteps' in self.player_techniques_dict[responder_id]:
+            if action.dodged: # Target dodged this attack
+                # Store this information for processing of speed buff status effect
+                self.player_status_dict[responder_id]['status']['Nine Turning Wind']['dodge_bonus'] = True
 
     # Execute current turn actions for all players
     async def execute_turn(self):
@@ -359,7 +387,10 @@ class PvPMatch(): # In-memory representation of a match
                 action = self.player_action_dict[current_player]
                 active_effects = self.get_player_status_effects(current_player)
                 if 'Freeze' in active_effects:
-                    skip_action = True; self.action_descriptions += [f'<@{current_player}> was frozen and is unable to move.']
+                    if 'Freeze Immunity' in active_effects: # Check for immunity
+                        self.action_descriptions += [f'<@{current_player}> is immune to **Freeze** and can still move.']
+                    else:
+                        skip_action = True; self.action_descriptions += [f'<@{current_player}> was frozen and is unable to move.']
                 elif 'Stun' in active_effects:
                     skip_action = True; self.action_descriptions += [f'<@{current_player}> was stunned and is unable to move.']
                 elif 'Silence' in active_effects and action.action_type == 'technique':
@@ -423,6 +454,16 @@ class PvPMatch(): # In-memory representation of a match
                         damage_taken = AttackComponent(*attack_parameters).damage_dealt()
                         self.player_stats_dict[player_id]['HP'] -= damage_taken
                         self.action_descriptions.append(f'<@{player_id}> took {damage_taken} {damage_descriptor} damage from **{status_effect} {roman(potency)}**.')
+
+                    elif status_effect == 'Nine Turning Wind':
+                        # Ramping speed buff status effect associated with ninewindsteps
+                        dodge_bonus = self.player_status_dict[player_id]['status']['Nine Turning Wind']['dodge_bonus']
+                        SPD_increase = 20 if dodge_bonus else 10
+                        self.player_stats_dict[player_id]['SPD'] += SPD_increase
+                        self.action_descriptions.append(f'<@{player_id}> gained {SPD_increase} SPD from **{status_effect}**!')
+                        # Reset dodge bonus
+                        self.player_status_dict[player_id]['status']['Nine Turning Wind']['dodge_bonus'] = False
+
 
             winner = self.check_winner() # Check for terminating condition again
             if winner:
@@ -523,7 +564,7 @@ class AttackComponent(): # Representation of a damage dealing component of an at
 
 class BattleAction(): # Representation of a player's action at a turn in battle
     def __init__(self, name: str, player: int, target: int, match: PvPMatch,
-        action_type: str, # 'basic attack', 'technique', 'do_nothing', or 'summon'
+        action_type: str, # 'basic attack', 'technique', 'do_nothing', 'aftershock', or 'summon'
         attack_components: list[AttackComponent] = [],
         base_accuracy: float = 0,
         player_buffs: dict = {}, # { stat: (buff_value, duration, 'prop' or 'flat') }
@@ -531,6 +572,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         no_crit: bool = False,
         qi_cost: int = 0,
         cooldown: int = 0,
+        aoe: bool = False, # Affects all enemies (ignores taunts) -- for now, affects summons
     ):
         self.name = name; self.player = player; self.target = target; self.match = match
         if action_type == 'technique':
@@ -548,6 +590,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         self.qi_cost = qi_cost
         self.description = []
         self.cooldown = cooldown
+        self.aoe = aoe
         
     def get_player_target_info(self):
         player_stats = self.match.player_stats_dict[self.player]; target_stats = self.match.player_stats_dict[self.target]
@@ -581,7 +624,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
 
         player_stats, target_stats, player_status, target_status = self.get_player_target_info()
 
-        # Set buffs and debuffs introduced by this action
+        # Set player buffs introduced by this action
         buff_debuff_descriptions = [] # Append buff/debuff descriptions to description list, show after attack description
         for player_stat in self.player_buffs:
             buff_value, buff_cooldown, buff_type = self.player_buffs[player_stat]
@@ -607,6 +650,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         # Now determine whether opponent dodged
         opponent_dodged = self.determine_dodge()
 
+        # Only set debuffs if opponent did not dodge
         if not opponent_dodged:
             for player_stat in self.target_debuffs:
                 debuff_value, debuff_cooldown, debuff_type = self.target_debuffs[player_stat]
@@ -633,7 +677,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         # Now determine damage
         action_damage = self.compute_damage()
         
-        # Check for and apply player status effects that affect turn AFTER action is taken
+        # Check for and apply player status effects that affect turn AFTER action is submitted
         if self.action_type != 'summon': # Summons do not have status effects
             for status_effect in self.match.get_player_status_effects(self.player):
                 potency = self.match.player_status_dict[self.player]['status'][status_effect]['potency']
@@ -651,6 +695,10 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                         action_damage = 0
                         self.description.append(f'<@{self.player}> could not attack due to **Fear**!')
                         return self # Return information for opponent response
+                elif status_effect == 'Nine Turning Wind':
+                    pass
+                # True damage attacks or abilities deal 20% more damage
+                    # TODO
         
         # Check for target taunts
         # ================================================================================
@@ -665,6 +713,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         # HARDCODED TECHNIQUE EFFECTS PORTION
         # ================================================================================
         has_attack = True
+        custom_description = False
         attacker_str = f'<@{self.player}>'
         defender_str = f'<@{self.target}>'
         attack_str = f'used **{self.prettyname}**'
@@ -673,8 +722,8 @@ class BattleAction(): # Representation of a player's action at a turn in battle
             has_attack = False
 
             # Compute summon stats and add summon to player's status
-            skeleton_HP = math.ceil(player_stats['Max HP'] * 0.8) # 80% of user max HP
-            skeleton_ATK = (0.35 * player_stats['mATK'])
+            skeleton_HP = math.ceil(0.8 * player_stats['Max HP']) # 80% of user max HP
+            skeleton_ATK = math.ceil(0.35 * player_stats['mATK'])
             if 'Dark' in player_stats['Elemental Affinities']:
                 skeleton_ATK *= 2 # Double damage if user is Dark type
             summon_name = 'Skeleton King'
@@ -701,12 +750,54 @@ class BattleAction(): # Representation of a player's action at a turn in battle
             self.description.append(f"<@{self.player}> used **{self.prettyname}**, summoning a Skeleton King with {format_num_abbr1(skeleton_HP)} HP!")
             self.description += summon_action.description
         
+        elif self.name == 'phoenixbell': # TODO
+            # Compute summon stats and add summon to player's status
+            bell_HP = math.ceil(0.5 * player_stats['Max HP'])
+            summon_name = "Demon Phoenix Bell"
+            player_status['summons'].append({
+                'name': summon_name,
+                'active': True,
+                'Elemental Affinities': [],
+                'Elemental Immunities': [],
+                'pATK': math.ceil(0.5 * player_stats['pATK']),
+                'mATK': math.ceil(0.5 * player_stats['mATK']),
+                'pDEF': 0, 'mDEF': 0, 'pPEN': 0, 'mPEN': 0, # No DEF/PEN
+                'SPD': player_stats['SPD'],
+                'ACC': 100, 'EVA': 0, # Cannot dodge
+                'CRIT': 0, 'CRIT DMG': 1, # No crit
+                'HP': bell_HP,
+                'Max HP': bell_HP,
+            })
+
         elif self.action_type == 'summon': # Summon attacked
             attacker_str = f"<@{self.player}>'s {self.name}"
             attack_str = "attacked"
+        
+        elif self.name == 'bloodagglom':
+            opponent_dodged = False
+            prop_increase = 0.6 if 'Blood' in player_stats['Elemental Affinities'] else 0.3
+            # Do not treat as normal buff to avoid excessive action logs (TODO: group as 'all' if this will be reused)
+            for combat_stat in ['pATK','mATK','pDEF','mDEF','pPEN','mPEN','SPD','ACC','EVA','CRIT','CRIT DMG']:
+                player_stats[combat_stat] += math.ceil(player_stats[combat_stat] * prop_increase)
+            self.description.append(f'{attacker_str} {attack_str} took {format_num_abbr1(action_damage)}{true_dmg_str} damage and amplified all stats by {int(100*prop_increase)}%!')
+            custom_description = True
+            # Add to status effect to keep track that this was already used
+            player_status['status']['Blood Agglomeration'] = { 'source': self.player, 'duration': 99, 'potency': 1 }
+        
+        elif self.name == 'flamecreation':
+            opponent_dodged = False
+            prop_increase = 0.2
+            # Do not treat as normal buff to avoid excessive action logs (TODO: group as 'all' if this will be reused)
+            for combat_stat in ['pATK','mATK','pDEF','mDEF','pPEN','mPEN','SPD','ACC','EVA','CRIT','CRIT DMG']:
+                player_stats[combat_stat] += math.ceil(player_stats[combat_stat] * prop_increase)
+            self.description.append(f'{attacker_str} {attack_str} took {format_num_abbr1(action_damage)}{true_dmg_str} damage and amplified all stats by {int(100*prop_increase)}%!')
+            custom_description = True
+            # Add to status effect to keep track that this was already used
+            player_status['status']['Flame Creation'] = { 'source': self.player, 'duration': 99, 'potency': 1 }
 
         if has_attack:
-            if summon_taunt: # Player (or summon) attacked summon instead of target
+            
+            if summon_taunt and (not self.aoe): # Player (or summon) attacked summon instead of target
 
                 # Recompute damage based on target summon's stats
                 for attack_component in self.attack_components:
@@ -720,14 +811,14 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                 if summon_taunt['HP'] <= 0:
                     summon_taunt['active'] = False
                     self.description.append(f"\n<@{self.target}>'s {summon_taunt} has been defeated!")
-                
-                # ================================================================================
-                # HARDCODED TECHNIQUE EFFECTS PORTION
-                # ================================================================================
-                if summon_taunt['name'] == 'Skeleton King' and self.action_type != 'summon':
-                    # If player attacked target's Skeleton King, **Wither** the player for 2 turns (unler player is itself a summon)
-                    player_status['status']['Wither'] = { 'source': self.target, 'duration': 2 }
-                    self.description.append(f"<@{self.target}>'s {summon_taunt['name']} **withered** <@{self.player}> for 2 turns!")
+                else:
+                    # ================================================================================
+                    # HARDCODED TECHNIQUE EFFECTS PORTION
+                    # ================================================================================
+                    if summon_taunt['name'] == 'Skeleton King' and self.action_type != 'summon':
+                        # If player attacked target's Skeleton King, **Wither** the player for 2 turns (unless player is itself a summon)
+                        player_status['status']['Wither'] = { 'source': self.target, 'duration': 2, 'potency': 1 }
+                        self.description.append(f"<@{self.target}>'s {summon_taunt['name']} **withered** <@{self.player}> for 2 turns!")
             
             else: # Player attacked target (as normal)
                 if opponent_dodged:
@@ -735,7 +826,45 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                 else:
                     target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
                     true_dmg_str = ' true' if self.attack_components[0].damage_type == 'true' else ''
-                    self.description.append(f'{attacker_str} {attack_str}, dealing {format_num_abbr1(action_damage)}{true_dmg_str} damage to {defender_str}')
+                    if not custom_description:
+                        self.description.append(f'{attacker_str} {attack_str}, dealing {format_num_abbr1(action_damage)}{true_dmg_str} damage to {defender_str}')
+                
+                if self.aoe: # AOE affects target's summons as well
+                    for summon in target_status['summons']:
+                        
+                        # Recompute damage based on target summon's stats
+                        for attack_component in self.attack_components:
+                            attack_component.target_stats = summon
+                        action_damage = self.compute_damage()
+
+                        summon['HP'] = to_nonneg(summon['HP'] - action_damage)
+                        self.description.append(f"The AOE attack also dealt {format_num_abbr1(action_damage)} damage to <@{self.target}>'s {summon['name']}")
+
+                        # If summon is dead, set it to inactive
+                        if summon['HP'] <= 0:
+                            summon['active'] = False
+                            self.description.append(f"\n<@{self.target}>'s {summon} has been defeated!")
+
+                            # Trigger upon-defeat effects
+                            if self.name == 'lightningcalamity':
+                                self.match.store_action(self.player, BattleAction(
+                                    name = "lightningcalamity_aftershock", player = self.player, target = self.target, match = self.match,
+                                    action_type = "aftershock",
+                                    attack_components = [
+                                        AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', element='Lightning', multiplier=2.0, true_damage=False)
+                                    ],
+                                    base_accuracy = 0.8,
+                                    player_buffs = {},
+                                    target_debuffs = {},
+                                    qi_cost = 0,
+                                    cooldown = 0,
+                                    aoe = True # Affects all enemies (ignores taunts)
+                                ))
+                        else:
+                            if summon['name'] == 'Skeleton King' and self.action_type != 'summon':
+                                # If player attacked target's Skeleton King, **Wither** the player for 2 turns (unless player is itself a summon)
+                                player_status['status']['Wither'] = { 'source': self.target, 'duration': 2, 'potency': 1 }
+                                self.description.append(f"<@{self.target}>'s {summon['name']} **withered** <@{self.player}> for 2 turns!")
         
         self.description += buff_debuff_descriptions
         
@@ -808,6 +937,13 @@ class TechniqueDropdown(disnake.ui.Select):
         # Check if Skeleton King has been previously summoned
         elif selected_technique == 'skelking' and any([summon['name'] == 'Skeleton King' for summon in player_info['status']['summons']]):
             await inter.followup.send(f"You can only summon the Skeleton King once per match.", ephemeral=True)
+        
+        # Check if one-time use techniques were already used
+        elif 'Blood Agglomeration' in player_info['status']:
+            await inter.followup.send(f"You can only use Great Blood Agglomeration Skill once per match.", ephemeral=True)
+        
+        elif 'Flame Creation' in player_info['status']:
+            await inter.followup.send(f"You can only use True Flame Creation Skill once per match.", ephemeral=True)
         
         else:
             self.battle_view.countdown_task.cancel() # Stop the countdown
@@ -945,7 +1081,9 @@ class MainBattleView(View):
         # Check for disabling effect
         disabling_effect = False
         for status_effect in challenger_info['active_effects']:
-            if status_effect in ['Freeze', 'Stun']:
+            if status_effect == 'Freeze' and 'Freeze Immunity' not in challenger_info['active_effects']:
+                disabling_effect = status_effect
+            elif status_effect == 'Stun':
                 disabling_effect = status_effect
             if status_effect == 'Silence' and not disabling_effect: # Lower priority than freeze/stun
                 disabling_effect = status_effect
@@ -1072,7 +1210,7 @@ class MainBattleView(View):
         techniques = sorted(techniques_dict.keys())
         
         # TODO: store elsewhere
-        passive_only_techniques = ['skysteps', 'windimages']
+        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame']
         techniques = [technique for technique in techniques if technique not in passive_only_techniques]
 
         # Create a dropdown for technique selection
@@ -1171,42 +1309,8 @@ class InitialChallengeView(View):
         
         try:
             player_stats = {
-                self.challengerPlayer.id: {
-                    'pATK': 200, # Physical Attack
-                    'mATK': 200, # Magical Attack
-                    'pDEF': 100, # Physical Defense
-                    'mDEF': 100, # Magical Defense
-                    'pPEN': 0.1, # Physical Penetration
-                    'mPEN': 0.1, # Magical Penetration
-                    'SPD': 120, # Speed
-                    'ACC': 0.95, # Accuracy
-                    'EVA': 0.05, # Evasion (dodge)
-                    'CRIT': 0.05, # Critical rate
-                    'CRIT DMG': 1.50, # Critical damage multiplier
-                    'HP': 2000, 
-                    'Max HP': 2000, 
-                    'Qi': 100,
-                    'Max Qi': 100,
-                    'Elemental Affinities': ['Fire', 'Water', 'Earth'],
-                },
-                self.defenderPlayer.id: {
-                    'pATK': 200, # Physical Attack
-                    'mATK': 200, # Magical Attack
-                    'pDEF': 100, # Physical Defense
-                    'mDEF': 100, # Magical Defense
-                    'pPEN': 0.1, # Physical Penetration
-                    'mPEN': 0.1, # Magical Penetration
-                    'SPD': 100, # Speed
-                    'ACC': 0.95, # Accuracy
-                    'EVA': 0.4, # Evasion (dodge)
-                    'CRIT': 0.05, # Critical rate
-                    'CRIT DMG': 1.50, # Critical damage multiplier
-                    'HP': 2000, 
-                    'Max HP': 2000, 
-                    'Qi': 100,
-                    'Max Qi': 100,
-                    'Elemental Affinities': ['Mysterious'],
-                }
+                self.challengerPlayer.id: self.challengerPlayer.get_stats_dict(),
+                self.defenderPlayer.id: self.defenderPlayer.get_stats_dict()
             }
 
             player_action = {
@@ -1219,7 +1323,7 @@ class InitialChallengeView(View):
                     'cooldowns': {}, # technique ID -> remaining cooldown
                     'debuffs': [], # debuff type -> (value (if applicable), remaining cooldown)
                     'buffs': [], # buff type -> (value, remaining cooldown)
-                    'status': {},
+                    'status': {}, # status effect -> info dictionary
                     'summons': [],
                 },
                 self.defenderPlayer.id: {
@@ -1230,7 +1334,7 @@ class InitialChallengeView(View):
                     'summons': [],
                 },
             }
-
+            
             turn = 1
 
             # Get technique ID-name mapping from AllItems
@@ -1322,6 +1426,32 @@ class PvPCog(commands.Cog):
         """Base PvP command"""
         pass
     
+    @pvp.sub_command(name="profile")
+    async def profile(self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member = None):
+        """
+        Check your PVP combat stats
+        """
+        if member is None:
+            member = inter.author
+
+        selected_player : Player = PlayerRoster().find_player_for(inter, member)
+        stats_dict = selected_player.get_stats_dict()
+        # user_data = await Pvp.get_or_none(user_id=member.id).values_list("rank_points", "pvp_promo", "pvp_demote", "pvp_coins")
+        # rank_points, promo_num, demote_status, pvp_coins = user_data  # Shouldn't be None...
+        embed_desc_items = [f"**Username** : {member.name}"]
+        for stat_name in stats_dict:
+            embed_desc_items.append(f"**{stat_name}** : {stats_dict[stat_name]}")
+
+        embed = disnake.Embed(
+            title="Ranked Profile",
+            description='\n'.join(embed_desc_items),
+            color=disnake.Color(0x2e3135)
+        )
+        if member.avatar:
+            embed.set_thumbnail(url=member.avatar.url)
+
+        await inter.response.send_message(embed=embed)
+
     @pvp.sub_command(name="challenge")
     async def challenge(
         self,
@@ -1571,6 +1701,54 @@ def get_technique_action(player: int, target: int, match: PvPMatch, technique_id
             target_debuffs = {},
             qi_cost = 20,
             cooldown = 0, # No cooldown, but can only be used once per match
+        )
+    elif technique_id == 'bloodagglom':
+        return BattleAction(
+            name = "bloodagglom", player = player, target = player, match = match,
+            action_type = "technique",
+            attack_components = [
+                AttackComponent(player_stats=player_stats, target_stats=player_stats, scaling_stat='Max HP', scaling_stat_source='player', damage_type='true', multiplier=0.1, true_damage=True)
+            ],
+            base_accuracy = 1,
+            player_buffs = {},
+            target_debuffs = {},
+            qi_cost = 20,
+            cooldown = 0, # No cooldown, but can only be used once per match
+        )
+    elif technique_id == 'flamecreation':
+        return BattleAction(
+            name = "flamecreation", player = player, target = player, match = match,
+            action_type = "technique",
+            attack_components = [
+                AttackComponent(player_stats=player_stats, target_stats=player_stats, scaling_stat='Max HP', scaling_stat_source='player', damage_type='true', multiplier=0.05, true_damage=True)
+            ],
+            base_accuracy = 1,
+            player_buffs = {},
+            target_debuffs = {},
+            qi_cost = 20,
+            cooldown = 0, # No cooldown, but can only be used once per match
+        )
+    elif technique_id == 'lightningcalamity':
+        # Deal 800% of user's mATK as Lightning Damage to all enemies
+        # Enemies struck by this technique have their Speed and Evasion reduced by 30% and their Defense by 20% for 5 turns.
+        # If this technique defeats an enemy or entity, trigger a second explosion dealing 200% of the user's mATK as Lightning Damage to all remaining enemies.
+        return BattleAction(
+            name = "lightningcalamity", player = player, target = target, match = match,
+            action_type = "technique",
+            attack_components = [
+                AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='mATK', scaling_stat_source='player', damage_type='magical', element='Lightning', multiplier=8.0, true_damage=False)
+            ],
+            base_accuracy = 0.8,
+            player_buffs = {},
+            target_debuffs = {
+                'SPD': (0.3, 5, 'prop'),
+                'EVA': (0.3, 5, 'prop'),
+                'pDEF': (0.2, 5, 'prop'),
+                'mDEF': (0.2, 5, 'prop'),
+            },
+            qi_cost = 20,
+            cooldown = 7,
+            aoe = True # Affects all enemies (ignores taunts)
         )
 
 def get_summon_action(player: int, target: int, match: PvPMatch, summon_name: str):
