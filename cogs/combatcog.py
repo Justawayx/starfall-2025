@@ -525,9 +525,12 @@ class PvPMatch(): # In-memory representation of a match
                         ps = self.player_stats_dict[source]; ts = self.player_stats_dict[player_id] # Abbreviations
                         potency = self.player_status_dict[player_id]['status'][status_effect]['potency']
                         
+                        resistance_extra_description = ''
                         if f'{status_effect} Resistance' in self.player_status_dict[player_id]['status']:
                             # Reduced potency due to resistance
-                            potency *= (1 - self.player_status_dict[player_id]['status'][f'{status_effect} Resistance']['potency'])
+                            potency_prop_decrease = self.player_status_dict[player_id]['status'][f'{status_effect} Resistance']['potency']
+                            potency *= (1 - potency_prop_decrease)
+                            resistance_extra_description = f' (damage reduced by {int(100*potency_prop_decrease)}% due to{status_effect} Resistance)'
 
                         effect_attack_parameters_dict = {
                             "Burn": (ps, ts, 'pATK', 'player', 'physical', "Fire", (0.05 * potency)),
@@ -545,7 +548,8 @@ class PvPMatch(): # In-memory representation of a match
                             damage_descriptor = f"{element} {damage_type}"
                         damage_taken = AttackComponent(*attack_parameters).damage_dealt()
                         self.player_stats_dict[player_id]['HP'] -= damage_taken
-                        self.action_descriptions.append(f'<@{player_id}> took {damage_taken} {damage_descriptor} damage from **{status_effect} {roman(potency)}**.')
+                        
+                        self.action_descriptions.append(f'<@{player_id}> took {damage_taken} {damage_descriptor} damage from **{status_effect} {roman(potency)}**{resistance_extra_description}.')
 
                     elif status_effect == 'Nine Turning Wind':
                         # Ramping speed buff status effect associated with ninewindsteps
@@ -556,6 +560,14 @@ class PvPMatch(): # In-memory representation of a match
                         self.action_descriptions.append(f'<@{player_id}> gained {SPD_increase} SPD from **{status_effect}**!')
                         # Reset dodge bonus
                         self.player_status_dict[player_id]['status']['Nine Turning Wind']['dodge_bonus'] = False
+                    
+                    elif status_effect == 'Green Wood Sword':
+                        # Regenerate 15% missing HP at the end of each turn
+                        missing_HP = self.player_stats_dict[player_id]['Max HP'] - self.player_stats_dict[player_id]['HP']
+                        new_HP = min(self.player_stats_dict[player_id]['Max HP'], self.player_stats_dict[player_id]['HP'] + math.ceil(0.15 * missing_HP))
+                        HP_regenerated = new_HP - self.player_stats_dict[player_id]['HP']
+                        self.player_stats_dict[player_id]['HP'] = new_HP
+                        self.action_descriptions.append(f'<@{player_id}> gained {HP_regenerated} HP from **{status_effect}**!')
             
             winner = self.check_winner() # Check for terminating condition again
             if winner:
@@ -878,7 +890,7 @@ class BattleAction(): # Representation of a player's action at a turn in battle
             self.description.append(f"<@{self.player}> used **{self.prettyname}**, summoning a Skeleton King with {format_num_abbr1(skeleton_HP)} HP!")
             self.description += summon_action.description
         
-        elif self.name == 'phoenixbell': # TODO
+        elif self.name == 'phoenixbell':
             # Compute summon stats and add summon to player's status
             bell_HP = math.ceil(0.5 * player_stats['Max HP']) # 50% of user max health
             summon_name = "Demon Phoenix Bell"
@@ -961,23 +973,32 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                         self.description.append(f'{attacker_str} {attack_str}, dealing {format_num_abbr1(action_damage)}{true_dmg_str} damage to {defender_str}')
 
                     # Trigger after-attack effects
-                    if 'killerwind' in self.match.player_techniques_dict[self.player]:
-                        for attack_component in self.attack_components:
-                            if attack_component.damage_type == 'physical' and random_success(0.2):
-                                self.match.store_action(self.player, BattleAction(
-                                    name = "killerwind_aftershock", player = self.player, target = self.target, match = self.match,
-                                    action_type = "aftershock",
-                                    attack_components = [
-                                        AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', element='Wind', multiplier=0.5, true_damage=False)
-                                    ],
-                                    base_accuracy = 1.0,
-                                    player_buffs = {},
-                                    target_debuffs = {},
-                                    qi_cost = 0,
-                                    cooldown = 0,
-                                ))
-                                break
-                
+                    if self.action_type != 'summon':
+                        if 'killerwind' in self.match.player_techniques_dict[self.player]:
+                            for attack_component in self.attack_components:
+                                if attack_component.damage_type == 'physical' and random_success(0.2):
+                                    self.match.store_action(self.player, BattleAction(
+                                        name = "killerwind_aftershock", player = self.player, target = self.target, match = self.match,
+                                        action_type = "aftershock",
+                                        attack_components = [
+                                            AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', element='Wind', multiplier=0.5, true_damage=False)
+                                        ],
+                                        base_accuracy = 1.0,
+                                        player_buffs = {},
+                                        target_debuffs = {},
+                                        qi_cost = 0,
+                                        cooldown = 0,
+                                    ))
+                                    break
+                        if 'woodsword' in self.match.player_techniques_dict[self.player]:
+                            # When the user lands a Physical Attack, they heal for 10% of the damage dealt
+                            for attack_component in self.attack_components:
+                                if attack_component.damage_type == 'physical':
+                                    new_HP = min(player_stats['Max HP'], player_stats['HP'] + math.ceil(0.1 * action_damage))
+                                    HP_healed = new_HP - player_stats['HP']
+                                    player_stats['HP'] = new_HP
+                                    self.description.append(f'<@{self.player}> healed {HP_healed} HP from **Green Wood Sword** upon landing a physical attack!')
+                                    break
                 
                 if self.aoe: # AOE affects target's summons as well
                     for summon in target_status['summons']:
