@@ -198,6 +198,22 @@ class PvPMatch(): # In-memory representation of a match
                 'duration': 99,
                 'potency': 1,
             }
+        elif technique_id == 'woodsword':
+            self.player_status_dict[player_id]['status']['Green Wood Sword'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
+            self.player_status_dict[player_id]['status']['Poison Resistance'] = { # Assume resistance cannot stack (for now)
+                'source': player_id,
+                'duration': 99,
+                'potency': 0.1,
+            }
+            self.player_status_dict[player_id]['status']['Bleed Resistance'] = { # Assume resistance cannot stack (for now)
+                'source': player_id,
+                'duration': 99,
+                'potency': 0.1,
+            }
 
     # Apply all technique permanent passive effects to all players
     def apply_all_passive_effects(self):
@@ -447,6 +463,10 @@ class PvPMatch(): # In-memory representation of a match
                         ps = self.player_stats_dict[source]; ts = self.player_stats_dict[player_id] # Abbreviations
                         potency = self.player_status_dict[player_id]['status'][status_effect]['potency']
                         
+                        if f'{status_effect} Resistance' in self.player_status_dict[player_id]['status']:
+                            # Reduced potency due to resistance
+                            potency *= (1 - self.player_status_dict[player_id]['status'][f'{status_effect} Resistance']['potency'])
+
                         effect_attack_parameters_dict = {
                             "Burn": (ps, ts, 'pATK', 'player', 'physical', "Fire", (0.05 * potency)),
                             "Shock": (ps, ts, 'mATK', 'player', 'magical', "Lightning", (0.05 * potency)),
@@ -1269,7 +1289,7 @@ class MainBattleView(View):
         techniques = sorted(techniques_dict.keys())
         
         # TODO: store elsewhere
-        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame']
+        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame', 'woodsword']
         techniques = [technique for technique in techniques if technique not in passive_only_techniques]
 
         # Create a dropdown for technique selection
