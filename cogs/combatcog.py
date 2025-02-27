@@ -230,6 +230,9 @@ class PvPMatch(): # In-memory representation of a match
                 'duration': 99,
                 'potency': 0.1,
             }
+        elif technique_id == 'lionsrage':
+            self.player_stats_dict[player_id]['pATK'] = math.ceil(1.20 * self.player_stats_dict[player_id]['pATK'])
+            self.player_stats_dict[player_id]['CRIT'] = math.ceil(1.10 * self.player_stats_dict[player_id]['CRIT'])
     
     # Apply all technique permanent passive effects to all players
     def apply_all_passive_effects(self):
@@ -346,6 +349,14 @@ class PvPMatch(): # In-memory representation of a match
 
             if 'turns_since_last_use' in status_dict['status'][status_effect]:
                  status_dict['status'][status_effect]['turns_since_last_use'] += 1
+
+            if 'stacks' in status_dict['status'][status_effect]:
+                updated_stacks = []
+                for stack_duration in status_dict['status'][status_effect]['stacks']:
+                    stack_duration -= 1
+                    if stack_duration > 0:
+                        updated_stacks.append(stack_duration)
+                status_dict['status'][status_effect]['stacks'] = updated_stacks
         
         updated_buffs = []
         for buff_stat, buff_value, cooldown, buff_type in status_dict['buffs']: # Buff durations
@@ -395,6 +406,54 @@ class PvPMatch(): # In-memory representation of a match
                         }
                         action.description.append(f'\n<@{player_id}> activated **Blood Spirit Skill**, gaining +30% pATK and +20% SPD for 5 turns!')
         
+        if 'rushmirror' in self.player_techniques_dict[responder_id]:
+
+            total_magical_damage = 0
+            for attack_component in action.attack_components:
+                if attack_component.damage_type == 'magical':
+                    damage = attack_component.damage_dealt()
+                    if action.crit:
+                        damage *= self.player_stats_dict['CRIT DMG']
+                    total_magical_damage += math.ceil(damage)
+
+            # TODO: what kind of damage is the reflected magical damage? true damage?
+            self.match.store_action(responder_id, BattleAction(
+                name = "rushmirror_counterattack", player = responder_id, target = action.player, match = self.match,
+                action_type = "counterattack",
+                attack_components = [
+                    AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', element='Wind', multiplier=0.5, true_damage=False)
+                ],
+                base_accuracy = 1.0,
+                player_buffs = {},
+                target_debuffs = {},
+                qi_cost = 0,
+                cooldown = 0,
+            ))
+            break
+
+        if 'lionsrage' in self.player_techniques_dict[responder_id]:
+                # When the user takes damage, they gain a stack of "Lion's Resolve" (max 3 stacks).
+                # Each stack reduces incoming damage by 5% and increases Physical Attack by 5%.
+                # Stacks last for 3 turns.
+                if action.damage > 0: # User took damage
+                    if "Lion's Resolve" in self.player_status_dict[responder_id]['status']:
+                        self.player_status_dict[responder_id]['status']["Lion's Resolve"]['duration'] = 3+1
+                        stacks = self.player_status_dict[responder_id]['status']["Lion's Resolve"]['stacks']
+                        if len(stacks) == 3:
+                            stacks = stacks[1:] + [3]
+                        else:
+                            stacks.append(3)
+                    else:
+                        self.player_status_dict[responder_id]['status']["Lion's Resolve"] = {
+                            'source': responder_id,
+                            'duration': 3+1,
+                            'potency': 1, # Dummy value
+                            'stacks': [3], # List of remaining stack durations (need to treat specially in update_cooldown)
+                        }
+                    self.player_status_dict[responder_id]['buffs'].append(('pATK', 0.05, 3 + 1, 'prop'))
+                    action.description.append(f"\n<@{responder_id}> gained a stack of **Lion's Resolve** (max 3 stacks), lasting 3 turns!")
+
+
         if 'windimages' in self.player_techniques_dict[responder_id]:
             if action.dodged: # Target dodged this attack
                 # 30% chance of confusing the attacker
@@ -716,8 +775,10 @@ class BattleAction(): # Representation of a player's action at a turn in battle
             return total_DMG
         else:
             if random.random() < player_stats['CRIT']: # Critical hit
+                self.crit = True
                 return math.ceil(total_DMG * player_stats['CRIT DMG'])
             else:
+                self.crit = False
                 return total_DMG
     
     async def execute(self): # Executes the attack, taking into account passives and status effects
@@ -891,6 +952,8 @@ class BattleAction(): # Representation of a player's action at a turn in battle
             self.description += summon_action.description
         
         elif self.name == 'phoenixbell':
+            has_attack = False
+
             # Compute summon stats and add summon to player's status
             bell_HP = math.ceil(0.5 * player_stats['Max HP']) # 50% of user max health
             summon_name = "Demon Phoenix Bell"
@@ -967,12 +1030,20 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                 if opponent_dodged:
                     self.description.append(f'{attacker_str} {attack_str}, but {defender_str} dodged!')
                 else:
+                    # Check for damage reduction
+                    if "Lion's Resolve" in self.match.player_status_dict[self.target]['status']:
+                        num_stacks = len(self.match.player_status_dict[self.target]['status']["Lion's Resolve"]['stacks'])
+                        damage_reduction = 0.05 * num_stacks
+                        action_damage = math.ceil((1 - damage_reduction) * action_damage)
+                        buff_debuff_descriptions.append(f"<@{self.player}> has {int(damage_reduction * 100)}% damage reduction due to {num_stacks} stack{'s' if num_stacks > 1 else ''} of **Lion's Resolve**")
+
+                    # At last, subtract damage dealt from target HP
                     target_stats['HP'] = to_nonneg(target_stats['HP'] - action_damage)
                     true_dmg_str = ' true' if self.attack_components[0].damage_type == 'true' else ''
                     if not custom_description:
                         self.description.append(f'{attacker_str} {attack_str}, dealing {format_num_abbr1(action_damage)}{true_dmg_str} damage to {defender_str}')
 
-                    # Trigger after-attack effects
+                    # Trigger after-attack effects for the ATTACKER (as opposed to target response)
                     if self.action_type != 'summon':
                         if 'killerwind' in self.match.player_techniques_dict[self.player]:
                             for attack_component in self.attack_components:
@@ -1060,8 +1131,8 @@ class BattleAction(): # Representation of a player's action at a turn in battle
         if self.action_type == 'technique':
             self.match.player_status_dict[self.player]['cooldowns'][self.name] = self.cooldown + 1
         
-        self.dodged = opponent_dodged
-        self.damage = action_damage
+        self.dodged = False if (not has_attack) else opponent_dodged
+        self.damage = 0 if (not has_attack) else action_damage
         return self # Return information for opponent response
 
 
@@ -1391,7 +1462,8 @@ class MainBattleView(View):
         techniques = sorted(techniques_dict.keys())
         
         # TODO: store elsewhere
-        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame', 'killerwind', 'purpburst', 'bloodspirit', 'woodsword']
+        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame', 'killerwind', 
+        'purpburst', 'bloodspirit', 'woodsword', 'lionsrage', 'darkshadow', 'rushmirror', 'mystmantra']
         techniques = [technique for technique in techniques if technique not in passive_only_techniques]
 
         # Create a dropdown for technique selection
