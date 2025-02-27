@@ -198,6 +198,22 @@ class PvPMatch(): # In-memory representation of a match
                 'duration': 99,
                 'potency': 1,
             }
+        elif technique_id == 'killerwind':
+            self.player_stats_dict[player_id]['SPD'] = math.ceil(1.10 * self.player_stats_dict[player_id]['SPD'])
+            self.player_status_dict[player_id]['status']['Terrain Debuff Immunity'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+                'terrain': [], # None specified means immunity to all terrains
+            }
+        elif technique_id == 'purpburst':
+            self.player_stats_dict[player_id]['SPD'] = math.ceil(1.20 * self.player_stats_dict[player_id]['SPD'])
+            self.player_stats_dict[player_id]['EVA'] = math.ceil(1.15 * self.player_stats_dict[player_id]['EVA'])
+        elif technique_id == 'bloodspirit':
+            increased_HP = math.ceil(1.25 * self.player_stats_dict[player_id]['Max HP'])
+            self.player_stats_dict[player_id]['Max HP'] = increased_HP
+            self.player_stats_dict[player_id]['HP'] = increased_HP
+            self.player_stats_dict[player_id]['pDEF'] = math.ceil(1.15 * self.player_stats_dict[player_id]['pDEF'])
         elif technique_id == 'woodsword':
             self.player_status_dict[player_id]['status']['Green Wood Sword'] = {
                 'source': player_id,
@@ -214,7 +230,7 @@ class PvPMatch(): # In-memory representation of a match
                 'duration': 99,
                 'potency': 0.1,
             }
-
+    
     # Apply all technique permanent passive effects to all players
     def apply_all_passive_effects(self):
         for player_id in self.player_techniques_dict:
@@ -356,11 +372,29 @@ class PvPMatch(): # In-memory representation of a match
         status_dict['debuffs'] = updated_debuffs
 
     # Execute target response to attacker action
+    # OR attacker response to attacker action (such as checking for HP dropping below a threshold)
     async def execute_target_response(self, action):
         responder_id = action.target
-        # ================================================================================
-        # HARDCODED TECHNIQUE EFFECTS PORTION
-        # ================================================================================
+
+        for player_id in [action.target, action.player]:
+            if 'bloodspirit' in self.player_techniques_dict[player_id]:
+                # When the user's HP drops below 50%, gain +30% Physical Attack and +20% Speed for 5 turns
+                player_HP = self.player_stats_dict[player_id]['HP']
+                player_MaxHP = self.player_stats_dict[player_id]['Max HP']
+                if player_HP < (0.5 * player_MaxHP):
+                    # If Blood Spirit Skill buff triggered within last 5 turns, do not stack buff
+                    if 'Blood Spirit Skill' in self.player_status_dict[player_id]['status'] and self.player_status_dict[player_id]['status']['Blood Spirit Skill']['duration'] > 0:
+                        pass
+                    else:
+                        self.player_status_dict[player_id]['buffs'].append(('pATK', 0.3, 5 + 1, 'prop'))
+                        self.player_status_dict[player_id]['buffs'].append(('SPD', 0.2, 5 + 1, 'prop'))
+                        self.player_status_dict[player_id]['status']['Blood Spirit Skill'] = {
+                            'source': player_id,
+                            'duration': 5+1,
+                            'potency': 1,
+                        }
+                        action.description.append(f'\n<@{player_id}> activated **Blood Spirit Skill**, gaining +30% pATK and +20% SPD for 5 turns!')
+        
         if 'windimages' in self.player_techniques_dict[responder_id]:
             if action.dodged: # Target dodged this attack
                 # 30% chance of confusing the attacker
@@ -370,7 +404,34 @@ class PvPMatch(): # In-memory representation of a match
                         'duration': 1+1,
                         'potency': 3,
                     }
-                    action.description.append(f'\n<@{responder_id}> **confused** <@{action.player}> for one turn!')
+                    action.description.append(f'\n<@{responder_id}> inflicted **Confusion III** on <@{action.player}> for one turn!')
+
+        if 'incinflame' in self.player_techniques_dict[responder_id]:
+            # When the user is hit by a physical attack, there is a 20% chance to inflict "Burn II" on the attacker
+            for attack_component in action.attack_components:
+                if attack_component.damage_type == 'physical':
+                    if random_success(0.2):
+                        self.player_status_dict[action.player]['status']['Burn'] = {
+                            'source': responder_id,
+                            'duration': 1+1,
+                            'potency': 2,
+                        }
+                        action.description.append(f'\n<@{responder_id}> inflicted **Burn II** on <@{action.player}> for one turn!')
+                    break
+
+        if 'purpburst' in self.player_techniques_dict[responder_id]:
+            # When the user is hit by a physical attack, there is a 30% chance to apply Shock III to the attacker for 3 turns
+            for attack_component in action.attack_components:
+                if attack_component.damage_type == 'physical':
+                    if random_success(0.3):
+                        self.player_status_dict[action.player]['status']['Shock'] = {
+                            'source': responder_id,
+                            'duration': 3+1,
+                            'potency': 3,
+                        }
+                        action.description.append(f'\n<@{responder_id}> inflicted **Shock III** on <@{action.player}> for 3 turns!')
+                    break
+
         if 'skysteps' in self.player_techniques_dict[responder_id]:
             if action.dodged: # Target dodged this attack
                 # Target counter-attacks the attacker with basic attack
@@ -382,6 +443,7 @@ class PvPMatch(): # In-memory representation of a match
 
                 # Update the action description for the attacker
                 action.description.append(f'<@{responder_id}> counter-attacked <@{action.player}>, dealing {format_num_abbr1(counter_action.damage)} damage!')
+        
         if 'ninewindsteps' in self.player_techniques_dict[responder_id]:
             if action.dodged: # Target dodged this attack
                 # Store this information for processing of speed buff status effect
@@ -897,6 +959,25 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                     true_dmg_str = ' true' if self.attack_components[0].damage_type == 'true' else ''
                     if not custom_description:
                         self.description.append(f'{attacker_str} {attack_str}, dealing {format_num_abbr1(action_damage)}{true_dmg_str} damage to {defender_str}')
+
+                    # Trigger after-attack effects
+                    if 'killerwind' in self.match.player_techniques_dict[self.player]:
+                        for attack_component in self.attack_components:
+                            if attack_component.damage_type == 'physical' and random_success(0.2):
+                                self.match.store_action(self.player, BattleAction(
+                                    name = "killerwind_aftershock", player = self.player, target = self.target, match = self.match,
+                                    action_type = "aftershock",
+                                    attack_components = [
+                                        AttackComponent(player_stats=player_stats, target_stats=target_stats, scaling_stat='pATK', scaling_stat_source='player', damage_type='physical', element='Wind', multiplier=0.5, true_damage=False)
+                                    ],
+                                    base_accuracy = 1.0,
+                                    player_buffs = {},
+                                    target_debuffs = {},
+                                    qi_cost = 0,
+                                    cooldown = 0,
+                                ))
+                                break
+                
                 
                 if self.aoe: # AOE affects target's summons as well
                     for summon in target_status['summons']:
@@ -1289,7 +1370,7 @@ class MainBattleView(View):
         techniques = sorted(techniques_dict.keys())
         
         # TODO: store elsewhere
-        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame', 'woodsword']
+        passive_only_techniques = ['skysteps', 'windimages', 'ninewindsteps', 'incinflame', 'killerwind', 'purpburst', 'bloodspirit', 'woodsword']
         techniques = [technique for technique in techniques if technique not in passive_only_techniques]
 
         # Create a dropdown for technique selection
