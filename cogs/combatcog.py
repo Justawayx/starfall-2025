@@ -61,6 +61,7 @@ with open('./data/element_matrix.tsv', 'r') as f:
 # Someone with one star lower cultivation can only win through a lucky crit/dodge
 # otherwise most of the time the person with higher cultivation wins
 # basic attacks only
+# TODO: convert qi method passives to direct checks rather than displayed status effects, or hide certain status effects
 
 def simple_embed(title: str, description: str, color: int = 0x00ff00) -> disnake.Embed:
     return disnake.Embed(
@@ -238,6 +239,28 @@ class PvPMatch(): # In-memory representation of a match
         elif technique_id == 'lionsrage':
             self.player_stats_dict[player_id]['pATK'] = math.ceil(1.20 * self.player_stats_dict[player_id]['pATK'])
             self.player_stats_dict[player_id]['CRIT'] = math.ceil(1.10 * self.player_stats_dict[player_id]['CRIT'])
+        elif technique_id == 'mystmantra':
+            self.player_status_dict[player_id]['status']['Confusion Immunity'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
+            self.player_status_dict[player_id]['status']['Great Mysterious Mantra'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
+        elif technique_id == 'darkshadow': # Technically not a passive but is applied at start of combat
+            self.player_status_dict[player_id]['status']['Stealth'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
+            self.player_status_dict[player_id]['status']['Dark Shadow Skill'] = {
+                'source': player_id,
+                'duration': 99,
+                'potency': 1,
+            }
     
     # Apply all technique permanent passive effects to all players
     def apply_all_passive_effects(self):
@@ -866,39 +889,35 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                         debuff_cooldown_str = f' for {debuff_cooldown} turns'
                     buff_debuff_descriptions.append(f'<@{self.target}> has their {player_stat} lowered by {debuff_str}{debuff_cooldown_str}!')
 
-        # Now determine damage
-        action_damage = self.compute_damage()
-        
-        # Check for and apply player status effects that affect turn AFTER action is submitted
+        # Apply damage-altering player status effects
+        player_active_effects = self.match.get_player_status_effects(self.player)
         if self.action_type != 'summon': # Summons do not have status effects
-            for status_effect in self.match.get_player_status_effects(self.player):
+            for status_effect in player_active_effects:
                 potency = self.match.player_status_dict[self.player]['status'][status_effect]['potency']
+                if status_effect == 'Great Mysterious Mantra':
+                    for attack_component in self.attack_components:
+                        if attack_component.damage_type == 'true':
+                            attack_component.multiplier *= 1.2 # Deal 20% more true damage
+                    opponent_dodged = False # "Nearly all attacks and abilities are guaranteed to hit"
+                elif status_effect == 'Dark Shadow Skill' and potency == 2: # Activated after exiting Stealth
+                    if self.element == 'Dark':
+                        for attack_component in self.attack_components:
+                            attack_component.multiplier *= 2 # Dark Type attacks and abilities deal 100% more damage (TODO should it be += 1?)
 
-                if status_effect == 'Confusion':
-                    # (10 * potency) % chance of retargeting attack to user or an ally for 50% damage
-                    if random_success(0.1 * potency):
-                        opponent_dodged = False
-                        action_damage = math.ceil(action_damage * 0.5)
-                        self.description.append(f'<@{self.player}> tried to attack <@{self.target}>, but was **confused** and attacked themselves instead!')
-                        self.target = self.player; target_stats = player_stats; target_status = player_status
-                elif status_effect == 'Fear':
-                    # (10 * potency) % chance of skipping turn
-                    if random_success(0.1 * potency):
-                        action_damage = 0
-                        self.description.append(f'<@{self.player}> could not attack due to **Fear**!')
-                        return self # Return information for opponent response
-        
         # Check for target status effects, other damage altering conditions
-        for status_effect in self.match.get_player_status_effects(self.target):
+        target_active_effects = self.match.get_player_status_effects(self.target)
+        for status_effect in target_active_effects:
             if status_effect == 'Nine Turning Wind':
                 # True damage attacks or abilities deal 20% more damage
                 # TODO: can true damage attacks crit?
-                action_damage = 0
                 for attack_component in self.attack_components:
                     if attack_component.damage_type == 'true':
-                        action_damage += math.ceil(1.2 * attack_component.damage_dealt())
-                    else:
-                        action_damage += attack_component.damage_dealt()
+                        attack_component.multiplier *= 1.2
+            elif status_effect == 'Great Mysterious Mantra':
+                # Take 20% less true damage
+                for attack_component in self.attack_components:
+                    if attack_component.damage_type == 'true':
+                        attack_component.multiplier *= 0.8
         
         if self.name == 'resolveflame':
             if len(self.match.finished_players) > 0: # Player is not the first player to move
@@ -909,7 +928,31 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                 # Amplify damage by 100%
                 for attack_component in self.attack_components:
                     attack_component.multiplier += 1
-            action_damage = self.compute_damage()
+        
+        # Now determine damage
+        action_damage = self.compute_damage()
+        
+        # Check for player status effects that go beyond altering damage
+        if self.action_type != 'summon': # Summons do not have status effects
+            for status_effect in player_active_effects:
+                potency = self.match.player_status_dict[self.player]['status'][status_effect]['potency']
+
+                if status_effect == 'Confusion':
+                    if 'Confusion Immunity' in player_active_effects:
+                        self.description.append(f'<@{self.player}> is immune to Confusion.')
+                    else:
+                        # (10 * potency) % chance of retargeting attack to user or an ally for 50% damage
+                        if random_success(0.1 * potency):
+                            opponent_dodged = False
+                            action_damage = math.ceil(action_damage * 0.5)
+                            self.description.append(f'<@{self.player}> tried to attack <@{self.target}>, but was **confused** and attacked themselves instead!')
+                            self.target = self.player; target_stats = player_stats; target_status = player_status
+                elif status_effect == 'Fear':
+                    # (10 * potency) % chance of skipping turn
+                    if random_success(0.1 * potency):
+                        action_damage = 0
+                        self.description.append(f'<@{self.player}> could not attack due to **Fear**!')
+                        return self # Return information for opponent response
         
         # Apply new status effects
         if not opponent_dodged:
@@ -933,8 +976,14 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                     'source': self.player, 'duration': 99, 'potency': 1, 'turns_since_last_use': 0
                 }
 
-        # Check for target taunts
+        # Check for target untargetability, taunts
         summon_taunt = False
+
+        if 'Stealth' in target_active_effects:
+            for summon in target_status['summons']:
+                if summon['active']:
+                    summon_taunt = summon # Set to first summon
+                    break
         for summon in target_status['summons']:
             if summon['active']:
                 if summon['name'] in ['Skeleton King', 'Demon Phoenix Bell']:
@@ -1162,6 +1211,11 @@ class BattleAction(): # Representation of a player's action at a turn in battle
                     'potency': 1,
                 }
                 self.description.append(f"\n<@{self.player}>'s `{self.prettyname}` **stunned** <@{self.target}> for one turn!")
+
+        # Remove Stealth after using an attack or ability
+        if 'Dark Shadow Skill' in player_active_effects:
+            player_status['status']['Stealth']['cooldown'] = 0
+            player_status['status']['Dark Shadow Skill']['potency'] = 2 # Mark 'activated' DSS with potency 2
 
         # Update player Qi based on Qi cost
         player_stats['Qi'] = to_nonneg(player_stats['Qi'] - self.qi_cost)
