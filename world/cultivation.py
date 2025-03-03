@@ -18,6 +18,8 @@ with open('./data/base_stats.tsv') as f:
             PLAYER_STAT_NAMES += ['pATK', 'mATK']
         elif stat_name == 'DEF':
             PLAYER_STAT_NAMES += ['pDEF', 'mDEF']
+        elif stat_name == 'PEN':
+            PLAYER_STAT_NAMES += ['pPEN', 'mPEN']
         elif stat_name == 'HP':
             PLAYER_STAT_NAMES += ['HP', 'Max HP']
         elif stat_name == 'Qi':
@@ -34,12 +36,14 @@ with open('./data/base_stats.tsv') as f:
                 stats_list += [int(stat_value), int(stat_value)]
             elif stat_name == 'DEF':
                 stats_list += [int(stat_value), int(stat_value)]
+            elif stat_name == 'PEN':
+                stats_list += [float(stat_value), float(stat_value)]
             elif stat_name == 'HP':
                 stats_list += [int(stat_value), int(stat_value)]
             elif stat_name == 'Qi':
                 stats_list += [int(stat_value), int(stat_value)]
             else:
-                if stat_name in ['PEN', 'CRIT', 'CRIT DMG']:
+                if stat_name in ['CRIT', 'CRIT DMG']:
                     stats_list.append(float(stat_value))
                 else:
                     stats_list.append(int(stat_value))
