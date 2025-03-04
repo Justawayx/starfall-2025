@@ -697,6 +697,57 @@ class Exp(BaseStarfallCog):
 
         await inter.edit_original_message(embed=embed, view=view)
 
+    @commands.slash_command(name="stats", description="View combat-related stats")
+    async def slash_stats(self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member = None):
+        """
+        Check your combat stats
+        """
+        if member is None:
+            member = inter.author
+
+        selected_player : Player = PlayerRoster().find_player_for(inter, member)
+        stats_dict = selected_player.get_stats_dict()
+        current_HP = selected_player.HP; current_Qi = selected_player.Qi
+        
+        embed1_desc_items = []; embed2_desc_items = []
+        embed1_desc_items.append(f"**HP** : {format_num_simple(current_HP)}/{format_num_simple(stats_dict['Max HP'])}")
+        embed2_desc_items.append(f"**Qi** : {format_num_simple(current_Qi)}/{format_num_simple(stats_dict['Max Qi'])}")
+        
+        for stat_name in ['pATK', 'pDEF', 'pPEN', 'CRIT', 'ACC', 'Elemental Affinities']:
+            if stat_name in ['pPEN', 'mPEN', 'CRIT', 'CRIT DMG']:
+                displayed_value = f'{format_num_abbr1(stats_dict[stat_name] * 100)}' + '%'
+            elif stat_name == 'Elemental Affinities':
+                if len(stats_dict['Elemental Affinities']) == 0:
+                    displayed_value = '\n*None*'
+                else:
+                    displayed_value = '\n' + ' '.join([f"`{aff}`" for aff in stats_dict['Elemental Affinities']])
+            else:
+                displayed_value = format_num_simple(stats_dict[stat_name])
+            embed1_desc_items.append(f"**{stat_name}** : {displayed_value}")
+        
+        for stat_name in ['mATK', 'mDEF', 'mPEN', 'CRIT DMG', 'EVA', 'SPD']:
+            if stat_name in ['pPEN', 'mPEN' 'CRIT', 'CRIT DMG']:
+                displayed_value = f'{format_num_abbr1(stats_dict[stat_name] * 100)}' + '%'
+            else:
+                displayed_value = format_num_simple(stats_dict[stat_name])
+            embed2_desc_items.append(f"**{stat_name}** : {displayed_value}")
+
+        embed = disnake.Embed( title="", description="", color=disnake.Color(0x2e3135))
+
+        embed.add_field(
+            name='',
+            value='\n'.join(embed1_desc_items),
+            inline=True
+        )
+        embed.add_field(
+            name='',
+            value='\n'.join(embed2_desc_items),
+            inline=True
+        )
+
+        embed.set_author(name=f"{member.name}'s Stats", icon_url=member.avatar.url if member.avatar else None)
+        await inter.response.send_message(embed=embed)
+
     TYPE = commands.option_enum(
         ["Exp", "Balance", "Alchemy", "Craft", "Pet"]
     )

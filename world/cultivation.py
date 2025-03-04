@@ -20,10 +20,6 @@ with open('./data/base_stats.tsv') as f:
             PLAYER_STAT_NAMES += ['pDEF', 'mDEF']
         elif stat_name == 'PEN':
             PLAYER_STAT_NAMES += ['pPEN', 'mPEN']
-        elif stat_name == 'HP':
-            PLAYER_STAT_NAMES += ['HP', 'Max HP']
-        elif stat_name == 'Qi':
-            PLAYER_STAT_NAMES += ['Qi', 'Max Qi']
         else:
             PLAYER_STAT_NAMES.append(stat_name)
     
@@ -38,10 +34,6 @@ with open('./data/base_stats.tsv') as f:
                 stats_list += [int(stat_value), int(stat_value)]
             elif stat_name == 'PEN':
                 stats_list += [float(stat_value), float(stat_value)]
-            elif stat_name == 'HP':
-                stats_list += [int(stat_value), int(stat_value)]
-            elif stat_name == 'Qi':
-                stats_list += [int(stat_value), int(stat_value)]
             else:
                 if stat_name in ['CRIT', 'CRIT DMG']:
                     stats_list.append(float(stat_value))
@@ -482,6 +474,11 @@ def _get_stats_entry(major_minor_entry_dict, major: int, minor: int):
 def get_player_stats_dict(major: int, minor: int) -> list:
     return {stat_name: stat_value for stat_name, stat_value in zip(PLAYER_STAT_NAMES, _get_stats_entry(PLAYER_STATS_TABLE, major, minor))}
 
+def get_player_breakthrough_stats_dict(major: int, minor: int, new_major: int, new_minor: int) -> list:
+    old_stats_dict = get_player_stats_dict(major, minor)
+    new_stats_dict = get_player_stats_dict(new_major, new_minor)
+    diff_stats_dict = {stat: (new_stats_dict[stat] - old_stats_dict[stat]) for stat in new_stats_dict}
+    return diff_stats_dict
 
 def get_beast_breakthrough_experience(major, minor, rarity) -> int:
     base_value: int = _get_beast_cultivation_entry(major, minor)[1]

@@ -285,8 +285,12 @@ class PvPMatch(): # In-memory representation of a match
     def get_match_data(self):
         return self.challenger_id, self.defender_id, self.turn, self.player_stats_dict, self.player_action_dict, self.player_status_dict
 
-    # Update match information in database
+    # Update match information in database and player HP/Qi stats
     async def update_database_record(self):
+        print("UPDATING DATABASE")
+        for player_id in self.player_stats_dict:
+            player = PlayerRoster().get(player_id)
+            await player.set_HP_and_Qi(self.player_stats_dict[player_id]['HP'], self.player_stats_dict[player_id]['Qi'])
         await PvpMatches.filter(id=self._id).update(status=self.status, turn=self.turn, player_stats=self.player_stats_dict)
     
     # Store one player's action
@@ -558,7 +562,7 @@ class PvPMatch(): # In-memory representation of a match
             pending_players = all_players_and_summons - self.finished_players # Get list of players who have not yet acted
             current_player = self.get_next_player_or_summon(pending_players) # Get next player (or summon)
             
-            # Check if player cannot take action due to status effect, or is a summon with no action
+            # Check if player cannot take action due to status effect, or is a summon with no action / dead
             skip_action = False
             
             if current_player in self.player_status_dict:
@@ -1588,6 +1592,13 @@ class MainBattleView(View):
 
 class DemonPhoenixBellView(MainBattleView):
 
+    def __init__(self, guild, channel, match, user_id, opponent_user_id, public_message):
+        super().__init__(guild=guild, channel=channel, match=match, user_id=user_id, opponent_user_id=opponent_user_id, public_message=public_message)
+        
+        for item in self.children:
+            if isinstance(item, disnake.ui.Button) and item.custom_id in ['basic_attack', 'use_technique']:
+                item.disabled = True  # Disable main view buttons
+    
     @disnake.ui.button(label="Physical Attack", style=disnake.ButtonStyle.primary, custom_id="phoenixbell_physical_attack")
     async def physical_attack(self, button: disnake.ui.Button, inter: disnake.MessageInteraction):
         
@@ -1724,8 +1735,8 @@ class InitialChallengeView(View):
         
         try:
             player_stats = {
-                self.challengerPlayer.id: self.challengerPlayer.get_stats_dict(),
-                self.defenderPlayer.id: self.defenderPlayer.get_stats_dict()
+                self.challengerPlayer.id: {**self.challengerPlayer.get_stats_dict(), 'HP': self.challengerPlayer.HP, 'Qi': self.challengerPlayer.Qi},
+                self.defenderPlayer.id: {**self.defenderPlayer.get_stats_dict(), 'HP': self.defenderPlayer.HP, 'Qi': self.defenderPlayer.Qi}
             }
 
             player_action = {
@@ -1849,10 +1860,33 @@ class PvPCog(commands.Cog):
         """Base PvP command"""
         pass
     
+    @pvp.sub_command(name="recover")
+    async def recover(self, inter: disnake.CommandInteraction):
+        """
+        Recover your HP and Qi (only for testing purposes)
+        """
+        player : Player = PlayerRoster().find_player_for(inter, inter.author)
+        stats_dict = player.get_stats_dict()
+        await player.set_HP_and_Qi(stats_dict['Max HP'], stats_dict['Max Qi'])
+        await inter.response.send_message(embed=simple_embed('', 'HP and Qi restored to maximum'))
+    
+    @pvp.sub_command(name="set_element")
+    async def set_element(self, inter: disnake.CommandInteraction, element: str):
+        """
+        Set your elemental affinity
+        """
+        player : Player = PlayerRoster().find_player_for(inter, inter.author)
+        if element in ELEMENT_EFFICACY_DICT:
+            player.set_elements([element])
+            await inter.response.send_message(embed=simple_embed('', f'Element set to {element}'))
+        else:
+            await inter.response.send_message(embed=simple_embed('', f'Invalid element, please choose from {', '.join(ELEMENT_EFFICACY_DICT.keys())}'))
+
+    '''
     @pvp.sub_command(name="profile")
     async def profile(self, inter: disnake.ApplicationCommandInteraction, member: disnake.Member = None):
         """
-        Check your PVP combat stats
+        Check your PVP combat stats (TODO: change or remove)
         """
         if member is None:
             member = inter.author
@@ -1874,7 +1908,7 @@ class PvPCog(commands.Cog):
             embed.set_thumbnail(url=member.avatar.url)
 
         await inter.response.send_message(embed=embed)
-
+'''
     @pvp.sub_command(name="challenge")
     async def challenge(
         self,

@@ -1,4 +1,4 @@
-rank	sublevel	major	minor	ATK	DEF	PEN	ACC	EVA	CRIT	CRIT DMG	HP	SPD	Qi
+rank	sublevel	major	minor	ATK	DEF	PEN	ACC	EVA	CRIT	CRIT DMG	Max HP	SPD	Max Qi
 N/A	???	0	0	0	0	0	0	0	0	0	0	0	100
 Fight Disciple	1	0	1	35	6	0	10	10	0.05	1.5	300	1	100
 Fight Disciple	2	0	2	37	6	0	10	10	0.05	1.5	318	1	100

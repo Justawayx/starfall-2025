@@ -22,7 +22,7 @@ from utils.loot import PSEUDO_ITEM_ID_EXP_FLAT, PSEUDO_ITEM_ID_EXP_RATIO, Relati
     PSEUDO_ITEM_ID_ENERGY_RATIO
 from world.bestiary import Bestiary, PetBeastDefinition
 from world.continent import Continent
-from world.cultivation import PlayerCultivationStage, generate_player_cultivation_stage_matrix, BeastCultivationStage
+from world.cultivation import PlayerCultivationStage, generate_player_cultivation_stage_matrix, BeastCultivationStage, PLAYER_STAT_NAMES, get_player_stats_dict, get_player_breakthrough_stats_dict
 from world.compendium import ItemCompendium, ItemDefinition, FlameDefinition, QiMethodManualDefinition
 
 MESSAGE_EXP_COUNT_LIMIT: int = 100
@@ -136,7 +136,7 @@ class PlayerWallet:
 
 
 class Player(Character):
-    def __init__(self, roster: R, user_id: int, energy: int, wallet: PlayerWallet,
+    def __init__(self, roster: R, user_id: int, energy: int, HP: int, Qi: int, elements: list, wallet: PlayerWallet,
                  cultivation_stage: PlayerCultivationStage, current_experience: int, cultivation_cooldown: Optional[datetime] = None,
                  daily_message_count: int = 0, daily_message_cooldown: Optional[datetime] = None,
                  claimed_daily: bool = False, inventory: PlayerInventory = None):
@@ -144,6 +144,9 @@ class Player(Character):
         self._roster: R = roster
         self._id: int = user_id
         self._energy: int = energy
+        self._HP: int = HP
+        self._Qi: int = Qi
+        self._elements: list = elements
         self._wallet: PlayerWallet = wallet
         self._cultivation_stage: PlayerCultivationStage = cultivation_stage
         self._current_experience: int = int(current_experience)
@@ -274,6 +277,18 @@ class Player(Character):
     @property
     def maximum_energy(self) -> int:
         return self._cultivation_stage.maximum_energy
+
+    @property
+    def HP(self) -> int:
+        return self._HP
+
+    @property
+    def Qi(self) -> int:
+        return self._Qi
+
+    @property
+    def elements(self) -> list:
+        return self._elements
 
     @property
     def mention_str(self):
@@ -462,7 +477,14 @@ class Player(Character):
                 embed_content += f"\n\n{PLUS} You recovered {total_energy_given} energy."
 
             cp_gained = target_stage.displayed_combat_power - initial_rank_cp
-            embed_content += f"\n\n{PLUS} You gained **`{format_num_abbr1(cp_gained)}` base CP**!"
+            embed_content += f"\n\n{PLUS} **`{format_num_abbr1(cp_gained)}` base CP**\n"
+            
+            # Combat stat increases
+            diff_stats_dict = get_player_breakthrough_stats_dict(initial_stage.major, initial_stage.minor, target_stage.major, target_stage.minor)
+            for stat in PLAYER_STAT_NAMES:
+                if diff_stats_dict[stat] != 0 and stat != 'Max HP':
+                    embed_content += f"{PLUS} **`{format_num_abbr1(diff_stats_dict[stat])}` base {stat}**\n"
+            
             log_event(author.id, "breakthrough", f"Broke through to {target_stage}")
 
         self.cultivation = target_stage
@@ -475,7 +497,7 @@ class Player(Character):
         new_max_energy = target_stage.maximum_energy
         if old_max_energy != new_max_energy:
             self._core_altered = True
-            embed_content += f"\n\n{MINUS}Your max energy set to {new_max_energy}"
+            embed_content += f"\n{MINUS}Your max energy set to {new_max_energy}"
 
         return content, embed_content
 
@@ -486,7 +508,7 @@ class Player(Character):
     def get_stats_dict(self):
         # Just base stats for now (later change to async)
         stats_dict = self.cultivation.base_stats
-        stats_dict['Elemental Affinities'] = [] # TODO
+        stats_dict['Elemental Affinities'] = self.elements
         return stats_dict
 
     async def compute_total_cp(self) -> int:
@@ -655,6 +677,36 @@ class Player(Character):
             effective_amount: int = target_exp - current_exp
             return effective_amount
 
+    async def set_HP(self, new_HP: int):
+        max_HP = self.get_stats_dict()['Max HP']
+        if new_HP > max_HP:
+            self._HP = max_HP
+        else:
+            self._HP = new_HP
+        self._core_altered = True
+        await self.persist()
+    
+    async def set_Qi(self, new_Qi: int):
+        max_Qi = self.get_stats_dict()['Max Qi']
+        if new_Qi > max_Qi:
+            self._Qi = max_Qi
+        else:
+            self._Qi = new_Qi
+        self._core_altered = True
+        await self.persist()
+    
+    async def set_HP_and_Qi(self, new_HP: int, new_Qi: int):
+        max_HP = self.get_stats_dict()['Max HP']
+        self._HP = max_HP if new_HP > max_HP else new_HP
+        max_Qi = self.get_stats_dict()['Max Qi']
+        self._Qi = max_Qi if new_Qi > max_Qi else new_Qi
+        self._core_altered = True
+        await self.persist()
+    
+    def set_elements(self, new_elements: list):
+        self._elements = new_elements
+        self._core_altered = True
+
     def set_energy(self, new_energy: int, ignore_cap: bool = False) -> tuple[int, bool]:
         effective_new_energy: int = new_energy
         if effective_new_energy < 0:
@@ -705,7 +757,8 @@ class Player(Character):
         await self.persist_pvp()
 
     async def persist_core(self):
-        await Users.filter(user_id=self._id).update(energy=self._energy, max_energy=self._cultivation_stage.maximum_energy,
+        print("HP", self._HP, "Qi", self._Qi)
+        await Users.filter(user_id=self._id).update(energy=self._energy, HP=self._HP, Qi=self._Qi, elements=self._elements, max_energy=self._cultivation_stage.maximum_energy,
                                                     money=self._wallet.gold, star=self._wallet.stars, money_cooldown=1 if self._claimed_daily else 0)
         self._core_altered: bool = False
 
@@ -789,7 +842,7 @@ class PlayerRoster:
                 message_cooldown: Optional[datetime] = None
 
             wallet: PlayerWallet = PlayerWallet(user_id=user_id, gold=user_data["money"], arena_coins=pvp_data["pvp_coins"] if pvp_data is not None else 0, stars=user_data["star"])
-            player: Player = Player(roster=self, user_id=user_id, energy=user_data["energy"], wallet=wallet,
+            player: Player = Player(roster=self, user_id=user_id, energy=user_data["energy"], HP=user_data['HP'], Qi=user_data['Qi'], elements=user_data['elements'], wallet=wallet,
                                     cultivation_stage=self._cultivation_stages[major][minor], current_experience=current_exp, cultivation_cooldown=cultivate_cooldown,
                                     daily_message_count=message_limit, daily_message_cooldown=message_cooldown,
                                     claimed_daily=user_data["money_cooldown"] != 0, inventory=player_inventory)
@@ -859,7 +912,8 @@ class PlayerRoster:
 
     async def _create_player(self, user_id: int) -> Player:
         cooldown: datetime = datetime.now()
-        player: Player = Player(roster=self, user_id=user_id, energy=0, wallet=PlayerWallet(user_id, 1, 0, 0),
+        initial_stats_dict = get_player_stats_dict(0,0)
+        player: Player = Player(roster=self, user_id=user_id, energy=0, HP=initial_stats_dict['Max HP'], Qi=initial_stats_dict['Max Qi'], elements=[], wallet=PlayerWallet(user_id, 1, 0, 0),
                                 cultivation_stage=self._cultivation_stages[0][0], current_experience=0, cultivation_cooldown=cooldown,
                                 daily_message_count=0, daily_message_cooldown=cooldown,
                                 claimed_daily=False)

@@ -25,6 +25,9 @@ class Users(Model):
     money_cooldown = fields.BigIntField(default=0)  # Daily stipend cooldown
     star = fields.BigIntField(default=0)
     energy = fields.SmallIntField(default=60)  # Current energy
+    HP = fields.SmallIntField(default=0) # Current HP
+    Qi = fields.SmallIntField(default=0) # Current Qi
+    elements = fields.JSONField(default=[]) # List of elemental affinities
     max_energy = fields.SmallIntField(default=60)
     market_points = fields.BigIntField(default=0)
     patreon_cooldown = fields.BigIntField(default=0)

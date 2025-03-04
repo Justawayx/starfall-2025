@@ -117,17 +117,17 @@ def format_num_abbr0(num):
 # Example: 4320.2K
 def format_num_abbr1(num):
     if num > 1e16:
-        return '%.01fQ' % (num / float(1e15))
+        return ('%.01f' % (num / float(1e15))).removesuffix('.0') + 'Q'
     elif num > 1e13:
-        return '%.01fT' % (num / float(1e12))
+        return ('%.01f' % (num / float(1e12))).removesuffix('.0') + 'T'
     elif num > 1e10:
-        return '%.01fB' % (num / float(1e9))
+        return ('%.01f' % (num / float(1e9))).removesuffix('.0') + 'B'
     elif num > 1e7:
-        return '%.01fM' % (num / float(1e6))
+        return ('%.01f' % (num / float(1e6))).removesuffix('.0') + 'M'
     elif num > 1e4:
-        return '%.01fK' % (num / float(1e3))
+        return ('%.01f' % (num / float(1e3))).removesuffix('.0') + 'K'
     else:
-        return "{:,}".format(num)
+        return "{:,}".format(num).removesuffix('.0')
 
 
 # Example: 4320.2K [4,320,281]
